@@ -1,9 +1,12 @@
-import { useState, SyntheticEvent } from 'react'
+import { useState } from 'react'
+import type { SyntheticEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth.ts'
 import './LoginPage.css'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { setAuthenticated } = useAuth()
 
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
@@ -28,7 +31,8 @@ export default function LoginPage() {
       const fakeError = true
       if (fakeError) throw new Error('Correo o contraseña incorrectos.')
 
-      navigate('/')
+      setAuthenticated(true)
+      navigate('/dashboard')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error inesperado. Intenta de nuevo.')
     } finally {
@@ -39,7 +43,7 @@ export default function LoginPage() {
   return (
     <div className="login-page">
       {/* DASHBOARD */}
-      <Link className="login-back" to="/dashboard">
+      <Link className="login-back" to="/">
         <span aria-hidden="true">←</span>
         Volver
       </Link>
