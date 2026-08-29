@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import './App.css'
 
@@ -20,13 +20,26 @@ function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const closeMenu = () => setIsMenuOpen(false)
 
+  // Theme state
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    return (localStorage.getItem('theme') as 'dark' | 'light') || 'dark'
+  })
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+  }
+
   return (
     <div className="site-shell">
       <header className="site-header">
         <a className="brand" href="#inicio" onClick={closeMenu} aria-label="AXORA, ir al inicio">AXORA</a>
         <div className="header-actions">
-          <a className="register-link" href="#registro">Regístrate</a>
-          <Link className="register-link" to="/login" style={{ marginLeft: 0 }}>Iniciar sesión</Link>
+          <Link className="register-link" to="/registro">Regístrate</Link>
           <button className="menu-button" type="button" aria-expanded={isMenuOpen} aria-controls="main-menu" onClick={() => setIsMenuOpen((isOpen) => !isOpen)}>
             <span className="sr-only">{isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}</span>
             <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
@@ -36,15 +49,39 @@ function App() {
 
       <div className={`menu-overlay ${isMenuOpen ? 'is-visible' : ''}`} onClick={closeMenu} />
       <aside id="main-menu" className={`side-menu ${isMenuOpen ? 'is-open' : ''}`} aria-label="Menú principal">
-        <div className="side-menu__top"><span className="brand">AXORA</span><button className="close-menu" type="button" onClick={closeMenu} aria-label="Cerrar menú">×</button></div>
-        <nav><ul>{menuLinks.map((link) =>
-          <li key={link.to ?? link.href}>
-            {link.to
-              ? <Link to={link.to} onClick={closeMenu}>{link.label}</Link>
-              : <a href={link.href!} onClick={closeMenu}>{link.label}</a>
-            }
-          </li>
-        )}</ul></nav>
+        <div className="side-menu__top">
+          <span className="brand">AXORA</span>
+          <button className="close-menu" type="button" onClick={closeMenu} aria-label="Cerrar menú">×</button>
+        </div>
+        <nav>
+          <ul>
+            {menuLinks.map((link) =>
+              <li key={link.to ?? link.href}>
+                {link.to
+                  ? <Link to={link.to} onClick={closeMenu}>{link.label}</Link>
+                  : <a href={link.href!} onClick={closeMenu}>{link.label}</a>
+                }
+              </li>
+            )}
+          </ul>
+        </nav>
+        
+        <div className="theme-toggle">
+          <div className="theme-toggle-label">
+            <span>{theme === 'dark' ? '🌙' : '☀️'}</span>
+            Modo {theme === 'dark' ? 'oscuro' : 'claro'}
+          </div>
+          <button 
+            type="button" 
+            className={`theme-switch ${theme === 'light' ? 'is-light' : ''}`}
+            onClick={toggleTheme}
+            aria-label="Alternar tema"
+          >
+            <span className="theme-switch-icon" aria-hidden="true">
+              {theme === 'light' ? '☀️' : '🌙'}
+            </span>
+          </button>
+        </div>
       </aside>
 
       <main>
@@ -53,7 +90,7 @@ function App() {
             <p className="eyebrow">TU CUENTA GLOBAL PARA</p>
             <h1>MOVER DINERO ENTRE MONEDAS</h1>
             <p className="hero-description">Más de 5 personas confían en nosotros.</p>
-            <a className="primary-button" href="#registro">Crear cuenta</a>
+            <Link className="primary-button" to="/registro">Crear cuenta</Link>
           </div>
           <div className="visual-placeholder hero-placeholder" aria-label="Espacio reservado para una imagen de la aplicación"><span>Imagen de la app</span></div>
         </section>
@@ -64,7 +101,7 @@ function App() {
         </section>
 
         <section id="simulador" className="simulator-section" aria-labelledby="simulator-title">
-          <div className="simulator-copy"><p className="section-label">SIMULA ANTES DE ENVIAR</p><h2 id="simulator-title">Transferencias internacionales al mejor precio</h2><p>Consulta cuánto envías, cuánto recibe tu contacto y la tasa usada antes de confirmar.</p><a className="text-link" href="#registro">Crear cuenta para transferir <span aria-hidden="true">↓</span></a></div>
+          <div className="simulator-copy"><p className="section-label">SIMULA ANTES DE ENVIAR</p><h2 id="simulator-title">Transferencias internacionales al mejor precio</h2><p>Consulta cuánto envías, cuánto recibe tu contacto y la tasa usada antes de confirmar.</p><Link className="text-link" to="/registro">Crear cuenta para transferir <span aria-hidden="true">↓</span></Link></div>
           <div className="visual-placeholder simulator-placeholder" aria-label="Espacio reservado para el simulador interactivo"><span>Simulador interactivo</span></div>
         </section>
 
@@ -73,7 +110,7 @@ function App() {
           <div className="country-list" aria-label="Países disponibles próximamente">{['México', 'Argentina', 'Colombia', 'Europa', 'Inglaterra'].map((country) => <span key={country}><i aria-hidden="true"></i>{country}</span>)}</div>
         </section>
 
-        <section id="registro" className="register-section"><p>¿Listo para gestionar tus monedas?</p><a className="primary-button" href="#iniciar-sesion">Crear mi cuenta</a></section>
+        <section id="registro" className="register-section"><p>¿Listo para gestionar tus monedas?</p><Link className="primary-button" to="/registro">Crear mi cuenta</Link></section>
       </main>
 
       <footer id="faq" className="site-footer"><div><a href="#contacto">Contacto</a><a href="#faq">FAQ</a></div><p>2026 · AXORA. Todos los derechos reservados.</p></footer>
