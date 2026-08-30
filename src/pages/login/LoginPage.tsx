@@ -8,37 +8,45 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const { setAuthenticated } = useAuth()
 
+  const handleSubmit = async (e: SyntheticEvent) => {
+  e.preventDefault()
+  setError('')
+
+  if (!email.trim() || !password.trim()) {
+    setError('Por favor completa todos los campos.')
+    return
+  }
+
+  setLoading(true)
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Correo o contraseña incorrectos.')
+    }
+
+    localStorage.setItem('token', data.token)
+    localStorage.setItem('user', JSON.stringify(data.user))
+
+    setAuthenticated(true)
+    navigate('/dashboard')
+  } catch (err: unknown) {
+    setError(err instanceof Error ? err.message : 'Error inesperado. Intenta de nuevo.')
+  } finally {
+    setLoading(false)
+  }
+}
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
 
-  const handleSubmit = async (e: SyntheticEvent) => {
-    e.preventDefault()
-    setError('')
-
-    if (!email.trim() || !password.trim()) {
-      setError('Por favor completa todos los campos.')
-      return
-    }
-
-    setLoading(true)
-    try {
-      // TODO: reemplazar con llamada real a la API
-      await new Promise((res) => setTimeout(res, 1200))
-
-      // Simula error para demostración — eliminar cuando conectes la API
-      const fakeError = true
-      if (fakeError) throw new Error('Correo o contraseña incorrectos.')
-
-      setAuthenticated(true)
-      navigate('/dashboard')
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error inesperado. Intenta de nuevo.')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   return (
     <div className="login-page">
