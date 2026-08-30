@@ -1,11 +1,14 @@
 # AXORA — Frontend
 
-Billetera multi-moneda para mochileros y nómadas digitales. Frontend construido con React + TypeScript + Vite.
+Billetera multi-moneda para mochileros y nómadas digitales. Permite gestionar saldo en varias monedas, iniciar sesión de forma segura y (próximamente) intercambiar divisas y ver actividad en tiempo real.
+
+Construido con **React + TypeScript + Vite**, consumiendo la API REST del backend (`axora-backend`, Express + PostgreSQL).
 
 ## Requisitos previos
 
 - Node.js (v18 o superior recomendado)
 - npm
+- El backend (`axora-backend`) corriendo en paralelo — ver su propio README para el setup de la base de datos
 
 ## Instalación
 
@@ -31,9 +34,9 @@ cp .env.example .env
 npm run dev
 ```
 
-Levanta el servidor de desarrollo de Vite (por defecto en `http://localhost:5173`).
+Levanta el servidor de desarrollo de Vite en `http://localhost:5173`.
 
-> Asegurate de tener el backend (`axora-backend`) corriendo en paralelo en el puerto indicado por `VITE_API_URL`.
+> Asegurate de tener el backend corriendo en el puerto indicado por `VITE_API_URL`, con CORS habilitado para `http://localhost:5173` (viene configurado así por default en el backend).
 
 ## Build de producción
 
@@ -62,9 +65,25 @@ npm run test:run    # corre una vez y termina (útil para CI)
 npm run lint
 ```
 
-## Stack
+## Rutas de la aplicación
 
-- React + TypeScript
-- Vite
-- Vitest + Testing Library
-- Deploy: Vercel
+| Ruta         | Página    | Protegida | Descripción                                                               |
+| ------------ | --------- | --------- | ------------------------------------------------------------------------- |
+| `/`          | Landing   | No        | Home pública con info del producto                                        |
+| `/login`     | Login     | No        | Inicio de sesión, conectado a `POST /auth/login`                          |
+| `/registro`  | Registro  | No        | Alta de cuenta, conectado a `POST /auth/register` (crea usuario + wallet) |
+| `/dashboard` | Dashboard | Sí        | Resumen de cuenta, activos y transacciones. Requiere sesión activa        |
+
+Las rutas protegidas usan `ProtectedRoute`, que valida `isAuthenticated` desde `AuthContext` y redirige a `/login` si no hay sesión.
+
+## Autenticación
+
+- El login y el registro guardan el JWT devuelto por el backend en `localStorage` (`token`) junto con los datos del usuario (`user`).
+- La sesión persiste entre recargas: `AuthContext` verifica si existe un token guardado al montar la app.
+- El botón de logout del dashboard limpia `localStorage` y redirige a `/login`.
+
+## Estado del dashboard
+
+Los balances y transacciones que se muestran hoy son **datos de ejemplo (mock)**. El fetch real está escrito y comentado en `DashboardPage.tsx`, a la espera de que el backend exponga el endpoint de wallet/balances protegido por JWT.
+
+## Estructura del proyecto
