@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap');
+
+/* ─── Dark theme (default) ───────────────────────────────────────────── */
+:root {
+  --canvas:      #0e0e0e;
+  --canvas-2:    #1a1a1a;
+  --canvas-3:    #242424;
+  --peach:       #1c1c1c;
+  --blush:       #2a2a2a;
+  --orange:      #ff7a30;
+  --orange-2:    #ff9f50;
+  --orange-glow: rgba(255,122,48,0.28);
+  --accent:      #ff7a30;
+  --accent-2:    #ffaa60;
+  --accent-glow: rgba(255,122,48,0.25);
+  --ink:         #f2f2f2;
+  --ink-dim:     #b8b8b8;
+  --muted:       #7a7a7a;
+  --border:      rgba(255,255,255,0.09);
+  --border-glow: rgba(255,122,48,0.35);
+  --header-bg:   rgba(14, 14, 14, 0.85);
+  --display: 'Outfit', 'Inter', system-ui, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Light theme ────────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --canvas:      #f5f5f5;
+  --canvas-2:    #ebebeb;
+  --canvas-3:    #e0e0e0;
+  --peach:       #ededed;
+  --blush:       #dcdcdc;
+  --orange:      #ff7a30;
+  --orange-2:    #ff9f50;
+  --orange-glow: rgba(255,122,48,0.22);
+  --accent:      #ff7a30;
+  --accent-2:    #e05a10;
+  --accent-glow: rgba(255,122,48,0.2);
+  --ink:         #111111;
+  --ink-dim:     #444444;
+  --muted:       #777777;
+  --border:      rgba(0,0,0,0.1);
+  --border-glow: rgba(255,122,48,0.4);
+  --header-bg:   rgba(255, 236, 220, 0.9);
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+/* Smooth theme transition */
+html {
+  scroll-behavior: smooth;
+  transition:
+    background-color .3s ease,
+    color .3s ease;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--canvas);
+  background-image:
+    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(255,122,48,0.12) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 30% at 90% 100%, rgba(255,122,48,0.08) 0%, transparent 55%);
+  min-height: 100vh;
+  transition: background-color .3s ease;
+}
+
+button, a { -webkit-tap-highlight-color: transparent; }
+
+a:focus-visible, button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.sr-only {
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
