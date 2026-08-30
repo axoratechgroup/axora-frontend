@@ -233,3 +233,10 @@
   transition: color .2s;
 }
 .registro-back:hover { color: var(--ink); }
+
+.form-hint {
+  font-size: 0.8rem;
+  color: #e05252;
+  margin-top: 4px;
+  display: block;
+}

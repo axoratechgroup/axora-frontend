@@ -8,35 +8,58 @@ export default function RegistroPage() {
   const navigate = useNavigate()
   const { setAuthenticated } = useAuth()
 
-  const [name, setName]         = useState('')
+ const [firstName, setFirstName] = useState('')
+const [lastName, setLastName]   = useState('')
+const [username, setUsername]   = useState('')
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
-
+const passwordTooShort = password.length > 0 && password.length < 8
   const handleSubmit = async (e: SyntheticEvent) => {
-    e.preventDefault()
-    setError('')
+  e.preventDefault()
+  setError('')
 
-    if (!name.trim() || !email.trim() || !password.trim()) {
-      setError('Por favor completa todos los campos.')
-      return
-    }
-
-    setLoading(true)
-    try {
-      // TODO: reemplazar con llamada real a la API
-      await new Promise((res) => setTimeout(res, 1200))
-
-      // Redirige al dashboard tras crear la cuenta
-      setAuthenticated(true)
-      navigate('/dashboard')
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error inesperado. Intenta de nuevo.')
-    } finally {
-      setLoading(false)
-    }
+  if (!firstName.trim() || !lastName.trim() || !username.trim() || !email.trim() || !password.trim()) {
+    setError('Por favor completa todos los campos.')
+    return
   }
+  if (password.length < 8) {
+    setError('La contraseña debe tener al menos 8 caracteres.')
+    return
+  }
+
+  setLoading(true)
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        first_name: firstName,
+        last_name: lastName,
+        username,
+        email,
+        password,
+      }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.error || 'No se pudo crear la cuenta.')
+    }
+
+    localStorage.setItem('token', data.token)
+    localStorage.setItem('user', JSON.stringify(data.user))
+
+    setAuthenticated(true)
+    navigate('/dashboard')
+  } catch (err: unknown) {
+    setError(err instanceof Error ? err.message : 'Error inesperado. Intenta de nuevo.')
+  } finally {
+    setLoading(false)
+  }
+}
 
   return (
     <div className="registro-page">
@@ -58,23 +81,56 @@ export default function RegistroPage() {
 
         <form className="registro-form" onSubmit={handleSubmit} noValidate>
           
-          {/* Nombre */}
-          <div className="form-field">
-            <label className="form-label" htmlFor="registro-name">
-              Nombre
-            </label>
-            <input
-              id="registro-name"
-              className={`form-input${error ? ' has-error' : ''}`}
-              type="text"
-              autoComplete="name"
-              placeholder="Tu nombre"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              disabled={loading}
-            />
-          </div>
+         {/* Nombre */}
+<div className="form-field">
+  <label className="form-label" htmlFor="registro-firstname">
+    Nombre
+  </label>
+  <input
+    id="registro-firstname"
+    className={`form-input${error ? ' has-error' : ''}`}
+    type="text"
+    autoComplete="given-name"
+    placeholder="Tu nombre"
+    value={firstName}
+    onChange={(e) => setFirstName(e.target.value)}
+    disabled={loading}
+  />
+</div>
 
+{/* Apellido */}
+<div className="form-field">
+  <label className="form-label" htmlFor="registro-lastname">
+    Apellido
+  </label>
+  <input
+    id="registro-lastname"
+    className={`form-input${error ? ' has-error' : ''}`}
+    type="text"
+    autoComplete="family-name"
+    placeholder="Tu apellido"
+    value={lastName}
+    onChange={(e) => setLastName(e.target.value)}
+    disabled={loading}
+  />
+</div>
+
+{/* Usuario */}
+<div className="form-field">
+  <label className="form-label" htmlFor="registro-username">
+    Usuario
+  </label>
+  <input
+    id="registro-username"
+    className={`form-input${error ? ' has-error' : ''}`}
+    type="text"
+    autoComplete="username"
+    placeholder="nombredeusuario"
+    value={username}
+    onChange={(e) => setUsername(e.target.value)}
+    disabled={loading}
+  />
+</div>
           {/* Email */}
           <div className="form-field">
             <label className="form-label" htmlFor="registro-email">
@@ -92,22 +148,27 @@ export default function RegistroPage() {
             />
           </div>
 
-          {/* Password */}
-          <div className="form-field">
-            <label className="form-label" htmlFor="registro-password">
-              Contraseña
-            </label>
-            <input
-              id="registro-password"
-              className={`form-input${error ? ' has-error' : ''}`}
-              type="password"
-              autoComplete="new-password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-            />
-          </div>
+       {/* Password */}
+<div className="form-field">
+  <label className="form-label" htmlFor="registro-password">
+    Contraseña
+  </label>
+  <input
+    id="registro-password"
+    className={`form-input${error || passwordTooShort ? ' has-error' : ''}`}
+    type="password"
+    autoComplete="new-password"
+    placeholder="••••••••"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    disabled={loading}
+  />
+  {passwordTooShort && (
+    <span className="form-hint">
+      Mínimo 8 caracteres ({password.length}/8)
+    </span>
+  )}
+</div>
 
           {/* Error banner */}
           {error && (
