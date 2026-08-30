@@ -1,27 +1,77 @@
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth.ts'
 import './DashboardPage.css'
 
+const SLOGANS = [
+  'Tu dinero, sin fronteras.',
+  'Cambia de moneda sin perder tiempo ni plata.',
+  'Un solo lugar para todas tus divisas.',
+]
+
+interface StoredUser {
+  first_name: string
+  last_name: string
+  username: string
+  email: string
+}
+
 export default function DashboardPage() {
+  const navigate = useNavigate()
+  const { setAuthenticated } = useAuth()
+
+  const [showBalance, setShowBalance] = useState(true)
+  const [slogan] = useState(() => SLOGANS[Math.floor(Math.random() * SLOGANS.length)])
+
+  const storedUser = localStorage.getItem('user')
+  const user: StoredUser | null = storedUser ? JSON.parse(storedUser) : null
+  const firstName = user?.first_name ?? 'usuario'
+
+  // TODO: reemplazar por fetch real cuando el backend exponga el endpoint de wallet/balances.
+  // const [wallet, setWallet] = useState<WalletResponse | null>(null)
+  //
+  // useEffect(() => {
+  //   const token = localStorage.getItem('token')
+  //   fetch(`${import.meta.env.VITE_API_URL}/wallet`, {
+  //     headers: { Authorization: `Bearer ${token}` },
+  //   })
+  //     .then((res) => res.json())
+  //     .then(setWallet)
+  //     .catch((err) => console.error('Error al cargar la wallet:', err))
+  // }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setAuthenticated(false)
+    navigate('/login')
+  }
+
   return (
     <div className="dashboard-page">
       {/* HEADER */}
       <header className="dashboard-header">
         <div className="dashboard-greeting">
-          Hola, <span className="text-orange">Pitty</span>
+          Hola, <span className="text-orange">{firstName}</span>
         </div>
-        
+
         <div className="dashboard-search-bar">
           <span className="search-icon" aria-hidden="true">◈</span>
-          <input type="text" placeholder="slogan o una cosa x" className="search-input" />
+          <input type="text" placeholder={slogan} className="search-input" readOnly />
         </div>
-        
+
         <div className="dashboard-header-icons">
-          <button className="icon-btn" aria-label="Notificaciones">
-            <span aria-hidden="true">◈</span>
+          <button
+            className="icon-btn"
+            aria-label={showBalance ? 'Ocultar saldo' : 'Mostrar saldo'}
+            onClick={() => setShowBalance((prev) => !prev)}
+          >
+            <span aria-hidden="true">{showBalance ? '◉' : '◎'}</span>
           </button>
-          <button className="icon-btn" aria-label="Ayuda">
+          <Link className="icon-btn" to="/soporte" aria-label="Soporte">
             <span aria-hidden="true">?</span>
-          </button>
-          <button className="icon-btn" aria-label="Perfil">
+          </Link>
+          <button className="icon-btn" aria-label="Cerrar sesión" onClick={handleLogout}>
             <span aria-hidden="true">⊞</span>
           </button>
         </div>
@@ -29,17 +79,19 @@ export default function DashboardPage() {
 
       {/* MAIN CONTENT */}
       <main className="dashboard-main">
-        
+
         {/* LEFT COLUMN */}
         <div className="dashboard-left">
-          
+
           {/* CUENTA AXORA */}
           <section className="dashboard-card account-section">
             <h2 className="section-title">Cuenta Axora</h2>
             <p className="account-balance">
-              $1,504 <span className="currency-label">mxn</span>
+              {showBalance
+                ? <>$1,504 <span className="currency-label">mxn</span></>
+                : '••••••'}
             </p>
-            
+
             <div className="account-actions">
               <button className="action-item">
                 <div className="action-circle"></div>
@@ -70,72 +122,67 @@ export default function DashboardPage() {
               <h2 className="section-title">Mis activos</h2>
               <button className="btn-small">ver mas</button>
             </div>
-            
+
             <div className="assets-grid">
-              {/* Asset 1 */}
               <div className="asset-card">
                 <div className="asset-icon"></div>
                 <div className="asset-info">
                   <span className="asset-name">DOLLAR USD</span>
                   <span className="asset-code">USD</span>
                 </div>
-                <div className="asset-amount">1075 USD</div>
+                <div className="asset-amount">{showBalance ? '1075 USD' : '••••'}</div>
               </div>
-              
-              {/* Asset 2 */}
+
               <div className="asset-card">
                 <div className="asset-icon"></div>
                 <div className="asset-info">
                   <span className="asset-name">PESO MEXICANO</span>
                   <span className="asset-code">MXN</span>
                 </div>
-                <div className="asset-amount">1075 MXN</div>
+                <div className="asset-amount">{showBalance ? '1075 MXN' : '••••'}</div>
               </div>
-              
-              {/* Asset 3 */}
+
               <div className="asset-card">
                 <div className="asset-icon"></div>
                 <div className="asset-info">
                   <span className="asset-name">PESO COLOMBIANO</span>
                   <span className="asset-code">MXN</span>
                 </div>
-                <div className="asset-amount">1075 MXN</div>
+                <div className="asset-amount">{showBalance ? '1075 MXN' : '••••'}</div>
               </div>
-              
-              {/* Asset 4 */}
+
               <div className="asset-card">
                 <div className="asset-icon"></div>
                 <div className="asset-info">
                   <span className="asset-name">LIBRA ESTERLINA</span>
                   <span className="asset-code">LBR</span>
                 </div>
-                <div className="asset-amount">1075 MXN</div>
+                <div className="asset-amount">{showBalance ? '1075 MXN' : '••••'}</div>
               </div>
-              
-              {/* Asset 5 */}
+
               <div className="asset-card">
                 <div className="asset-icon"></div>
                 <div className="asset-info">
                   <span className="asset-name">EURO</span>
                   <span className="asset-code">EUR</span>
                 </div>
-                <div className="asset-amount">1075 MXN</div>
+                <div className="asset-amount">{showBalance ? '1075 MXN' : '••••'}</div>
               </div>
             </div>
           </section>
-          
+
         </div>
 
         {/* RIGHT COLUMN */}
         <div className="dashboard-right">
-          
+
           {/* TRANSACCIONES RECIENTES */}
           <section className="dashboard-card transactions-section">
             <div className="section-header">
               <h2 className="section-title">transacciones recientes</h2>
               <button className="btn-small">ver mas</button>
             </div>
-            
+
             <ul className="transaction-list">
               <li className="transaction-item">
                 <div className="transaction-icon"></div>
@@ -181,7 +228,7 @@ export default function DashboardPage() {
                 <option>MXN ↓</option>
               </select>
             </div>
-            
+
             <div className="graph-placeholder" aria-label="Gráfica de cambio de divisa">
               <div className="graph-y-axis">
                 <span>10</span>
@@ -206,9 +253,9 @@ export default function DashboardPage() {
               </div>
             </div>
           </section>
-          
+
         </div>
-        
+
       </main>
 
       {/* CHAT IA BUTTON */}
