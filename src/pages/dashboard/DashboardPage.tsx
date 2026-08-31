@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth.ts'
 import './DashboardPage.css'
 
 const SLOGANS = [
   'Tu dinero, sin fronteras.',
-  'Cambia de moneda sin perder tiempo ni plata.',
+  'Juan, nuestro calvo favorito <3.',
   'Un solo lugar para todas tus divisas.',
 ]
 
@@ -16,6 +16,20 @@ interface StoredUser {
   email: string
 }
 
+interface Balance {
+  currency: string
+  currency_name: string
+  symbol: string
+  amount: string
+  updated_at: string
+}
+
+interface WalletResponse {
+  wallet_id: string
+  created_at: string
+  balances: Balance[]
+}
+
 export default function DashboardPage() {
   const navigate = useNavigate()
   const { setAuthenticated } = useAuth()
@@ -23,22 +37,39 @@ export default function DashboardPage() {
   const [showBalance, setShowBalance] = useState(true)
   const [slogan] = useState(() => SLOGANS[Math.floor(Math.random() * SLOGANS.length)])
 
-  const storedUser = localStorage.getItem('user')
-  const user: StoredUser | null = storedUser ? JSON.parse(storedUser) : null
+  const user: StoredUser | null = (() => {
+    try {
+      const storedUser = localStorage.getItem('user')
+      return storedUser ? (JSON.parse(storedUser) as StoredUser) : null
+    } catch {
+      return null
+    }
+  })()
+
   const firstName = user?.first_name ?? 'usuario'
 
-  // TODO: reemplazar por fetch real cuando el backend exponga el endpoint de wallet/balances.
-  // const [wallet, setWallet] = useState<WalletResponse | null>(null)
-  //
-  // useEffect(() => {
-  //   const token = localStorage.getItem('token')
-  //   fetch(`${import.meta.env.VITE_API_URL}/wallet`, {
-  //     headers: { Authorization: `Bearer ${token}` },
-  //   })
-  //     .then((res) => res.json())
-  //     .then(setWallet)
-  //     .catch((err) => console.error('Error al cargar la wallet:', err))
-  // }, [])
+  const [wallet, setWallet] = useState<WalletResponse | null>(null)
+  const [walletError, setWalletError] = useState('')
+  const [walletLoading, setWalletLoading] = useState(true)
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+
+    fetch(`${import.meta.env.VITE_API_URL}/wallet`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(async (res) => {
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'No se pudo cargar la wallet.')
+        setWallet(data)
+      })
+      .catch((err: unknown) => {
+        setWalletError(err instanceof Error ? err.message : 'No se pudo cargar la wallet.')
+      })
+      .finally(() => setWalletLoading(false))
+  }, [])
+
+  const totalBalance = wallet?.balances.reduce((sum, b) => sum + (parseFloat(b.amount) || 0), 0) ?? 0
 
   const handleLogout = () => {
     localStorage.removeItem('token')
@@ -79,17 +110,19 @@ export default function DashboardPage() {
 
       {/* MAIN CONTENT */}
       <main className="dashboard-main">
-
         {/* LEFT COLUMN */}
         <div className="dashboard-left">
-
           {/* CUENTA AXORA */}
           <section className="dashboard-card account-section">
             <h2 className="section-title">Cuenta Axora</h2>
             <p className="account-balance">
-              {showBalance
-                ? <>$1,504 <span className="currency-label">mxn</span></>
-                : '••••••'}
+              {walletLoading ? (
+                'cargando…'
+              ) : showBalance ? (
+                <>${totalBalance.toFixed(2)} <span className="currency-label">total</span></>
+              ) : (
+                '••••••'
+              )}
             </p>
 
             <div className="account-actions">
@@ -124,58 +157,35 @@ export default function DashboardPage() {
             </div>
 
             <div className="assets-grid">
-              <div className="asset-card">
-                <div className="asset-icon"></div>
-                <div className="asset-info">
-                  <span className="asset-name">DOLLAR USD</span>
-                  <span className="asset-code">USD</span>
-                </div>
-                <div className="asset-amount">{showBalance ? '1075 USD' : '••••'}</div>
-              </div>
+              {walletError && (
+                <p className="assets-empty">No se pudieron cargar tus activos: {walletError}</p>
+              )}
 
-              <div className="asset-card">
-                <div className="asset-icon"></div>
-                <div className="asset-info">
-                  <span className="asset-name">PESO MEXICANO</span>
-                  <span className="asset-code">MXN</span>
-                </div>
-                <div className="asset-amount">{showBalance ? '1075 MXN' : '••••'}</div>
-              </div>
+              {!walletError && !walletLoading && wallet?.balances.length === 0 && (
+                <p className="assets-empty">
+                  Todavía no tenés saldo en ninguna moneda. Recargá o recibí dinero para ver tus activos acá.
+                </p>
+              )}
 
-              <div className="asset-card">
-                <div className="asset-icon"></div>
-                <div className="asset-info">
-                  <span className="asset-name">PESO COLOMBIANO</span>
-                  <span className="asset-code">MXN</span>
-                </div>
-                <div className="asset-amount">{showBalance ? '1075 MXN' : '••••'}</div>
-              </div>
-
-              <div className="asset-card">
-                <div className="asset-icon"></div>
-                <div className="asset-info">
-                  <span className="asset-name">LIBRA ESTERLINA</span>
-                  <span className="asset-code">LBR</span>
-                </div>
-                <div className="asset-amount">{showBalance ? '1075 MXN' : '••••'}</div>
-              </div>
-
-              <div className="asset-card">
-                <div className="asset-icon"></div>
-                <div className="asset-info">
-                  <span className="asset-name">EURO</span>
-                  <span className="asset-code">EUR</span>
-                </div>
-                <div className="asset-amount">{showBalance ? '1075 MXN' : '••••'}</div>
-              </div>
+              {!walletError &&
+                wallet?.balances.map((balance) => (
+                  <div className="asset-card" key={balance.currency}>
+                    <div className="asset-icon"></div>
+                    <div className="asset-info">
+                      <span className="asset-name">{balance.currency_name}</span>
+                      <span className="asset-code">{balance.currency}</span>
+                    </div>
+                    <div className="asset-amount">
+                      {showBalance ? `${balance.amount} ${balance.currency}` : '••••'}
+                    </div>
+                  </div>
+                ))}
             </div>
           </section>
-
         </div>
 
         {/* RIGHT COLUMN */}
         <div className="dashboard-right">
-
           {/* TRANSACCIONES RECIENTES */}
           <section className="dashboard-card transactions-section">
             <div className="section-header">
@@ -253,9 +263,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </section>
-
         </div>
-
       </main>
 
       {/* CHAT IA BUTTON */}
