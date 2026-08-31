@@ -372,3 +372,9 @@
 .chat-ia-btn:hover {
   transform: translateY(-2px);
 }
+
+.assets-empty {
+  color: #888;
+  font-size: 0.9rem;
+  padding: 12px 0;
+}
