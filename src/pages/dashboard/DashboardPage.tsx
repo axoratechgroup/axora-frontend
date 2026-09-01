@@ -94,7 +94,7 @@ export default function DashboardPage() {
           throw new Error(data.error || 'No se pudieron cargar las transacciones.')
         }
         const data = await res.json()
-        setTransactions(data.transactions)
+        setTransactions(data.transactions || [])
       })
       .catch((err: unknown) => {
         setTransactionsError(err instanceof Error ? err.message : 'No se pudieron cargar las transacciones.')

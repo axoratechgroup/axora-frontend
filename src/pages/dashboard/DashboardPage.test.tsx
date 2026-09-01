@@ -17,6 +17,7 @@ const mockWalletData = {
       updated_at: '2026-01-01',
     },
   ],
+  transactions: [],
 }
 
 function renderDashboard() {
