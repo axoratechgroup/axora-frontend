@@ -6,7 +6,7 @@ import './DashboardPage.css'
 
 const SLOGANS = [
   'Tu dinero, sin fronteras.',
-  'Juan, nuestro calvo favorito <3.',
+  'Axora, tu banco favorito.',
   'Un solo lugar para todas tus divisas.',
 ]
 
@@ -94,7 +94,7 @@ export default function DashboardPage() {
           throw new Error(data.error || 'No se pudieron cargar las transacciones.')
         }
         const data = await res.json()
-        setTransactions(data.transactions)
+        setTransactions(data.transactions || [])
       })
       .catch((err: unknown) => {
         setTransactionsError(err instanceof Error ? err.message : 'No se pudieron cargar las transacciones.')
