@@ -65,4 +65,23 @@ describe('LoginPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Credenciales inválidas.')
     expect(localStorage.getItem('token')).toBeNull()
   })
+
+  it('alterna la visibilidad de la contraseña entre password y text', async () => {
+    const user = userEvent.setup()
+    renderLogin()
+
+    const passwordInput = screen.getByLabelText('Contraseña')
+    expect(passwordInput).toHaveAttribute('type', 'password')
+
+    const toggleBtn = screen.getByRole('button', { name: 'Mostrar contraseña' })
+    await user.click(toggleBtn)
+
+    expect(passwordInput).toHaveAttribute('type', 'text')
+    expect(screen.getByRole('button', { name: 'Ocultar contraseña' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Ocultar contraseña' }))
+    expect(passwordInput).toHaveAttribute('type', 'password')
+    expect(screen.getByRole('button', { name: 'Mostrar contraseña' })).toBeInTheDocument()
+  })
 })
+
