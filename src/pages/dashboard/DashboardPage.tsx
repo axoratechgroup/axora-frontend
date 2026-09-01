@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth.ts'
+import { fetchWithAuth } from '../../api/fetchWithAuth.ts'
 import './DashboardPage.css'
 
 const SLOGANS = [
@@ -53,14 +54,13 @@ export default function DashboardPage() {
   const [walletLoading, setWalletLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-
-    fetch(`${import.meta.env.VITE_API_URL}/wallet`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    fetchWithAuth(`${import.meta.env.VITE_API_URL}/wallet`)
       .then(async (res) => {
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}))
+          throw new Error(data.error || 'No se pudo cargar la wallet.')
+        }
         const data = await res.json()
-        if (!res.ok) throw new Error(data.error || 'No se pudo cargar la wallet.')
         setWallet(data)
       })
       .catch((err: unknown) => {
