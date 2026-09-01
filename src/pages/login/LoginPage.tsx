@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { SyntheticEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth.ts'
 import './LoginPage.css'
 
@@ -46,10 +47,11 @@ export default function LoginPage() {
       setLoading(false)
     }
   }
-  const [email, setEmail]       = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError]       = useState('')
-  const [loading, setLoading]   = useState(false)
+  const [email, setEmail]               = useState('')
+  const [password, setPassword]         = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError]               = useState('')
+  const [loading, setLoading]           = useState(false)
 
 
   return (
@@ -94,16 +96,27 @@ export default function LoginPage() {
             <label className="form-label" htmlFor="login-password">
               Contraseña
             </label>
-            <input
-              id="login-password"
-              className={`form-input${error ? ' has-error' : ''}`}
-              type="password"
-              autoComplete="current-password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-            />
+            <div className="password-input-wrapper">
+              <input
+                id="login-password"
+                className={`form-input${error ? ' has-error' : ''}`}
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                onClick={() => setShowPassword((prev) => !prev)}
+                disabled={loading}
+              >
+                {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+              </button>
+            </div>
           </div>
 
           {/* Error banner */}
