@@ -6,7 +6,7 @@ import './DashboardPage.css'
 
 const SLOGANS = [
   'Tu dinero, sin fronteras.',
-  'Juan, nuestro calvo favorito <3.',
+  'Axora, tu banco favorito.',
   'Un solo lugar para todas tus divisas.',
 ]
 
