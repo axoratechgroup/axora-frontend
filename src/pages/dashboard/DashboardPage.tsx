@@ -31,6 +31,19 @@ interface WalletResponse {
   balances: Balance[]
 }
 
+interface Transaction {
+  id: string
+  type: string
+  status: string
+  from_currency: string | null
+  from_amount: string | null
+  to_currency: string
+  to_amount: string
+  applied_exchange_rate: string | null
+  description: string | null
+  created_at: string
+}
+
 export default function DashboardPage() {
   const navigate = useNavigate()
   const { setAuthenticated } = useAuth()
@@ -68,6 +81,27 @@ export default function DashboardPage() {
       })
       .finally(() => setWalletLoading(false))
   }, [])
+
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [transactionsError, setTransactionsError] = useState('')
+  const [transactionsLoading, setTransactionsLoading] = useState(true)
+
+  useEffect(() => {
+    fetchWithAuth(`${import.meta.env.VITE_API_URL}/wallet/transactions`)
+      .then(async (res) => {
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}))
+          throw new Error(data.error || 'No se pudieron cargar las transacciones.')
+        }
+        const data = await res.json()
+        setTransactions(data.transactions)
+      })
+      .catch((err: unknown) => {
+        setTransactionsError(err instanceof Error ? err.message : 'No se pudieron cargar las transacciones.')
+      })
+      .finally(() => setTransactionsLoading(false))
+  }, [])
+
 
   const totalBalance = wallet?.balances.reduce((sum, b) => sum + (parseFloat(b.amount) || 0), 0) ?? 0
 
@@ -128,11 +162,11 @@ export default function DashboardPage() {
             <div className="account-actions">
               <button className="action-item">
                 <div className="action-circle"></div>
-                <span>recibir<br/>dinero</span>
+                <span>recibir<br />dinero</span>
               </button>
               <button className="action-item">
                 <div className="action-circle"></div>
-                <span>enviar<br/>dinero</span>
+                <span>enviar<br />dinero</span>
               </button>
               <button className="action-item">
                 <div className="action-circle"></div>
@@ -194,39 +228,28 @@ export default function DashboardPage() {
             </div>
 
             <ul className="transaction-list">
-              <li className="transaction-item">
-                <div className="transaction-icon"></div>
-                <div className="transaction-details">
-                  <span className="transaction-type">Recibido</span>
-                  <span className="transaction-source">desde 8913135</span>
-                </div>
-                <div className="transaction-value">
-                  <span className="transaction-amount">500 mxn</span>
-                  <span className="transaction-date">25 de agosto de 2026 15:00</span>
-                </div>
-              </li>
-              <li className="transaction-item">
-                <div className="transaction-icon"></div>
-                <div className="transaction-details">
-                  <span className="transaction-type">Recibido</span>
-                  <span className="transaction-source">desde 8913135</span>
-                </div>
-                <div className="transaction-value">
-                  <span className="transaction-amount">250 mxn</span>
-                  <span className="transaction-date">25 de agosto de 2026 18:00</span>
-                </div>
-              </li>
-              <li className="transaction-item">
-                <div className="transaction-icon"></div>
-                <div className="transaction-details">
-                  <span className="transaction-type">Recibido</span>
-                  <span className="transaction-source">desde 8913135</span>
-                </div>
-                <div className="transaction-value">
-                  <span className="transaction-amount">500 mxn</span>
-                  <span className="transaction-date">25 de agosto de 2026 15:00</span>
-                </div>
-              </li>
+              {transactionsError && (
+                <p className="assets-empty">No se pudieron cargar tus transacciones: {transactionsError}</p>
+              )}
+
+              {!transactionsError && !transactionsLoading && transactions.length === 0 && (
+                <p className="assets-empty">Todavía no hiciste ninguna transacción.</p>
+              )}
+
+              {!transactionsError &&
+                transactions.map((tx) => (
+                  <li className="transaction-item" key={tx.id}>
+                    <div className="transaction-icon"></div>
+                    <div className="transaction-details">
+                      <span className="transaction-type">{tx.type}</span>
+                      <span className="transaction-source">{tx.status}</span>
+                    </div>
+                    <div className="transaction-value">
+                      <span className="transaction-amount">{tx.to_amount} {tx.to_currency}</span>
+                      <span className="transaction-date">{new Date(tx.created_at).toLocaleString('es-AR')}</span>
+                    </div>
+                  </li>
+                ))}
             </ul>
           </section>
 
