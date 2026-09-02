@@ -30,9 +30,8 @@
 }
 
 .login-brand-icon {
-  color: var(--orange);
-  font-size: 1.4rem;
-  line-height: 1;
+  width: 22px;
+  height: 22px;
 }
 
 .login-brand-name {

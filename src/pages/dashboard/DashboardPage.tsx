@@ -57,7 +57,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="dashboard-search-bar">
-          <span className="search-icon" aria-hidden="true">◈</span>
+          <img src="/favicon.svg" alt="" aria-hidden="true" className="search-icon" />
           <input type="text" placeholder={slogan} className="search-input" readOnly />
         </div>
 

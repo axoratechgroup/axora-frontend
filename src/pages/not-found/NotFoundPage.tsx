@@ -6,7 +6,7 @@ export default function NotFoundPage() {
     <div className="not-found-page">
       {/* Brand mark */}
       <div className="not-found-brand" aria-label="Axora">
-        <span className="not-found-brand-icon" aria-hidden="true">◈</span>
+        <img src="/favicon.svg" alt="" aria-hidden="true" className="not-found-brand-icon" />
         <p className="not-found-brand-name">AXORA</p>
       </div>
 

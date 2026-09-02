@@ -6,7 +6,6 @@ const menuLinks = [
   { label: 'Inicio',              href: '#inicio',        to: null },
   { label: 'Servicios',           href: '#servicios',     to: null },
   { label: 'Simulador',           href: '#simulador',     to: null },
-  { label: 'Iniciar sesión',      href: null,             to: '/login' },
   { label: 'Preguntas frecuentes', href: '#faq',          to: null },
 ]
 
@@ -39,6 +38,7 @@ function App() {
       <header className="site-header">
         <a className="brand" href="#inicio" onClick={closeMenu} aria-label="AXORA, ir al inicio">AXORA</a>
         <div className="header-actions">
+          <Link className="login-link" to="/login">Iniciar sesión</Link>
           <Link className="register-link" to="/registro">Regístrate</Link>
           <button className="menu-button" type="button" aria-expanded={isMenuOpen} aria-controls="main-menu" onClick={() => setIsMenuOpen((isOpen) => !isOpen)}>
             <span className="sr-only">{isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}</span>

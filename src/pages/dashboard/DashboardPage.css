@@ -39,8 +39,9 @@
 
 .search-icon {
   margin-right: 10px;
-  color: white;
-  font-size: 1.2rem;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 .search-input {
@@ -380,4 +381,51 @@
   color: #888;
   font-size: 0.9rem;
   padding: 12px 0;
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 640px) {
+  .dashboard-page {
+    padding: 16px;
+    border-radius: 0;
+    overflow-x: hidden;
+  }
+
+  .dashboard-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .dashboard-greeting {
+    font-size: 1.1rem;
+  }
+
+  .dashboard-search-bar {
+    width: 100%;
+    max-width: 100%;
+    order: 3;
+  }
+
+  .dashboard-header-icons {
+    gap: 8px;
+  }
+
+  .dashboard-header-icons .icon-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .dashboard-main {
+    grid-template-columns: 1fr;
+  }
+
+  .account-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .assets-grid {
+    grid-template-columns: 1fr;
+  }
 }

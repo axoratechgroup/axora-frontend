@@ -78,7 +78,7 @@ export default function RegistroPage() {
 
       {/* Brand mark */}
       <div className="registro-brand" aria-label="Axora">
-        <span className="registro-brand-icon" aria-hidden="true">◈</span>
+        <img src="/favicon.svg" alt="" aria-hidden="true" className="registro-brand-icon" />
         <p className="registro-brand-name">AXORA</p>
       </div>
 

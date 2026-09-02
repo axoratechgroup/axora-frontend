@@ -54,7 +54,7 @@ export default function LoginPage() {
 
       {/* Brand mark */}
       <div className="login-brand" aria-label="Axora">
-        <span className="login-brand-icon" aria-hidden="true">◈</span>
+        <img src="/favicon.svg" alt="" aria-hidden="true" className="login-brand-icon" />
         <p className="login-brand-name">AXORA</p>
       </div>
 
