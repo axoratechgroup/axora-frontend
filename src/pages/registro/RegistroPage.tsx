@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { SyntheticEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff } from 'lucide-react'
+import { registerApi } from '../../api/auth.api.ts'
+import { PasswordInput } from '../../components/common/PasswordInput.tsx'
 import { useAuth } from '../../hooks/useAuth.ts'
 import './RegistroPage.css'
 
@@ -9,16 +10,14 @@ export default function RegistroPage() {
   const navigate = useNavigate()
   const { setAuthenticated } = useAuth()
 
-  const [firstName, setFirstName]                       = useState('')
-  const [lastName, setLastName]                         = useState('')
-  const [username, setUsername]                         = useState('')
-  const [email, setEmail]                               = useState('')
-  const [password, setPassword]                         = useState('')
-  const [showPassword, setShowPassword]                 = useState(false)
-  const [confirmPassword, setConfirmPassword]           = useState('')
-  const [showConfirmPassword, setShowConfirmPassword]   = useState(false)
-  const [error, setError]                               = useState('')
-  const [loading, setLoading]                           = useState(false)
+  const [firstName, setFirstName]             = useState('')
+  const [lastName, setLastName]               = useState('')
+  const [username, setUsername]               = useState('')
+  const [email, setEmail]                     = useState('')
+  const [password, setPassword]               = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [error, setError]                     = useState('')
+  const [loading, setLoading]                 = useState(false)
 
   const passwordTooShort = password.length > 0 && password.length < 8
   const passwordsDoNotMatch = confirmPassword.length > 0 && password !== confirmPassword
@@ -49,23 +48,13 @@ export default function RegistroPage() {
 
     setLoading(true)
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          first_name: firstName,
-          last_name: lastName,
-          username,
-          email,
-          password,
-        }),
+      const data = await registerApi({
+        first_name: firstName,
+        last_name: lastName,
+        username,
+        email,
+        password,
       })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'No se pudo crear la cuenta.')
-      }
 
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
@@ -172,27 +161,15 @@ export default function RegistroPage() {
             <label className="form-label" htmlFor="registro-password">
               Contraseña
             </label>
-            <div className="password-input-wrapper">
-              <input
-                id="registro-password"
-                className={`form-input${error || passwordTooShort ? ' has-error' : ''}`}
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="new-password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-              />
-              <button
-                type="button"
-                className="password-toggle-btn"
-                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                onClick={() => setShowPassword((prev) => !prev)}
-                disabled={loading}
-              >
-                {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
-              </button>
-            </div>
+            <PasswordInput
+              id="registro-password"
+              hasError={Boolean(error || passwordTooShort)}
+              autoComplete="new-password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+            />
             {passwordTooShort && (
               <span className="form-hint">
                 Mínimo 8 caracteres ({password.length}/8)
@@ -205,27 +182,15 @@ export default function RegistroPage() {
             <label className="form-label" htmlFor="registro-confirm-password">
               Confirmar contraseña
             </label>
-            <div className="password-input-wrapper">
-              <input
-                id="registro-confirm-password"
-                className={`form-input${error || passwordsDoNotMatch ? ' has-error' : ''}`}
-                type={showConfirmPassword ? 'text' : 'password'}
-                autoComplete="new-password"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={loading}
-              />
-              <button
-                type="button"
-                className="password-toggle-btn"
-                aria-label={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                onClick={() => setShowConfirmPassword((prev) => !prev)}
-                disabled={loading}
-              >
-                {showConfirmPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
-              </button>
-            </div>
+            <PasswordInput
+              id="registro-confirm-password"
+              hasError={Boolean(error || passwordsDoNotMatch)}
+              autoComplete="new-password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              disabled={loading}
+            />
             {passwordsDoNotMatch && (
               <span className="form-hint">
                 Las contraseñas no coinciden.
