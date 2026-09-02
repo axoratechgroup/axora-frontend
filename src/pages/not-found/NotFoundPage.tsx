@@ -17,7 +17,7 @@ export default function NotFoundPage() {
         </div>
         <h1 className="not-found-code">404</h1>
         <p className="not-found-subtitle">Ups… este gatito no encontró la página.</p>
-        <p className="not-found-description">La página que buscás no existe.</p>
+        <p className="not-found-description">La página que buscas no existe.</p>
 
         <Link className="not-found-btn" to="/">
           Volver al inicio
