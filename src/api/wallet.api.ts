@@ -24,3 +24,18 @@ export async function getWalletTransactionsApi(): Promise<Transaction[]> {
 
   return data.transactions || []
 }
+
+export async function topupApi(currency: string, amount: number): Promise<Transaction> {
+  const response = await fetchWithAuth(`${API_URL}/wallet/topup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ currency, amount }),
+  })
+  const data = (await response.json().catch(() => ({}))) as { transaction?: Transaction; error?: string }
+
+  if (!response.ok) {
+    throw new Error(data.error || 'No se pudo procesar la carga.')
+  }
+
+  return data.transaction as Transaction
+}

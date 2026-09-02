@@ -6,6 +6,7 @@ import App from './App.tsx'
 import LoginPage from './pages/login/LoginPage.tsx'
 import RegistroPage from './pages/registro/RegistroPage.tsx'
 import DashboardPage from './pages/dashboard/DashboardPage.tsx'
+import TopUpPage from './pages/topup/TopUpPage.tsx'
 import NotFoundPage from './pages/not-found/NotFoundPage.tsx'
 import { AuthProvider } from './context/AuthContext.tsx'
 import ProtectedRoute from './routes/ProtectedRoute.tsx'
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/login" element={<LoginPage />} />
           <Route path="/registro" element={<RegistroPage />} />
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/topup" element={<ProtectedRoute><TopUpPage /></ProtectedRoute>} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
