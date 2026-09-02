@@ -40,6 +40,15 @@
 
 .header-actions { align-items: center; display: flex; gap: 16px; }
 
+.login-link {
+  color: var(--ink-dim);
+  font-size: .9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+.login-link:hover { color: var(--ink); }
+
 .register-link {
   color: var(--ink-dim);
   font-size: .9rem;
@@ -451,6 +460,7 @@ h3 { font-size: 1.2rem; margin: 16px 0 8px; }
 /* ─── Responsive: Desktop ────────────────────────────────────────────── */
 @media (min-width: 900px) {
   .site-header { min-height: 80px; padding: 0 64px; }
+  .login-link { font-size: 1rem; }
   .register-link { font-size: 1rem; }
   .hero-section { gap: 80px; min-height: 560px; padding: 88px 80px; }
   .hero-copy { max-width: 520px; }
