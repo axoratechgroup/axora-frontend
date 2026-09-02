@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { SyntheticEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff } from 'lucide-react'
+import { loginApi } from '../../api/auth.api.ts'
+import { PasswordInput } from '../../components/common/PasswordInput.tsx'
 import { useAuth } from '../../hooks/useAuth.ts'
 import './LoginPage.css'
 
@@ -9,6 +10,11 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { setAuthenticated } = useAuth()
+
+  const [email, setEmail]       = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError]       = useState('')
+  const [loading, setLoading]   = useState(false)
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault()
@@ -21,17 +27,7 @@ export default function LoginPage() {
 
     setLoading(true)
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Correo o contraseña incorrectos.')
-      }
+      const data = await loginApi({ email, password })
 
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
@@ -47,12 +43,6 @@ export default function LoginPage() {
       setLoading(false)
     }
   }
-  const [email, setEmail]               = useState('')
-  const [password, setPassword]         = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError]               = useState('')
-  const [loading, setLoading]           = useState(false)
-
 
   return (
     <div className="login-page">
@@ -96,27 +86,15 @@ export default function LoginPage() {
             <label className="form-label" htmlFor="login-password">
               Contraseña
             </label>
-            <div className="password-input-wrapper">
-              <input
-                id="login-password"
-                className={`form-input${error ? ' has-error' : ''}`}
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="current-password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-              />
-              <button
-                type="button"
-                className="password-toggle-btn"
-                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                onClick={() => setShowPassword((prev) => !prev)}
-                disabled={loading}
-              >
-                {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
-              </button>
-            </div>
+            <PasswordInput
+              id="login-password"
+              hasError={Boolean(error)}
+              autoComplete="current-password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+            />
           </div>
 
           {/* Error banner */}

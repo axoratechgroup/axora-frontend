@@ -1,7 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth.ts'
-import { fetchWithAuth } from '../../api/fetchWithAuth.ts'
+import { useWallet } from '../../hooks/useWallet.ts'
+import { AssetCard } from '../../components/dashboard/AssetCard.tsx'
+import { formatAmount } from '../../utils/formatters.ts'
+import type { StoredUser } from '../../types/auth.ts'
 import './DashboardPage.css'
 
 const SLOGANS = [
@@ -10,43 +14,18 @@ const SLOGANS = [
   'Un solo lugar para todas tus divisas.',
 ]
 
-interface StoredUser {
-  first_name: string
-  last_name: string
-  username: string
-  email: string
-}
-
-interface Balance {
-  currency: string
-  currency_name: string
-  symbol: string
-  amount: string
-  updated_at: string
-}
-
-interface WalletResponse {
-  wallet_id: string
-  created_at: string
-  balances: Balance[]
-}
-
-interface Transaction {
-  id: string
-  type: string
-  status: string
-  from_currency: string | null
-  from_amount: string | null
-  to_currency: string
-  to_amount: string
-  applied_exchange_rate: string | null
-  description: string | null
-  created_at: string
-}
-
 export default function DashboardPage() {
   const navigate = useNavigate()
   const { setAuthenticated } = useAuth()
+  const {
+    wallet,
+    totalBalance,
+    walletLoading,
+    walletError,
+    transactions,
+    transactionsLoading,
+    transactionsError,
+  } = useWallet()
 
   const [showBalance, setShowBalance] = useState(true)
   const [slogan] = useState(() => SLOGANS[Math.floor(Math.random() * SLOGANS.length)])
@@ -61,49 +40,6 @@ export default function DashboardPage() {
   })()
 
   const firstName = user?.first_name ?? 'usuario'
-
-  const [wallet, setWallet] = useState<WalletResponse | null>(null)
-  const [walletError, setWalletError] = useState('')
-  const [walletLoading, setWalletLoading] = useState(true)
-
-  useEffect(() => {
-    fetchWithAuth(`${import.meta.env.VITE_API_URL}/wallet`)
-      .then(async (res) => {
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}))
-          throw new Error(data.error || 'No se pudo cargar la wallet.')
-        }
-        const data = await res.json()
-        setWallet(data)
-      })
-      .catch((err: unknown) => {
-        setWalletError(err instanceof Error ? err.message : 'No se pudo cargar la wallet.')
-      })
-      .finally(() => setWalletLoading(false))
-  }, [])
-
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [transactionsError, setTransactionsError] = useState('')
-  const [transactionsLoading, setTransactionsLoading] = useState(true)
-
-  useEffect(() => {
-    fetchWithAuth(`${import.meta.env.VITE_API_URL}/wallet/transactions`)
-      .then(async (res) => {
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}))
-          throw new Error(data.error || 'No se pudieron cargar las transacciones.')
-        }
-        const data = await res.json()
-        setTransactions(data.transactions || [])
-      })
-      .catch((err: unknown) => {
-        setTransactionsError(err instanceof Error ? err.message : 'No se pudieron cargar las transacciones.')
-      })
-      .finally(() => setTransactionsLoading(false))
-  }, [])
-
-
-  const totalBalance = wallet?.balances.reduce((sum, b) => sum + (parseFloat(b.amount) || 0), 0) ?? 0
 
   const handleLogout = () => {
     localStorage.removeItem('token')
@@ -131,13 +67,13 @@ export default function DashboardPage() {
             aria-label={showBalance ? 'Ocultar saldo' : 'Mostrar saldo'}
             onClick={() => setShowBalance((prev) => !prev)}
           >
-            <span aria-hidden="true">{showBalance ? '◉' : '◎'}</span>
+            {showBalance ? <Eye size={18} aria-hidden="true" /> : <EyeOff size={18} aria-hidden="true" />}
           </button>
           <Link className="icon-btn" to="/soporte" aria-label="Soporte">
-            <span aria-hidden="true">?</span>
+            <HelpCircle size={18} aria-hidden="true" />
           </Link>
           <button className="icon-btn" aria-label="Cerrar sesión" onClick={handleLogout}>
-            <span aria-hidden="true">⊞</span>
+            <LogOut size={18} aria-hidden="true" />
           </button>
         </div>
       </header>
@@ -153,7 +89,7 @@ export default function DashboardPage() {
               {walletLoading ? (
                 'cargando…'
               ) : showBalance ? (
-                <>${totalBalance.toFixed(2)} <span className="currency-label">total</span></>
+                <>${formatAmount(totalBalance)} <span className="currency-label">total</span></>
               ) : (
                 '••••••'
               )}
@@ -161,23 +97,33 @@ export default function DashboardPage() {
 
             <div className="account-actions">
               <button className="action-item">
-                <div className="action-circle"></div>
-                <span>recibir<br />dinero</span>
+                <div className="action-circle">
+                  <Plus size={22} aria-hidden="true" />
+                </div>
+                <span>cargar<br />saldo</span>
               </button>
               <button className="action-item">
-                <div className="action-circle"></div>
-                <span>enviar<br />dinero</span>
+                <div className="action-circle">
+                  <ArrowLeftRight size={20} aria-hidden="true" />
+                </div>
+                <span>comprar /<br />vender</span>
               </button>
               <button className="action-item">
-                <div className="action-circle"></div>
+                <div className="action-circle">
+                  <Send size={19} aria-hidden="true" />
+                </div>
+                <span>transferir</span>
+              </button>
+              <button className="action-item">
+                <div className="action-circle">
+                  <History size={20} aria-hidden="true" />
+                </div>
                 <span>historial</span>
               </button>
               <button className="action-item">
-                <div className="action-circle"></div>
-                <span>convertir</span>
-              </button>
-              <button className="action-item">
-                <div className="action-circle"></div>
+                <div className="action-circle">
+                  <Settings size={20} aria-hidden="true" />
+                </div>
                 <span>configuracion</span>
               </button>
             </div>
@@ -203,16 +149,7 @@ export default function DashboardPage() {
 
               {!walletError &&
                 wallet?.balances.map((balance) => (
-                  <div className="asset-card" key={balance.currency}>
-                    <div className="asset-icon"></div>
-                    <div className="asset-info">
-                      <span className="asset-name">{balance.currency_name}</span>
-                      <span className="asset-code">{balance.currency}</span>
-                    </div>
-                    <div className="asset-amount">
-                      {showBalance ? `${balance.amount} ${balance.currency}` : '••••'}
-                    </div>
-                  </div>
+                  <AssetCard key={balance.currency} balance={balance} showBalance={showBalance} />
                 ))}
             </div>
           </section>
