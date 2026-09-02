@@ -96,7 +96,7 @@ export default function DashboardPage() {
             </p>
 
             <div className="account-actions">
-              <button className="action-item">
+              <button className="action-item" onClick={() => navigate('/topup')}>
                 <div className="action-circle">
                   <Plus size={22} aria-hidden="true" />
                 </div>
