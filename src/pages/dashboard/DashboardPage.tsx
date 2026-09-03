@@ -6,6 +6,7 @@ import { useWallet } from '../../hooks/useWallet.ts'
 import { AssetCard } from '../../components/dashboard/AssetCard.tsx'
 import { formatAmount } from '../../utils/formatters.ts'
 import type { StoredUser } from '../../types/auth.ts'
+import { ChatWidget } from '../../components/chat/ChatWidget.tsx'
 import './DashboardPage.css'
 
 const SLOGANS = [
@@ -25,6 +26,8 @@ export default function DashboardPage() {
     transactions,
     transactionsLoading,
     transactionsError,
+    reloadWallet,
+    reloadTransactions,
   } = useWallet()
 
   const [showBalance, setShowBalance] = useState(true)
@@ -226,8 +229,13 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {/* CHAT IA BUTTON */}
-      <button className="chat-ia-btn">CHAT IA</button>
+      {/* CHAT IA */}
+      <ChatWidget
+        onActionConfirmed={() => {
+          reloadWallet()
+          reloadTransactions()
+        }}
+      />
     </div>
   )
 }
