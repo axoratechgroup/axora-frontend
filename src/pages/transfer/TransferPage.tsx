@@ -17,8 +17,7 @@ const CURRENCY_NAMES: Record<string, string> = {
 
 export default function TransferPage() {
   const navigate = useNavigate();
-
-  const [recipientEmail, setRecipientEmail] = useState("");
+  const [recipientUsername, setRecipientUsername] = useState("");
   const [currency, setCurrency] = useState("USD");
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,8 +30,8 @@ export default function TransferPage() {
     e.preventDefault();
     setError("");
 
-    if (!recipientEmail.trim()) {
-      setError("Ingresa el email del destinatario.");
+    if (!recipientUsername.trim()) {
+      setError("Ingresa el nombre de usuario del destinatario.");
       return;
     }
 
@@ -44,7 +43,7 @@ export default function TransferPage() {
 
     setLoading(true);
     try {
-      await transferApi(recipientEmail.trim(), currency, numericAmount);
+      await transferApi(recipientUsername.trim(), currency, numericAmount);
       setSuccess(true);
       setTimeout(() => navigate("/dashboard"), 1500);
     } catch (err: unknown) {
@@ -67,16 +66,16 @@ export default function TransferPage() {
         ) : (
           <form onSubmit={handleSubmit} className="transfer-form" noValidate>
             <div className="form-field">
-              <label className="form-label" htmlFor="recipient_email">
-                Email del destinatario
+              <label className="form-label" htmlFor="recipient_username">
+                Nombre de usuario del destinatario
               </label>
               <input
-                id="recipient_email"
+                id="recipient_username"
                 className={`form-input${error ? " has-error" : ""}`}
-                type="email"
-                placeholder="destinatario@ejemplo.com"
-                value={recipientEmail}
-                onChange={(e) => setRecipientEmail(e.target.value)}
+                type="text"
+                placeholder="usuario123"
+                value={recipientUsername}
+                onChange={(e) => setRecipientUsername(e.target.value)}
                 disabled={loading}
               />
             </div>
