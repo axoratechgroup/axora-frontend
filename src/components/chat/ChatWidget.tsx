@@ -15,6 +15,17 @@ function nextId() {
   return `msg-${messageIdCounter}`
 }
 
+function renderFormattedText(text: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g)
+  return parts.map((part, i) =>
+    part.startsWith('**') && part.endsWith('**') ? (
+      <strong key={i}>{part.slice(2, -2)}</strong>
+    ) : (
+      part
+    ),
+  )
+}
+
 export function ChatWidget({ onActionConfirmed }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -29,10 +40,18 @@ export function ChatWidget({ onActionConfirmed }: ChatWidgetProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   const [error, setError] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isOpen])
+
+
+  useEffect(() => {
+    if (isOpen && !isSending) {
+      inputRef.current?.focus()
+    }
+  }, [isOpen, isSending])
 
   const handleSend = async () => {
     const trimmed = input.trim()
@@ -125,7 +144,7 @@ export function ChatWidget({ onActionConfirmed }: ChatWidgetProps) {
           <div className="chat-widget-messages">
             {messages.map((message) => (
               <div key={message.id} className={`chat-bubble chat-bubble-${message.role}`}>
-                <p>{message.text}</p>
+                <p>{renderFormattedText(message.text)}</p>
 
                 {message.proposedAction && message.actionStatus === 'pending' && (
                   <div className="chat-action-buttons">
@@ -154,6 +173,15 @@ export function ChatWidget({ onActionConfirmed }: ChatWidgetProps) {
                 )}
               </div>
             ))}
+
+            {isSending && (
+              <div className="chat-bubble chat-bubble-assistant chat-bubble-typing" aria-label="El asistente está escribiendo">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
@@ -161,6 +189,7 @@ export function ChatWidget({ onActionConfirmed }: ChatWidgetProps) {
 
           <div className="chat-widget-input-row">
             <input
+              ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
