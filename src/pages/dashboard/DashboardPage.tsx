@@ -102,7 +102,7 @@ export default function DashboardPage() {
                 </div>
                 <span>cargar<br />saldo</span>
               </button>
-              <button className="action-item">
+              <button className="action-item" onClick={() => navigate('/exchange')}>
                 <div className="action-circle">
                   <ArrowLeftRight size={20} aria-hidden="true" />
                 </div>
@@ -182,7 +182,7 @@ export default function DashboardPage() {
                       <span className="transaction-source">{tx.status}</span>
                     </div>
                     <div className="transaction-value">
-                      <span className="transaction-amount">{tx.to_amount} {tx.to_currency}</span>
+                      <span className="transaction-amount">{formatAmount(tx.to_amount)} {tx.to_currency}</span>
                       <span className="transaction-date">{new Date(tx.created_at).toLocaleString('es-AR')}</span>
                     </div>
                   </li>
