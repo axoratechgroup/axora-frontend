@@ -1,0 +1,200 @@
+/* ─── Exchange page shell (mismo patrón que Transfer/TopUp/Login) ────── */
+.exchange-page {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100svh;
+  padding: 24px 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.exchange-page::before {
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 0%,
+    rgba(255, 122, 48, 0.14) 0%,
+    transparent 65%
+  );
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* ─── Card ───────────────────────────────────────────────────────────── */
+.exchange-card {
+  background: var(--canvas-2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 36px 32px 32px;
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  box-shadow:
+    0 0 0 1px rgba(255, 122, 48, 0.06),
+    0 32px 80px rgba(0, 0, 0, 0.55);
+}
+
+.exchange-title {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.exchange-subtitle {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0 0 28px;
+}
+
+/* ─── Form layout ────────────────────────────────────────────────────── */
+.exchange-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.exchange-currency-row {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.exchange-currency-row .form-input {
+  flex: 1;
+}
+
+.exchange-currency-row select {
+  min-width: 0;
+}
+
+/* ─── Swap button (entre los dos selects) ──────────────────────────────── */
+.exchange-swap-btn {
+  align-items: center;
+  align-self: center;
+  background: var(--canvas-3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  height: 36px;
+  justify-content: center;
+  margin: -4px 0;
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
+  width: 36px;
+}
+
+.exchange-swap-btn:hover:not(:disabled) {
+  border-color: rgba(255, 122, 48, 0.5);
+  color: #ff9a3c;
+  transform: rotate(180deg);
+}
+
+.exchange-swap-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ─── Error banner ───────────────────────────────────────────────────── */
+.exchange-error {
+  align-items: flex-start;
+  background: rgba(255, 60, 30, 0.07);
+  border: 1px solid rgba(255, 80, 50, 0.45);
+  border-radius: 10px;
+  color: #ff7055;
+  display: flex;
+  font-size: 0.85rem;
+  font-weight: 600;
+  gap: 8px;
+  line-height: 1.4;
+  padding: 12px 14px;
+}
+
+.exchange-error-icon {
+  flex-shrink: 0;
+  font-style: normal;
+}
+
+/* ─── Success banner ─────────────────────────────────────────────────── */
+.exchange-success {
+  background: rgba(70, 200, 120, 0.08);
+  border: 1px solid rgba(70, 200, 120, 0.4);
+  border-radius: 10px;
+  color: #4ade80;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 14px;
+}
+
+/* ─── Submit button ───────────────────────────────────────────────────── */
+.exchange-submit {
+  align-items: center;
+  background: linear-gradient(135deg, #ff9a3c 0%, #ff5500 100%);
+  border: none;
+  border-radius: 999px;
+  box-shadow:
+    0 0 22px rgba(255, 122, 48, 0.35),
+    0 4px 16px rgba(0, 0, 0, 0.4);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  height: 52px;
+  justify-content: center;
+  margin-top: 4px;
+  width: 100%;
+}
+
+.exchange-submit:hover:not(:disabled) {
+  box-shadow:
+    0 0 36px rgba(255, 122, 48, 0.5),
+    0 8px 24px rgba(0, 0, 0, 0.45);
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.exchange-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.exchange-submit:disabled {
+  cursor: not-allowed;
+  filter: saturate(0.4) brightness(0.6);
+}
+
+/* ─── Cancel button (ghost, secundario) ──────────────────────────────── */
+.exchange-cancel {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  height: 44px;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.exchange-cancel:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.25);
+  color: var(--ink);
+}
+
+.exchange-cancel:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

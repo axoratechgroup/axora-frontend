@@ -58,3 +58,23 @@ export async function transferApi(
 
   return data.transaction as Transaction
 }
+
+
+export async function exchangeApi(
+  fromCurrency: string,
+  toCurrency: string,
+  amount: number,
+): Promise<Transaction> {
+  const response = await fetchWithAuth(`${API_URL}/wallet/exchange`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from_currency: fromCurrency, to_currency: toCurrency, amount }),
+  })
+  const data = (await response.json().catch(() => ({}))) as { transaction?: Transaction; error?: string }
+
+  if (!response.ok) {
+    throw new Error(data.error || 'No se pudo procesar el cambio de moneda.')
+  }
+
+  return data.transaction as Transaction
+}
