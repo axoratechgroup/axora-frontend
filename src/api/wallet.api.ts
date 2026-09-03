@@ -41,14 +41,14 @@ export async function topupApi(currency: string, amount: number): Promise<Transa
 }
 
 export async function transferApi(
-  recipientEmail: string,
+  recipientUsername: string,
   currency: string,
   amount: number,
 ): Promise<Transaction> {
   const response = await fetchWithAuth(`${API_URL}/wallet/transfer`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ recipient_email: recipientEmail, currency, amount }),
+    body: JSON.stringify({ recipient_username: recipientUsername, currency, amount }),
   })
   const data = (await response.json().catch(() => ({}))) as { transaction?: Transaction; error?: string }
 
