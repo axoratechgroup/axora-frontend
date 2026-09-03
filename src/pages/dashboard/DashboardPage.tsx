@@ -108,7 +108,7 @@ export default function DashboardPage() {
                 </div>
                 <span>comprar /<br />vender</span>
               </button>
-              <button className="action-item">
+              <button className="action-item" onClick={() => navigate('/transfer')}>
                 <div className="action-circle">
                   <Send size={19} aria-hidden="true" />
                 </div>
