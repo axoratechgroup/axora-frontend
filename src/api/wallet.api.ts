@@ -39,3 +39,22 @@ export async function topupApi(currency: string, amount: number): Promise<Transa
 
   return data.transaction as Transaction
 }
+
+export async function transferApi(
+  recipientEmail: string,
+  currency: string,
+  amount: number,
+): Promise<Transaction> {
+  const response = await fetchWithAuth(`${API_URL}/wallet/transfer`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ recipient_email: recipientEmail, currency, amount }),
+  })
+  const data = (await response.json().catch(() => ({}))) as { transaction?: Transaction; error?: string }
+
+  if (!response.ok) {
+    throw new Error(data.error || 'No se pudo procesar la transferencia.')
+  }
+
+  return data.transaction as Transaction
+}
