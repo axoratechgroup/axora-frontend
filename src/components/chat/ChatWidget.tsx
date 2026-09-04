@@ -194,7 +194,7 @@ export function ChatWidget({ onActionConfirmed }: ChatWidgetProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Escribí tu mensaje…"
+              placeholder="Escribe tu mensaje…"
               disabled={isSending}
               className="chat-widget-input"
             />

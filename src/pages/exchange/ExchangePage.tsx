@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import ReactCountryFlag from "react-country-flag";
 import { ArrowLeftRight } from "lucide-react";
 import { exchangeApi } from "../../api/wallet.api.ts";
+import { formatAmountInputDisplay, parseAmountInputDisplay } from "../../utils/formatters.ts";
 import { CURRENCY_TO_COUNTRY, getCountryCode } from "../../utils/currency.ts";
 import "./ExchangePage.css";
 
@@ -76,13 +77,17 @@ export default function ExchangePage() {
     setError("");
 
     if (fromCurrency === toCurrency) {
-      setError("Elegí dos monedas distintas.");
+      setError("Elige dos monedas distintas.");
       return;
     }
 
     const numericAmount = Number(amount);
     if (!numericAmount || numericAmount <= 0) {
       setError("Ingresa un monto válido, mayor a 0.");
+      return;
+    }
+
+    if (!window.confirm(`¿Confirmas el cambio de ${numericAmount} ${fromCurrency} a ${toCurrency}?`)) {
       return;
     }
 
@@ -104,7 +109,7 @@ export default function ExchangePage() {
     <div className="exchange-page">
       <div className="exchange-card">
         <h1 className="exchange-title">Comprar / vender</h1>
-        <p className="exchange-subtitle">Cambiá saldo entre monedas dentro de tu cuenta Axora.</p>
+        <p className="exchange-subtitle">Cambia saldo entre monedas dentro de tu cuenta Axora.</p>
 
         {result ? (
           <p className="exchange-success">
@@ -154,12 +159,11 @@ export default function ExchangePage() {
               <input
                 id="amount"
                 className={`form-input${error ? " has-error" : ""}`}
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                type="text"
+                inputMode="decimal"
+                placeholder="0,00"
+                value={formatAmountInputDisplay(amount)}
+                onChange={(e) => setAmount(parseAmountInputDisplay(e.target.value))}
                 disabled={loading}
               />
             </div>

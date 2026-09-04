@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth.ts'
 import './NotFoundPage.css'
 
 export default function NotFoundPage() {
+  const { isAuthenticated } = useAuth()
+  
   return (
     <div className="not-found-page">
       {/* Brand mark */}
@@ -19,8 +22,8 @@ export default function NotFoundPage() {
         <p className="not-found-subtitle">Ups… este gatito no encontró la página.</p>
         <p className="not-found-description">La página que buscas no existe.</p>
 
-        <Link className="not-found-btn" to="/">
-          Volver al inicio
+        <Link className="not-found-btn" to={isAuthenticated ? '/dashboard' : '/'}>
+        { isAuthenticated ? 'Volver al dashboard' : 'Volver al inicio' }
         </Link>
       </div>
     </div>
