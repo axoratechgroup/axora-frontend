@@ -20,7 +20,7 @@ describe('NotFoundPage', () => {
 
     expect(screen.getByRole('heading', { name: '404' })).toBeInTheDocument()
     expect(screen.getByText('Ups… este gatito no encontró la página.')).toBeInTheDocument()
-    expect(screen.getByText('La página que buscás no existe.')).toBeInTheDocument()
+    expect(screen.getByText('La página que buscas no existe.')).toBeInTheDocument()
   })
 
   it('muestra el enlace "Volver al inicio" apuntando a la ruta raíz "/"', () => {
