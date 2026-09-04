@@ -5,6 +5,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '../../context/AuthContext.tsx'
 import DashboardPage from './DashboardPage.tsx'
 
+vi.mock('../../components/dashboard/CurrencyHistoryChart.tsx', () => ({
+  CurrencyHistoryChart: () => <div data-testid="currency-history-chart" />,
+}))
+
 const mockWalletData = {
   wallet_id: 'wallet-123',
   created_at: '2026-01-01',

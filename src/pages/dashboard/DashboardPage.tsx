@@ -4,6 +4,7 @@ import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, S
 import { useAuth } from '../../hooks/useAuth.ts'
 import { useWallet } from '../../hooks/useWallet.ts'
 import { AssetCard } from '../../components/dashboard/AssetCard.tsx'
+import { CurrencyHistoryChart } from '../../components/dashboard/CurrencyHistoryChart.tsx'
 import { formatAmount } from '../../utils/formatters.ts'
 import type { StoredUser } from '../../types/auth.ts'
 import { ChatWidget } from '../../components/chat/ChatWidget.tsx'
@@ -195,36 +196,7 @@ export default function DashboardPage() {
 
           {/* HISTORICO DE DIVISA */}
           <section className="dashboard-card history-section">
-            <div className="section-header">
-              <h2 className="section-title">historico de divisa</h2>
-              <select className="currency-select">
-                <option>MXN ↓</option>
-              </select>
-            </div>
-
-            <div className="graph-placeholder" aria-label="Gráfica de cambio de divisa">
-              <div className="graph-y-axis">
-                <span>10</span>
-                <span>9</span>
-                <span>8</span>
-                <span>7</span>
-                <span>6</span>
-                <span>5</span>
-              </div>
-              <div className="graph-area">
-                <div className="graph-grid"></div>
-              </div>
-              <div className="graph-x-axis">
-                <span>enero</span>
-                <span>febrero</span>
-                <span>marzo</span>
-                <span>abril</span>
-                <span>mayo</span>
-                <span>junio</span>
-                <span>julio</span>
-                <span>agosto</span>
-              </div>
-            </div>
+            <CurrencyHistoryChart />
           </section>
         </div>
       </main>
