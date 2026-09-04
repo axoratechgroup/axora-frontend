@@ -6,6 +6,8 @@ import { PasswordInput } from '../../components/common/PasswordInput.tsx'
 import { useAuth } from '../../hooks/useAuth.ts'
 import './RegistroPage.css'
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 export default function RegistroPage() {
   const navigate = useNavigate()
   const { setAuthenticated } = useAuth()
@@ -35,6 +37,10 @@ export default function RegistroPage() {
       !confirmPassword.trim()
     ) {
       setError('Por favor completa todos los campos.')
+      return
+    }
+    if (!EMAIL_REGEX.test(email.trim())) {
+      setError('Ingresa un correo electrónico válido.')
       return
     }
     if (password.length < 8) {
@@ -71,10 +77,10 @@ export default function RegistroPage() {
   return (
     <div className="registro-page">
       {/* Volver */}
-      <Link className="registro-back" to="/login">
+      <button type="button" className="registro-back" onClick={() => navigate(-1)}>
         <span aria-hidden="true">←</span>
         Volver
-      </Link>
+      </button>
 
       {/* Brand mark */}
       <div className="registro-brand" aria-label="Axora">
@@ -226,7 +232,7 @@ export default function RegistroPage() {
           <Link to="/login">iniciar sesión</Link>
         </p>
         <p className="registro-footer-note">
-          Al registrarte se crea tu billetera automáticamente.
+          Al registrarte, se crea tu billetera automáticamente.
         </p>
       </footer>
     </div>

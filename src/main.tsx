@@ -12,6 +12,7 @@ import ExchangePage from './pages/exchange/ExchangePage.tsx'
 import NotFoundPage from './pages/not-found/NotFoundPage.tsx'
 import { AuthProvider } from './context/AuthContext.tsx'
 import ProtectedRoute from './routes/ProtectedRoute.tsx'
+import PublicOnlyRoute from './routes/PublicOnlyRoute.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -19,8 +20,8 @@ createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/registro" element={<RegistroPage />} />
+          <Route path="/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
+          <Route path="/registro" element={<PublicOnlyRoute><RegistroPage /></PublicOnlyRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/topup" element={<ProtectedRoute><TopUpPage /></ProtectedRoute>} />
           <Route path="/transfer" element={<ProtectedRoute><TransferPage /></ProtectedRoute>} />

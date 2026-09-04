@@ -4,7 +4,7 @@ import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, S
 import { useAuth } from '../../hooks/useAuth.ts'
 import { useWallet } from '../../hooks/useWallet.ts'
 import { AssetCard } from '../../components/dashboard/AssetCard.tsx'
-import { formatAmount } from '../../utils/formatters.ts'
+import { formatAmount, formatTransactionType } from '../../utils/formatters.ts'
 import type { StoredUser } from '../../types/auth.ts'
 import { ChatWidget } from '../../components/chat/ChatWidget.tsx'
 import './DashboardPage.css'
@@ -45,6 +45,7 @@ export default function DashboardPage() {
   const firstName = user?.first_name ?? 'usuario'
 
   const handleLogout = () => {
+    if (!window.confirm('¿Seguro que quieres cerrar sesión?')) return
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     setAuthenticated(false)
@@ -68,14 +69,15 @@ export default function DashboardPage() {
           <button
             className="icon-btn"
             aria-label={showBalance ? 'Ocultar saldo' : 'Mostrar saldo'}
+            title={showBalance ? 'Ocultar saldo' : 'Mostrar saldo'}
             onClick={() => setShowBalance((prev) => !prev)}
           >
             {showBalance ? <Eye size={18} aria-hidden="true" /> : <EyeOff size={18} aria-hidden="true" />}
           </button>
-          <Link className="icon-btn" to="/soporte" aria-label="Soporte">
+          <Link className="icon-btn" to="/soporte" aria-label="Soporte" title="Soporte">
             <HelpCircle size={18} aria-hidden="true" />
           </Link>
-          <button className="icon-btn" aria-label="Cerrar sesión" onClick={handleLogout}>
+          <button className="icon-btn" aria-label="Cerrar sesión" title="Cerrar sesión" onClick={handleLogout}>
             <LogOut size={18} aria-hidden="true" />
           </button>
         </div>
@@ -127,7 +129,7 @@ export default function DashboardPage() {
                 <div className="action-circle">
                   <Settings size={20} aria-hidden="true" />
                 </div>
-                <span>configuracion</span>
+                <span>Configuración</span>
               </button>
             </div>
           </section>
@@ -136,7 +138,7 @@ export default function DashboardPage() {
           <section className="assets-section">
             <div className="section-header">
               <h2 className="section-title">Mis activos</h2>
-              <button className="btn-small">ver mas</button>
+              <button className="btn-small">Ver más</button>
             </div>
 
             <div className="assets-grid">
@@ -146,7 +148,7 @@ export default function DashboardPage() {
 
               {!walletError && !walletLoading && wallet?.balances.length === 0 && (
                 <p className="assets-empty">
-                  Todavía no tenés saldo en ninguna moneda. Recargá o recibí dinero para ver tus activos acá.
+                  Todavía no tienes saldo en ninguna moneda. Recarga o recibe dinero para ver tus activos aquí.
                 </p>
               )}
 
@@ -163,8 +165,8 @@ export default function DashboardPage() {
           {/* TRANSACCIONES RECIENTES */}
           <section className="dashboard-card transactions-section">
             <div className="section-header">
-              <h2 className="section-title">transacciones recientes</h2>
-              <button className="btn-small">ver mas</button>
+              <h2 className="section-title">Transacciones recientes</h2>
+              <button className="btn-small">Ver más</button>
             </div>
 
             <ul className="transaction-list">
@@ -181,7 +183,7 @@ export default function DashboardPage() {
                   <li className="transaction-item" key={tx.id}>
                     <div className="transaction-icon"></div>
                     <div className="transaction-details">
-                      <span className="transaction-type">{tx.type}</span>
+                      <span className="transaction-type">{formatTransactionType(tx.type)}</span>
                       <span className="transaction-source">{tx.status}</span>
                     </div>
                     <div className="transaction-value">
@@ -196,7 +198,7 @@ export default function DashboardPage() {
           {/* HISTORICO DE DIVISA */}
           <section className="dashboard-card history-section">
             <div className="section-header">
-              <h2 className="section-title">historico de divisa</h2>
+              <h2 className="section-title">Histórico de divisa</h2>
               <select className="currency-select">
                 <option>MXN ↓</option>
               </select>
