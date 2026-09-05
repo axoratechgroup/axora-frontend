@@ -6,13 +6,30 @@ import { formatAmount } from '../../utils/formatters.ts'
 interface AssetCardProps {
   balance: Balance
   showBalance: boolean
+  onClick?: () => void
+  isSelected?: boolean
 }
 
-export function AssetCard({ balance, showBalance }: AssetCardProps) {
+export function AssetCard({ balance, showBalance, onClick, isSelected }: AssetCardProps) {
   const countryCode = getCountryCode(balance.currency)
 
   return (
-    <div className="asset-card">
+    <div
+      className={`asset-card ${onClick ? 'clickable' : ''} ${isSelected ? 'selected' : ''}`}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onClick()
+              }
+            }
+          : undefined
+      }
+    >
       <div className="asset-icon">
         {countryCode ? (
           <ReactCountryFlag

@@ -73,13 +73,16 @@ export function useWallet() {
     }
   }, [])
 
-  const totalBalance = useMemo(() => {
-    return wallet?.balances.reduce((sum, b) => sum + (parseFloat(b.amount) || 0), 0) ?? 0
+  const totalInUsd = useMemo(() => {
+    return wallet?.total_in_usd ?? 0
   }, [wallet])
+
+  const totalBalance = totalInUsd
 
   return {
     wallet,
     totalBalance,
+    totalInUsd,
     walletLoading,
     walletError,
     transactions,

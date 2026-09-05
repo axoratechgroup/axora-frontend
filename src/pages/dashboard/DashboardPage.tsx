@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, type LucideIcon } from 'lucide-react'
+import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, Globe, type LucideIcon } from 'lucide-react'
+import ReactCountryFlag from 'react-country-flag'
+import { getCountryCode } from '../../utils/currency.ts'
 import { useAuth } from '../../hooks/useAuth.ts'
 import { useWallet } from '../../hooks/useWallet.ts'
 import { AssetCard } from '../../components/dashboard/AssetCard.tsx'
@@ -37,8 +39,11 @@ export default function DashboardPage() {
     reloadTransactions,
   } = useWallet()
 
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('TOTAL')
   const [showBalance, setShowBalance] = useState(true)
   const [slogan] = useState(() => SLOGANS[Math.floor(Math.random() * SLOGANS.length)])
+
+  const activeBalance = wallet?.balances.find((b) => b.currency === selectedCurrency)
 
   const user: StoredUser | null = (() => {
     try {
@@ -96,31 +101,127 @@ export default function DashboardPage() {
         <div className="dashboard-left">
           {/* CUENTA AXORA */}
           <section className="dashboard-card account-section">
-            <h2 className="section-title">Cuenta Axora</h2>
-            <p className="account-balance">
-              {walletLoading ? (
-                'cargando…'
-              ) : showBalance ? (
-                <>${formatAmount(totalBalance)} <span className="currency-label">total</span></>
-              ) : (
-                '••••••'
+            <div className="account-card-header">
+              <h2 className="section-title">Cuenta Axora</h2>
+              {selectedCurrency !== 'TOTAL' && (
+                <button
+                  className="btn-back-total"
+                  onClick={() => setSelectedCurrency('TOTAL')}
+                  title="Volver a ver el total general en USD"
+                >
+                  Ver total USD
+                </button>
               )}
-            </p>
+            </div>
+
+            {/* CURRENCY SELECTOR PILLS */}
+            <div className="currency-pills-bar" role="tablist" aria-label="Seleccionar moneda">
+              <button
+                role="tab"
+                aria-selected={selectedCurrency === 'TOTAL'}
+                className={`currency-pill ${selectedCurrency === 'TOTAL' ? 'active' : ''}`}
+                onClick={() => setSelectedCurrency('TOTAL')}
+              >
+                <Globe size={16} aria-hidden="true" />
+                <span>Total (USD)</span>
+              </button>
+              {wallet?.balances.map((b) => {
+                const cCode = getCountryCode(b.currency)
+                return (
+                  <button
+                    key={b.currency}
+                    role="tab"
+                    aria-selected={selectedCurrency === b.currency}
+                    className={`currency-pill ${selectedCurrency === b.currency ? 'active' : ''}`}
+                    onClick={() => setSelectedCurrency(b.currency)}
+                  >
+                    {cCode && (
+                      <ReactCountryFlag
+                        countryCode={cCode}
+                        svg
+                        style={{ width: '16px', height: '16px', borderRadius: '50%' }}
+                        aria-label={b.currency_name}
+                      />
+                    )}
+                    <span>{b.currency}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* FOCUSED BALANCE */}
+            <div className="account-balance-wrapper">
+              <p className="account-balance" data-testid="account-balance">
+                {walletLoading ? (
+                  'cargando…'
+                ) : showBalance ? (
+                  selectedCurrency === 'TOTAL' ? (
+                    <>
+                      <span className="balance-approx">≈ $</span>
+                      {formatAmount(totalBalance)}{' '}
+                      <span className="currency-label">USD</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="balance-symbol">{activeBalance?.symbol || '$'}</span>
+                      {formatAmount(activeBalance?.amount || 0)}{' '}
+                      <span className="currency-label">{selectedCurrency}</span>
+                    </>
+                  )
+                ) : (
+                  '••••••'
+                )}
+              </p>
+              {!walletLoading && showBalance && (
+                <p className="account-balance-hint" data-testid="account-balance-hint">
+                  {selectedCurrency === 'TOTAL'
+                    ? 'Patrimonio total consolidado en USD (según tipo de cambio actual)'
+                    : activeBalance?.currency_name ?? selectedCurrency}
+                </p>
+              )}
+            </div>
 
             <div className="account-actions">
-              <button className="action-item" onClick={() => navigate('/topup')}>
+              <button
+                className="action-item"
+                onClick={() =>
+                  navigate(
+                    selectedCurrency !== 'TOTAL'
+                      ? `/topup?currency=${selectedCurrency}`
+                      : '/topup',
+                  )
+                }
+              >
                 <div className="action-circle">
                   <Plus size={22} aria-hidden="true" />
                 </div>
                 <span>cargar<br />saldo</span>
               </button>
-              <button className="action-item" onClick={() => navigate('/exchange')}>
+              <button
+                className="action-item"
+                onClick={() =>
+                  navigate(
+                    selectedCurrency !== 'TOTAL'
+                      ? `/exchange?from=${selectedCurrency}`
+                      : '/exchange',
+                  )
+                }
+              >
                 <div className="action-circle">
                   <ArrowLeftRight size={20} aria-hidden="true" />
                 </div>
                 <span>comprar /<br />vender</span>
               </button>
-              <button className="action-item" onClick={() => navigate('/transfer')}>
+              <button
+                className="action-item"
+                onClick={() =>
+                  navigate(
+                    selectedCurrency !== 'TOTAL'
+                      ? `/transfer?currency=${selectedCurrency}`
+                      : '/transfer',
+                  )
+                }
+              >
                 <div className="action-circle">
                   <Send size={19} aria-hidden="true" />
                 </div>
@@ -161,7 +262,13 @@ export default function DashboardPage() {
 
               {!walletError &&
                 wallet?.balances.map((balance) => (
-                  <AssetCard key={balance.currency} balance={balance} showBalance={showBalance} />
+                  <AssetCard
+                    key={balance.currency}
+                    balance={balance}
+                    showBalance={showBalance}
+                    isSelected={selectedCurrency === balance.currency}
+                    onClick={() => setSelectedCurrency(balance.currency)}
+                  />
                 ))}
             </div>
           </section>
