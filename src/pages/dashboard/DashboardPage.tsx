@@ -126,7 +126,7 @@ export default function DashboardPage() {
                 </div>
                 <span>transferir</span>
               </button>
-              <button className="action-item">
+              <button className="action-item" onClick={() => navigate('/historial')}>
                 <div className="action-circle">
                   <History size={20} aria-hidden="true" />
                 </div>
@@ -173,7 +173,7 @@ export default function DashboardPage() {
           <section className="dashboard-card transactions-section">
             <div className="section-header">
               <h2 className="section-title">Transacciones recientes</h2>
-              <button className="btn-small">Ver más</button>
+              <button className="btn-small" onClick={() => navigate('/historial')}>Ver más</button>
             </div>
 
             <ul className="transaction-list">
