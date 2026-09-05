@@ -262,6 +262,10 @@
   height: 32px;
   border-radius: 50%;
   border: 2px solid white;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
