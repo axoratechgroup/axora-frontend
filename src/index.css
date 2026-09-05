@@ -28,6 +28,12 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* ─── Text Selection High-Contrast ──────────────────────────────────── */
+::selection {
+  background-color: #ff7a30;
+  color: #ffffff;
+}
+
 /* ─── Light theme ────────────────────────────────────────────────────── */
 [data-theme="light"] {
   --canvas:      #f5f5f5;
