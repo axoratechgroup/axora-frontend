@@ -140,4 +140,41 @@ describe('DashboardPage', () => {
       screen.getByText(/Patrimonio total consolidado en USD/i),
     ).toBeInTheDocument()
   })
+
+  it('calcula la estimación en USD si el backend no expone total_in_usd pero hay saldo en otras monedas', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          wallet_id: 'wallet-no-total',
+          created_at: '2026-01-01',
+          // total_in_usd ausente (como en backend previo al redespliegue)
+          balances: [
+            {
+              currency: 'USD',
+              currency_name: 'Dólar estadounidense',
+              symbol: '$',
+              amount: '0.00',
+              updated_at: '2026-01-01',
+            },
+            {
+              currency: 'ARS',
+              currency_name: 'Peso argentino',
+              symbol: '$',
+              amount: '200000.00',
+              updated_at: '2026-01-01',
+            },
+          ],
+          transactions: [],
+        }),
+        { status: 200 },
+      ),
+    )
+
+    renderDashboard()
+
+    // 200.000 ARS * 0.00075 = 150 USD
+    const balanceEl = await screen.findByTestId('account-balance')
+    expect(balanceEl).toHaveTextContent('150,00')
+    expect(balanceEl).toHaveTextContent('USD')
+  })
 })
