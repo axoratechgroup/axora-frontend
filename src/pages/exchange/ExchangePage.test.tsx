@@ -5,6 +5,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../api/wallet.api.ts", () => ({
   exchangeApi: vi.fn(),
+  getWalletApi: vi.fn().mockResolvedValue({
+    wallet_id: "w-1",
+    total_in_usd: 1000,
+    balances: [
+      { currency: "USD", currency_name: "Dólar", symbol: "$", amount: "1000.00" },
+      { currency: "ARS", currency_name: "Peso", symbol: "$", amount: "50000.00" },
+    ],
+  }),
+  getWalletTransactionsApi: vi.fn().mockResolvedValue([]),
 }));
 
 import { exchangeApi } from "../../api/wallet.api.ts";

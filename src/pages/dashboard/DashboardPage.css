@@ -27,6 +27,20 @@
   color: #ff9a3c;
 }
 
+.username-badge {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #ff9a3c;
+  background: rgba(255, 154, 60, 0.15);
+  border: 1px solid rgba(255, 154, 60, 0.35);
+  border-radius: 999px;
+  padding: 3px 10px;
+  vertical-align: middle;
+  letter-spacing: 0.02em;
+}
+
 .dashboard-search-bar {
   display: flex;
   align-items: center;
@@ -107,15 +121,119 @@
   margin-bottom: 30px;
 }
 
+.account-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.account-card-header .section-title {
+  margin: 0;
+}
+
+.btn-back-total {
+  background: rgba(255, 154, 60, 0.15);
+  border: 1px solid #ff9a3c;
+  color: #ff9a3c;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-back-total:hover {
+  background: #ff9a3c;
+  color: #1a1a1a;
+}
+
+/* Currency Pills */
+.currency-pills-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  scrollbar-width: thin;
+}
+
+.currency-pills-bar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.currency-pills-bar::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+.currency-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #383838;
+  border: 1px solid #4a4a4a;
+  color: #ccc;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.currency-pill:hover {
+  background: #484848;
+  color: #fff;
+  border-color: #666;
+}
+
+.currency-pill.active {
+  background: #ff9a3c;
+  border-color: #ff9a3c;
+  color: #1a1a1a;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 154, 60, 0.3);
+}
+
+.currency-pill.active svg {
+  color: #1a1a1a;
+}
+
+.account-balance-wrapper {
+  margin-bottom: 24px;
+}
+
 .account-balance {
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 700;
-  margin: 0 0 30px 0;
+  margin: 0;
+  line-height: 1.1;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.balance-approx {
+  color: #ff9a3c;
+  font-weight: 400;
+  margin-right: 2px;
 }
 
 .currency-label {
-  font-size: 1.2rem;
-  font-weight: 400;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #aaa;
+}
+
+.account-balance-hint {
+  margin: 8px 0 0 0;
+  font-size: 0.8rem;
+  color: #999;
 }
 
 .account-actions {
@@ -188,6 +306,23 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.asset-card.clickable {
+  cursor: pointer;
+}
+
+.asset-card.clickable:hover {
+  background-color: #333;
+  border-color: #555;
+  transform: translateY(-2px);
+}
+
+.asset-card.selected {
+  border-color: #ff9a3c;
+  background-color: #352e26;
 }
 
 .asset-icon {
