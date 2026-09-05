@@ -72,6 +72,12 @@ describe('DashboardPage', () => {
     globalThis.fetch = originalFetch
   })
 
+  it('muestra el nombre del usuario y su badge de @username en el saludo', async () => {
+    renderDashboard()
+    expect(screen.getByText('Ana')).toBeInTheDocument()
+    expect(screen.getByText('@analopez')).toBeInTheDocument()
+  })
+
   it('oculta y muestra el saldo al pulsar el botón correspondiente', async () => {
     const user = userEvent.setup()
     renderDashboard()

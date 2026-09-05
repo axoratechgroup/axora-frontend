@@ -302,27 +302,174 @@ h3 { font-size: 1.2rem; margin: 16px 0 8px; }
 .primary-button:active { transform: translateY(0); }
 
 /* ─── Visual placeholders ────────────────────────────────────────────── */
-.visual-placeholder {
-  align-items: center;
-  background: linear-gradient(135deg, var(--canvas-2) 0%, var(--blush) 100%);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  color: var(--muted);
-  display: flex;
-  font-family: var(--display);
-  font-size: .9rem;
-  justify-content: center;
-  min-height: 260px;
-  padding: 24px;
-  text-align: center;
-}
-.hero-placeholder { border-radius: 28px; min-height: 280px; }
-
-.simulator-placeholder {
-  background: linear-gradient(135deg, var(--blush) 0%, rgba(124,106,240,0.15) 100%);
+/* ─── Hero App Mockup ────────────────────────────────────────────────── */
+.hero-app-mockup {
+  background: var(--canvas-2);
   border: 1px solid var(--border-glow);
   border-radius: 24px;
-  min-height: 285px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(255, 122, 48, 0.15);
+}
+
+.mockup-header {
+  background: var(--canvas-3);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mockup-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.mockup-dot.red { background: #ff5f56; }
+.mockup-dot.yellow { background: #ffbd2e; }
+.mockup-dot.green { background: #27c93f; }
+
+.mockup-title {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-left: 8px;
+}
+
+.mockup-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mockup-balance-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.mockup-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mockup-amount {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 8px 0 16px;
+  color: var(--ink);
+}
+
+.mockup-currency {
+  font-size: 0.9rem;
+  color: #ff9a3c;
+  font-weight: 600;
+}
+
+.mockup-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mockup-pill {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink-dim);
+}
+
+.mockup-pill.active {
+  background: #ff5c00;
+  color: #fff;
+  font-weight: 600;
+}
+
+.mockup-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.mockup-action-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-dim);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ─── Simulator Widget ───────────────────────────────────────────────── */
+.simulator-widget {
+  background: var(--canvas-2);
+  border: 1px solid var(--border-glow);
+  border-radius: 24px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.simulator-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.simulator-field label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.simulator-input-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.simulator-input-group input {
+  flex: 1;
+  background: var(--canvas-3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--ink);
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 12px 14px;
+  outline: none;
+}
+
+.simulator-input-group select {
+  background: var(--canvas-3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 12px 14px;
+  outline: none;
+  cursor: pointer;
+}
+
+.simulator-rate-info {
+  font-size: 0.8rem;
+  color: #ff9a3c;
+  background: rgba(255, 154, 60, 0.08);
+  border-radius: 8px;
+  padding: 8px 12px;
+  text-align: center;
 }
 
 /* ─── Services section ───────────────────────────────────────────────── */
@@ -433,6 +580,108 @@ h3 { font-size: 1.2rem; margin: 16px 0 8px; }
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 28px;
+}
+
+/* ─── FAQ Section ────────────────────────────────────────────────────── */
+.faq-section {
+  padding: 72px 24px;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 36px;
+}
+
+.faq-item {
+  background: var(--canvas-2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 24px;
+  transition: border-color 0.2s ease;
+}
+
+.faq-item[open] {
+  border-color: var(--border-glow);
+}
+
+.faq-item summary {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  outline: none;
+  list-style: none;
+  position: relative;
+  padding-right: 24px;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary::after {
+  content: '+';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.4rem;
+  color: #ff9a3c;
+  font-weight: 400;
+}
+
+.faq-item[open] summary::after {
+  content: '−';
+}
+
+.faq-item p {
+  margin: 14px 0 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ─── Contact Section ────────────────────────────────────────────────── */
+.contact-section {
+  padding: 72px 24px 96px;
+  text-align: center;
+}
+
+.contact-desc {
+  color: var(--muted);
+  font-size: 1rem;
+  max-width: 500px;
+  margin: 12px auto 32px;
+}
+
+.contact-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--ink);
+  padding: 14px 28px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.secondary-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 /* ─── Footer ─────────────────────────────────────────────────────────── */

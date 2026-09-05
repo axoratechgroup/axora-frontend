@@ -3,8 +3,9 @@ import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactCountryFlag from "react-country-flag";
 import { ArrowLeftRight } from "lucide-react";
+import { useWallet } from "../../hooks/useWallet.ts";
 import { exchangeApi } from "../../api/wallet.api.ts";
-import { formatAmountInputDisplay, parseAmountInputDisplay } from "../../utils/formatters.ts";
+import { formatAmount, formatAmountInputDisplay, parseAmountInputDisplay } from "../../utils/formatters.ts";
 import { CURRENCY_TO_COUNTRY, getCountryCode } from "../../utils/currency.ts";
 import "./ExchangePage.css";
 
@@ -59,6 +60,7 @@ function CurrencySelect({
 
 export default function ExchangePage() {
   const navigate = useNavigate();
+  const { wallet } = useWallet();
 
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("ARS");
@@ -66,6 +68,13 @@ export default function ExchangePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<{ toAmount: string; toCurrency: string } | null>(null);
+
+  const currentBalance = wallet?.balances.find((b) => b.currency === fromCurrency);
+  const availableAmount = Number(currentBalance?.amount || 0);
+
+  const numericAmount = Number(amount) || 0;
+  const fee = Math.round(numericAmount * 0.003 * 100) / 100;
+  const netAmount = Math.max(0, numericAmount - fee);
 
   const handleSwap = () => {
     setFromCurrency(toCurrency);
@@ -81,7 +90,6 @@ export default function ExchangePage() {
       return;
     }
 
-    const numericAmount = Number(amount);
     if (!numericAmount || numericAmount <= 0) {
       setError("Ingresa un monto válido, mayor a 0.");
       return;
@@ -128,6 +136,9 @@ export default function ExchangePage() {
                 onChange={setFromCurrency}
                 disabled={loading}
               />
+              <span className="exchange-balance-hint">
+                Saldo disponible: <strong>{formatAmount(availableAmount)} {fromCurrency}</strong>
+              </span>
             </div>
 
             <button
@@ -167,6 +178,19 @@ export default function ExchangePage() {
                 disabled={loading}
               />
             </div>
+
+            {numericAmount > 0 && (
+              <div className="exchange-summary-box">
+                <div className="summary-line">
+                  <span>Comisión de cambio (0.3%):</span>
+                  <span>{formatAmount(fee)} {fromCurrency}</span>
+                </div>
+                <div className="summary-line">
+                  <span>Monto neto a convertir:</span>
+                  <span className="summary-highlight">{formatAmount(netAmount)} {fromCurrency}</span>
+                </div>
+              </div>
+            )}
 
             {error && (
               <div className="exchange-error" role="alert">

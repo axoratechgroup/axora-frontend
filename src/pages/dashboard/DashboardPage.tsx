@@ -70,6 +70,11 @@ export default function DashboardPage() {
       <header className="dashboard-header">
         <div className="dashboard-greeting">
           Hola, <span className="text-orange">{firstName}</span>
+          {user?.username && (
+            <span className="username-badge" title={`Usuario: @${user.username}`}>
+              @{user.username}
+            </span>
+          )}
         </div>
 
         <div className="dashboard-search-bar">
@@ -195,7 +200,7 @@ export default function DashboardPage() {
                 <div className="action-circle">
                   <Plus size={22} aria-hidden="true" />
                 </div>
-                <span>cargar<br />saldo</span>
+                <span>Cargar<br />saldo</span>
               </button>
               <button
                 className="action-item"
@@ -210,7 +215,7 @@ export default function DashboardPage() {
                 <div className="action-circle">
                   <ArrowLeftRight size={20} aria-hidden="true" />
                 </div>
-                <span>comprar /<br />vender</span>
+                <span>Comprar /<br />vender</span>
               </button>
               <button
                 className="action-item"
@@ -225,19 +230,23 @@ export default function DashboardPage() {
                 <div className="action-circle">
                   <Send size={19} aria-hidden="true" />
                 </div>
-                <span>transferir</span>
+                <span>Transferir</span>
               </button>
               <button className="action-item" onClick={() => navigate('/historial')}>
                 <div className="action-circle">
                   <History size={20} aria-hidden="true" />
                 </div>
-                <span>historial</span>
+                <span>Historial</span>
               </button>
-              <button className="action-item">
+              <button
+                className="action-item"
+                onClick={() => navigate('/configuracion')}
+                title="Configuración de la cuenta"
+              >
                 <div className="action-circle">
                   <Settings size={20} aria-hidden="true" />
                 </div>
-                <span>configuración</span>
+                <span>Configuración</span>
               </button>
             </div>
           </section>
@@ -246,7 +255,13 @@ export default function DashboardPage() {
           <section className="assets-section">
             <div className="section-header">
               <h2 className="section-title">Mis activos</h2>
-              <button className="btn-small">Ver más</button>
+              <button
+                className="btn-small"
+                onClick={() => navigate('/exchange')}
+                title="Ir a comprar / vender activos"
+              >
+                Ver más
+              </button>
             </div>
 
             <div className="assets-grid">
