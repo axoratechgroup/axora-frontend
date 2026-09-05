@@ -9,8 +9,8 @@ describe('formatAmount', () => {
   })
 
   it('formatea números flotantes y enteros a dos decimales con coma', () => {
-    expect(formatAmount(1504)).toBe('1504,00')
-    expect(formatAmount('1504.5')).toBe('1504,50')
+    expect(formatAmount(1504)).toBe('1.504,00')
+    expect(formatAmount('1504.5')).toBe('1.504,50')
     expect(formatAmount('123.456')).toBe('123,46')
   })
 

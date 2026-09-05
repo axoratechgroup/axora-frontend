@@ -125,7 +125,7 @@ export default function LoginPage() {
           <Link to="/registro">crear cuenta</Link>
         </p>
         <p className="login-footer-note">
-          Al registrarte se crea tu billetera automáticamente.
+          Al registrarte, se crea tu billetera automáticamente.
         </p>
       </footer>
     </div>

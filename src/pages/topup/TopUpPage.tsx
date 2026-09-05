@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactCountryFlag from "react-country-flag";
 import { topupApi } from "../../api/wallet.api.ts";
+import { formatAmountInputDisplay, parseAmountInputDisplay } from "../../utils/formatters.ts";
 import { CURRENCY_TO_COUNTRY, getCountryCode } from "../../utils/currency.ts";
 import "./TopUpPage.css";
 
@@ -50,6 +51,10 @@ export default function TopUpPage() {
     const numericAmount = Number(amount);
     if (!numericAmount || numericAmount <= 0) {
       setError("Ingresa un monto válido, mayor a 0.");
+      return;
+    }
+
+    if (!window.confirm(`¿Confirmas la carga de ${numericAmount} ${currency}?`)) {
       return;
     }
 
@@ -118,12 +123,11 @@ export default function TopUpPage() {
               <input
                 id="amount"
                 className={`form-input${error ? " has-error" : ""}`}
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                type="text"
+                inputMode="decimal"
+                placeholder="0,00"
+                value={formatAmountInputDisplay(amount)}
+                onChange={(e) => setAmount(parseAmountInputDisplay(e.target.value))}
                 disabled={loading}
               />
             </div>

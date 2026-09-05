@@ -1,20 +1,27 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { AuthProvider } from '../../context/AuthContext.tsx'
 import NotFoundPage from './NotFoundPage.tsx'
 
 function renderNotFound(initialEntry = '/404') {
   return render(
     <MemoryRouter initialEntries={[initialEntry]}>
-      <Routes>
-        <Route path="/" element={<p>Página de inicio</p>} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<p>Página de inicio</p>} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </AuthProvider>
     </MemoryRouter>,
   )
 }
 
 describe('NotFoundPage', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   it('muestra el código 404 y los mensajes correspondientes', () => {
     renderNotFound()
 

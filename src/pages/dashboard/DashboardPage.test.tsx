@@ -68,16 +68,17 @@ describe('DashboardPage', () => {
     const user = userEvent.setup()
     renderDashboard()
 
-    expect(await screen.findByText('1504,00 USD')).toBeInTheDocument()
+    expect(await screen.findByText('1.504,00 USD')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Ocultar saldo' }))
     expect(screen.getByText('••••••')).toBeInTheDocument()
     expect(screen.getByText('••••')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Mostrar saldo' }))
-    expect(screen.getByText('1504,00 USD')).toBeInTheDocument()
+    expect(screen.getByText('1.504,00 USD')).toBeInTheDocument()
   })
 
   it('elimina la sesión y navega al login al cerrar sesión', async () => {
     const user = userEvent.setup()
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
     renderDashboard()
 
     await user.click(screen.getByRole('button', { name: 'Cerrar sesión' }))

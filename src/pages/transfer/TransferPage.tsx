@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactCountryFlag from "react-country-flag";
 import { transferApi } from "../../api/wallet.api.ts";
+import { formatAmountInputDisplay, parseAmountInputDisplay } from "../../utils/formatters.ts";
 import { CURRENCY_TO_COUNTRY, getCountryCode } from "../../utils/currency.ts";
 import "./TransferPage.css";
 
@@ -41,6 +42,10 @@ export default function TransferPage() {
       return;
     }
 
+    if (!window.confirm(`¿Confirmas la transferencia de ${numericAmount} ${currency} a ${recipientUsername.trim()}?`)) {
+      return;
+    }
+
     setLoading(true);
     try {
       await transferApi(recipientUsername.trim(), currency, numericAmount);
@@ -59,7 +64,7 @@ export default function TransferPage() {
     <div className="transfer-page">
       <div className="transfer-card">
         <h1 className="transfer-title">Enviar dinero</h1>
-        <p className="transfer-subtitle">Transferí saldo a otro usuario de Axora.</p>
+        <p className="transfer-subtitle">Transfiere saldo a otro usuario de Axora.</p>
 
         {success ? (
           <p className="transfer-success">Transferencia exitosa. Volviendo a tu cuenta…</p>
@@ -121,12 +126,11 @@ export default function TransferPage() {
               <input
                 id="amount"
                 className={`form-input${error ? " has-error" : ""}`}
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                type="text"
+                inputMode="decimal"
+                placeholder="0,00"
+                value={formatAmountInputDisplay(amount)}
+                onChange={(e) => setAmount(parseAmountInputDisplay(e.target.value))}
                 disabled={loading}
               />
             </div>
