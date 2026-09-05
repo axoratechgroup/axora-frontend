@@ -124,6 +124,29 @@ export default function ConfiguracionPage() {
             <span className="base-currency-pill">USD ($)</span>
           </div>
         </section>
+
+        {user.role === 'admin' && (
+          <section className="config-card">
+            <h2 className="section-title">Herramientas de Administración</h2>
+            <div className="preference-row">
+              <div className="preference-info">
+                <span className="preference-label">Panel de Administración Global</span>
+                <span className="preference-desc">
+                  Supervisión de usuarios registrados, auditoría de transacciones y conciliación del sistema.
+                </span>
+              </div>
+              <button
+                type="button"
+                className="btn-toggle-theme"
+                onClick={() => navigate('/admin')}
+                style={{ backgroundColor: '#ff7a30', color: '#ffffff', borderColor: '#ff7a30' }}
+              >
+                <Shield size={16} />
+                <span>Abrir panel admin</span>
+              </button>
+            </div>
+          </section>
+        )}
       </div>
     </div>
   )

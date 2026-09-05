@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, Globe, type LucideIcon } from 'lucide-react'
+import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, Globe, ShieldCheck, type LucideIcon } from 'lucide-react'
 import ReactCountryFlag from 'react-country-flag'
 import { getCountryCode } from '../../utils/currency.ts'
 import { useAuth } from '../../hooks/useAuth.ts'
@@ -83,6 +83,17 @@ export default function DashboardPage() {
         </div>
 
         <div className="dashboard-header-icons">
+          {user?.role === 'admin' && (
+            <Link
+              className="icon-btn"
+              to="/admin"
+              aria-label="Panel de Administración"
+              title="Panel de Administración"
+              style={{ color: '#f87171' }}
+            >
+              <ShieldCheck size={18} aria-hidden="true" />
+            </Link>
+          )}
           <button
             className="icon-btn"
             aria-label={showBalance ? 'Ocultar saldo' : 'Mostrar saldo'}
@@ -317,7 +328,13 @@ export default function DashboardPage() {
                       </div>
                       <div className="transaction-details">
                         <span className="transaction-type">{formatTransactionType(tx.type)}</span>
-                        <span className="transaction-source">{tx.status}</span>
+                        <span className="transaction-source">
+                          {tx.type === 'SWAP' && tx.from_currency
+                            ? `${tx.from_currency} → ${tx.to_currency}${tx.applied_exchange_rate ? ` • Tasa: ${Number(tx.applied_exchange_rate).toLocaleString('es-AR', { maximumFractionDigits: 4 })}` : ''}`
+                            : tx.type === 'TRANSFER' && tx.counterparty_username
+                            ? `${tx.direction === 'sent' ? 'Para' : 'De'} @${tx.counterparty_username}`
+                            : tx.status}
+                        </span>
                       </div>
                       <div className="transaction-value">
                         <span className="transaction-amount">{formatAmount(tx.to_amount)} {tx.to_currency}</span>

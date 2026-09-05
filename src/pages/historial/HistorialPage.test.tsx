@@ -93,6 +93,7 @@ describe("HistorialPage", () => {
           to_currency: "EUR",
           from_amount: 100,
           to_amount: 90,
+          applied_exchange_rate: "0.9000",
           created_at: "2026-09-04T14:00:00Z",
         },
       ],
@@ -102,9 +103,9 @@ describe("HistorialPage", () => {
 
     renderHistorial();
 
-    expect(screen.getByText("Enviado a amigo1")).toBeInTheDocument();
-    expect(screen.getByText("Recibido de amigo2")).toBeInTheDocument();
-    expect(screen.getByText("USD → EUR")).toBeInTheDocument();
+    expect(screen.getByText("Enviado a @amigo1")).toBeInTheDocument();
+    expect(screen.getByText("Recibido de @amigo2")).toBeInTheDocument();
+    expect(screen.getByText(/USD → EUR • Tasa: 0,9/)).toBeInTheDocument();
   });
 
   it("navega al dashboard al presionar el botón Volver", async () => {
