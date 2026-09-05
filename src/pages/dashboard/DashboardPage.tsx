@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings } from 'lucide-react'
+import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, type LucideIcon } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth.ts'
 import { useWallet } from '../../hooks/useWallet.ts'
 import { AssetCard } from '../../components/dashboard/AssetCard.tsx'
@@ -9,6 +9,12 @@ import { formatAmount, formatTransactionType } from '../../utils/formatters.ts'
 import type { StoredUser } from '../../types/auth.ts'
 import { ChatWidget } from '../../components/chat/ChatWidget.tsx'
 import './DashboardPage.css'
+
+const TRANSACTION_ICONS: Record<string, LucideIcon> = {
+  TOP_UP: Plus,
+  TRANSFER: Send,
+  SWAP: ArrowLeftRight,
+}
 
 const SLOGANS = [
   'Tu dinero, sin fronteras.',
@@ -130,7 +136,7 @@ export default function DashboardPage() {
                 <div className="action-circle">
                   <Settings size={20} aria-hidden="true" />
                 </div>
-                <span>Configuración</span>
+                <span>configuración</span>
               </button>
             </div>
           </section>
@@ -180,19 +186,24 @@ export default function DashboardPage() {
               )}
 
               {!transactionsError &&
-                transactions.map((tx) => (
-                  <li className="transaction-item" key={tx.id}>
-                    <div className="transaction-icon"></div>
-                    <div className="transaction-details">
-                      <span className="transaction-type">{formatTransactionType(tx.type)}</span>
-                      <span className="transaction-source">{tx.status}</span>
-                    </div>
-                    <div className="transaction-value">
-                      <span className="transaction-amount">{formatAmount(tx.to_amount)} {tx.to_currency}</span>
-                      <span className="transaction-date">{new Date(tx.created_at).toLocaleString('es-AR')}</span>
-                    </div>
-                  </li>
-                ))}
+                transactions.map((tx) => {
+                  const TxIcon = TRANSACTION_ICONS[tx.type] ?? History
+                  return (
+                    <li className="transaction-item" key={tx.id}>
+                      <div className="transaction-icon">
+                        <TxIcon size={16} aria-hidden="true" />
+                      </div>
+                      <div className="transaction-details">
+                        <span className="transaction-type">{formatTransactionType(tx.type)}</span>
+                        <span className="transaction-source">{tx.status}</span>
+                      </div>
+                      <div className="transaction-value">
+                        <span className="transaction-amount">{formatAmount(tx.to_amount)} {tx.to_currency}</span>
+                        <span className="transaction-date">{new Date(tx.created_at).toLocaleString('es-AR')}</span>
+                      </div>
+                    </li>
+                  )
+                })}
             </ul>
           </section>
 
