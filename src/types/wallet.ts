@@ -16,6 +16,10 @@ export interface Transaction {
   id: string
   type: string
   status: string
+  wallet_id: string
+  destination_wallet_id: string | null
+  direction: 'sent' | 'received'
+  counterparty_username: string | null
   from_currency: string | null
   from_amount: string | null
   to_currency: string
