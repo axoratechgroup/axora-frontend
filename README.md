@@ -6,7 +6,7 @@ Construido con **React 19 + TypeScript + Vite**, siguiendo principios de **Clean
 
 ---
 
-## 🏛️ Arquitectura del Proyecto
+## 🏛️ Arquitectura del Proyecto.
 
 El frontend sigue una arquitectura modular y desacoplada por capas de responsabilidad clara:
 
@@ -58,25 +58,34 @@ src/
 ## ⚙️ Descripción de las Capas
 
 ### 1. Modelos y Tipos (`src/types/`)
+
 Centraliza las interfaces de TypeScript para que los componentes, hooks y servicios de API compartan las mismas definiciones sin duplicación de código (`User`, `StoredUser`, `Balance`, `WalletResponse`, `Transaction`).
 
 ### 2. Utilidades Puras (`src/utils/`)
+
 Funciones puras sin dependencias de React:
+
 - **`formatAmount`**: Convierte cualquier valor numérico o string (`0.00000000`, `1504.5`) en formato estándar de presentación con 2 decimales y coma (`0,00`, `1504,50`).
 - **`getCountryCode` / `CURRENCY_TO_COUNTRY`**: Asocia monedas a su bandera oficial (`USD` ➔ `US`, `ARS` ➔ `AR`, `COP` ➔ `CO`, `MXN` ➔ `MX`, `EUR` ➔ `EU`, `BRL` ➔ `BR`).
 
 ### 3. Servicios de API (`src/api/`)
+
 Aísla las URLs, endpoints y llamadas `fetch` fuera de los componentes.
+
 - `fetchWithAuth`: Interceptor que añade el token `Authorization: Bearer <token>`, detecta respuestas `401 Unauthorized`, limpia la sesión en `localStorage` y emite el evento `auth:expired` para redirigir a `/login`.
 - `auth.api.ts` y `wallet.api.ts`: Métodos fuertemente tipados para consultar el backend.
 
 ### 4. Custom Hooks (`src/hooks/`)
+
 Encapsulan el ciclo de vida, estados asíncronos y lógica de negocio:
+
 - **`useWallet`**: Controla la carga en paralelo de balances y transacciones recientes, gestiona estados de carga (`walletLoading`, `transactionsLoading`), errores y calcula reactivamente `totalBalance`.
 - **`useAuth`**: Proporciona el estado de autenticación (`checking`, `authenticated`, `unauthenticated`).
 
 ### 5. Componentes Reutilizables (`src/components/`)
+
 Elementos atómicos de interfaz UI:
+
 - **`PasswordInput`**: Campo de contraseña accesible (`aria-label`, foco por teclado) con botón para alternar entre `type="password"` y `type="text"`.
 - **`AssetCard`**: Renderiza el balance individual junto a la bandera oficial generada con `react-country-flag`.
 
@@ -101,23 +110,25 @@ graph TD
 
 ## 🧭 Rutas de la Aplicación
 
-| Ruta | Componente | Acceso | Descripción |
-| :--- | :--- | :--- | :--- |
-| `/` | `App` | Público | Landing page informativa |
-| `/login` | `LoginPage` | Público | Inicio de sesión con toggle de contraseña |
-| `/registro` | `RegistroPage` | Público | Registro de usuario, validación de contraseñas |
+| Ruta         | Componente      | Acceso        | Descripción                                          |
+| :----------- | :-------------- | :------------ | :--------------------------------------------------- |
+| `/`          | `App`           | Público       | Landing page informativa                             |
+| `/login`     | `LoginPage`     | Público       | Inicio de sesión con toggle de contraseña            |
+| `/registro`  | `RegistroPage`  | Público       | Registro de usuario, validación de contraseñas       |
 | `/dashboard` | `DashboardPage` | **Protegido** | Resumen de cuenta, activos, transacciones y gráficas |
-| `*` | `NotFoundPage` | Público | Página 404 con gatito decorativo y botón al inicio |
+| `*`          | `NotFoundPage`  | Público       | Página 404 con gatito decorativo y botón al inicio   |
 
 ---
 
 ## 🛠️ Requisitos e Instalación
 
 ### Requisitos previos:
+
 - Node.js (v18 o superior)
 - npm
 
 ### Configuración:
+
 ```bash
 # 1. Instalar dependencias
 npm install
@@ -126,8 +137,8 @@ npm install
 cp .env.example .env
 ```
 
-| Variable | Descripción | Ejemplo |
-| :--- | :--- | :--- |
+| Variable       | Descripción                    | Ejemplo                                                |
+| :------------- | :----------------------------- | :----------------------------------------------------- |
 | `VITE_API_URL` | URL base del backend (Express) | `https://axora-backend-production-4e8d.up.railway.app` |
 
 ---
@@ -159,6 +170,7 @@ npm run lint
 ## 🧪 Estrategia de Pruebas
 
 Toda la aplicación cuenta con pruebas automatizadas usando **Vitest** y **React Testing Library**:
+
 - **`fetchWithAuth.test.ts`**: Interceptores de autenticación y manejo de errores 401.
 - **`ProtectedRoute.test.tsx`**: Protección de rutas y redirecciones.
 - **`DashboardPage.test.tsx`**: Renderizado de saldos, ocultar/mostrar y cierre de sesión.
