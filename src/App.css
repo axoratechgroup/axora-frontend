@@ -66,6 +66,7 @@
 
 .login-link {
   color: var(--ink-dim);
+  display: none;
   font-size: .9rem;
   font-weight: 600;
   text-decoration: none;
@@ -75,12 +76,20 @@
 
 .register-link {
   color: var(--ink-dim);
+  display: none;
   font-size: .9rem;
   font-weight: 600;
   text-decoration: none;
   transition: color .2s ease;
 }
 .register-link:hover { color: var(--ink); }
+
+@media (min-width: 900px) {
+  .login-link,
+  .register-link {
+    display: inline-block;
+  }
+}
 
 .text-link, .site-footer a {
   color: var(--accent-2);
@@ -142,6 +151,8 @@
   transition: transform .28s cubic-bezier(.4,0,.2,1);
   width: 82vw;
   z-index: 50;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .side-menu.is-open { transform: translateX(0); }
 
@@ -164,18 +175,61 @@
 }
 .close-menu:hover { background: rgba(244,132,95,0.15); }
 
-.side-menu ul { list-style: none; margin: 48px 0 0; padding: 0; }
+.side-menu ul { list-style: none; margin: 32px 0 0; padding: 0; }
 .side-menu li { border-bottom: 1px solid var(--border); }
 .side-menu a {
   color: var(--ink-dim);
   display: block;
   font-family: var(--display);
-  font-size: 1.5rem;
-  padding: 18px 0;
+  font-size: 1.35rem;
+  padding: 16px 0;
   text-decoration: none;
   transition: color .18s, padding-left .18s;
 }
 .side-menu a:hover { color: var(--accent-2); padding-left: 8px; }
+
+/* ─── Side Menu Auth Buttons ─────────────────────────────────────────── */
+.side-menu-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.side-menu-btn {
+  align-items: center;
+  border-radius: 12px;
+  display: flex;
+  font-family: var(--display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  justify-content: center;
+  min-height: 46px;
+  padding: 12px 18px;
+  text-decoration: none;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.side-menu-btn-primary {
+  background: var(--color-primary);
+  color: #ffffff !important;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+.side-menu-btn-primary:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.side-menu-btn-secondary {
+  background: var(--canvas-2);
+  border: 1px solid var(--border);
+  color: var(--ink) !important;
+}
+.side-menu-btn-secondary:hover {
+  background: var(--canvas-3);
+  border-color: var(--border-glow);
+}
 
 /* ─── Theme toggle ───────────────────────────────────────────────────── */
 .theme-toggle {
@@ -183,7 +237,7 @@
   border-top: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
-  margin-top: 32px;
+  margin-top: 24px;
   padding-top: 24px;
 }
 

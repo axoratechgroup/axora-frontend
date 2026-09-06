@@ -509,9 +509,9 @@
 
 @media (max-width: 640px) {
   .dashboard-page {
-    padding: 16px 14px 72px;
+    padding: 16px 14px 84px;
     border-radius: 0;
-    overflow-x: hidden;
+    overflow: visible;
   }
 
   .dashboard-header {
