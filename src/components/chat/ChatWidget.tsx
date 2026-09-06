@@ -124,7 +124,7 @@ export function ChatWidget({ onActionConfirmed }: ChatWidgetProps) {
   return (
     <>
       <button
-        className="chat-ia-btn"
+        className={`chat-ia-btn ${isOpen ? 'is-open' : ''}`}
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
       >
@@ -133,13 +133,15 @@ export function ChatWidget({ onActionConfirmed }: ChatWidgetProps) {
       </button>
 
       {isOpen && (
-        <div className="chat-widget" role="dialog" aria-label="Asistente virtual de Axora">
-          <div className="chat-widget-header">
-            <span>Asistente Axora</span>
-            <button className="chat-widget-close" onClick={() => setIsOpen(false)} aria-label="Cerrar chat">
-              <X size={16} aria-hidden="true" />
-            </button>
-          </div>
+        <>
+          <div className="chat-backdrop" onClick={() => setIsOpen(false)} aria-hidden="true" />
+          <div className="chat-widget" role="dialog" aria-label="Asistente virtual de Axora">
+            <div className="chat-widget-header">
+              <span>Asistente Axora</span>
+              <button className="chat-widget-close" onClick={() => setIsOpen(false)} aria-label="Cerrar chat">
+                <X size={16} aria-hidden="true" />
+              </button>
+            </div>
 
           <div className="chat-widget-messages">
             {messages.map((message) => (
@@ -208,6 +210,7 @@ export function ChatWidget({ onActionConfirmed }: ChatWidgetProps) {
             </button>
           </div>
         </div>
+        </>
       )}
     </>
   )

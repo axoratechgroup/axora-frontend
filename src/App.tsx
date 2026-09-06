@@ -224,6 +224,15 @@ function App() {
             )}
           </ul>
         </nav>
+
+        <div className="side-menu-auth">
+          <Link className="side-menu-btn side-menu-btn-primary" to="/registro" onClick={closeMenu}>
+            Regístrate gratis
+          </Link>
+          <Link className="side-menu-btn side-menu-btn-secondary" to="/login" onClick={closeMenu}>
+            Iniciar sesión
+          </Link>
+        </div>
         
         <div className="theme-toggle">
           <div className="theme-toggle-label">
