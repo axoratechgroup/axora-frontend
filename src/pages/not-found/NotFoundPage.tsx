@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { BrandLogo } from '../../components/common/BrandLogo.tsx'
 import { useAuth } from '../../hooks/useAuth.ts'
 import './NotFoundPage.css'
 
@@ -8,9 +9,8 @@ export default function NotFoundPage() {
   return (
     <div className="not-found-page">
       {/* Brand mark */}
-      <div className="not-found-brand" aria-label="Axora">
-        <img src="/favicon.svg" alt="" aria-hidden="true" className="not-found-brand-icon" />
-        <p className="not-found-brand-name">AXORA</p>
+      <div className="not-found-brand-wrapper">
+        <BrandLogo size="lg" to={isAuthenticated ? '/dashboard' : '/'} />
       </div>
 
       {/* Card */}

@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactCountryFlag from "react-country-flag";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeft, ArrowLeftRight } from "lucide-react";
 import { useWallet } from "../../hooks/useWallet.ts";
 import { exchangeApi } from "../../api/wallet.api.ts";
 import { formatAmount, formatAmountInputDisplay, parseAmountInputDisplay } from "../../utils/formatters.ts";
@@ -116,6 +116,18 @@ export default function ExchangePage() {
   return (
     <div className="exchange-page">
       <div className="exchange-card">
+        <div className="op-card-header">
+          <button
+            type="button"
+            className="op-back-btn"
+            onClick={() => navigate("/dashboard")}
+            aria-label="Volver al panel"
+          >
+            <ArrowLeft size={16} aria-hidden="true" />
+            <span>Volver al panel</span>
+          </button>
+        </div>
+
         <h1 className="exchange-title">Comprar / vender</h1>
         <p className="exchange-subtitle">Cambia saldo entre monedas dentro de tu cuenta Axora.</p>
 

@@ -3,6 +3,7 @@ import type { SyntheticEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { loginApi } from '../../api/auth.api.ts'
 import { PasswordInput } from '../../components/common/PasswordInput.tsx'
+import { BrandLogo } from '../../components/common/BrandLogo.tsx'
 import { useAuth } from '../../hooks/useAuth.ts'
 import './LoginPage.css'
 
@@ -46,16 +47,15 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
-      {/* DASHBOARD */}
-      <Link className="login-back" to="/">
-        <span aria-hidden="true">←</span>
-        Volver
-      </Link>
+      <div className="login-nav-top">
+        <Link className="login-back" to="/">
+          <span aria-hidden="true">←</span>
+          Volver
+        </Link>
+      </div>
 
-      {/* Brand mark */}
-      <div className="login-brand" aria-label="Axora">
-        <img src="/favicon.svg" alt="" aria-hidden="true" className="login-brand-icon" />
-        <p className="login-brand-name">AXORA</p>
+      <div className="login-brand-wrapper">
+        <BrandLogo size="lg" to="/" />
       </div>
 
       {/* Card */}
@@ -72,8 +72,11 @@ export default function LoginPage() {
             <input
               id="login-email"
               className={`form-input${error ? ' has-error' : ''}`}
-              type="email"
-              autoComplete="email"
+              type="text"
+              autoComplete="username email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               placeholder="pitty@correo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

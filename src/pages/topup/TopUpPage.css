@@ -4,16 +4,18 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 100svh;
-  padding: 24px 16px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 24px 16px 48px;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .topup-page::before {
   background: radial-gradient(
     ellipse 60% 50% at 50% 0%,
-    rgba(255, 122, 48, 0.14) 0%,
+    rgba(232, 130, 30, 0.14) 0%,
     transparent 65%
   );
   content: "";
@@ -22,17 +24,46 @@
   position: absolute;
 }
 
+/* ─── Card Header & Back Button ──────────────────────────────────────── */
+.op-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.op-back-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.op-back-btn:hover {
+  background: rgba(232, 130, 30, 0.08);
+  border-color: var(--border-glow);
+  color: var(--ink);
+}
+
 /* ─── Card ───────────────────────────────────────────────────────────── */
 .topup-card {
   background: var(--canvas-2);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   border-radius: 24px;
-  padding: 36px 32px 32px;
+  padding: 32px 28px;
   position: relative;
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   box-shadow:
-    0 0 0 1px rgba(255, 122, 48, 0.06),
+    0 0 0 1px rgba(232, 130, 30, 0.06),
     0 32px 80px rgba(0, 0, 0, 0.55);
 }
 

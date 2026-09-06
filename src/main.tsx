@@ -12,6 +12,7 @@ import ExchangePage from './pages/exchange/ExchangePage.tsx'
 import HistorialPage from './pages/historial/HistorialPage.tsx'
 import ConfiguracionPage from './pages/configuracion/ConfiguracionPage.tsx'
 import AdminPage from './pages/admin/AdminPage.tsx'
+import SoportePage from './pages/soporte/SoportePage.tsx'
 import NotFoundPage from './pages/not-found/NotFoundPage.tsx'
 import { AuthProvider } from './context/AuthContext.tsx'
 import ProtectedRoute from './routes/ProtectedRoute.tsx'
@@ -32,6 +33,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/historial" element={<ProtectedRoute><HistorialPage /></ProtectedRoute>} />
           <Route path="/configuracion" element={<ProtectedRoute><ConfiguracionPage /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+          <Route path="/soporte" element={<SoportePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
