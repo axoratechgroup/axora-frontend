@@ -1,28 +1,48 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap');
 
-/* ─── Dark theme (default) ───────────────────────────────────────────── */
+/* ─── AXORA Design Tokens ─────────────────────────────────────────────── */
+/* Dark theme (default) — Neutros Cálidos Carbón/Piedra */
 :root {
-  --canvas:      #0e0e0e;
-  --canvas-2:    #1a1a1a;
-  --canvas-3:    #242424;
-  --peach:       #1c1c1c;
-  --blush:       #2a2a2a;
-  --orange:      #ff7a30;
-  --orange-2:    #ff9f50;
-  --orange-glow: rgba(255,122,48,0.28);
-  --accent:      #ff7a30;
-  --accent-2:    #ffaa60;
-  --accent-glow: rgba(255,122,48,0.25);
-  --ink:         #f2f2f2;
-  --ink-dim:     #b8b8b8;
-  --muted:       #7a7a7a;
-  --border:      rgba(255,255,255,0.09);
-  --border-glow: rgba(255,122,48,0.35);
-  --header-bg:   rgba(14, 14, 14, 0.85);
-  --display: 'Plus Jakarta Sans', 'Sora', 'Inter', system-ui, sans-serif;
+  --color-primary:        #E8821E;
+  --color-primary-dark:   #C26A10;
+  --color-primary-light:  #F6C68B;
+  --color-neutral-dark-1: #1C1917;
+  --color-neutral-dark-2: #1E1C1A;
+  --color-neutral-deep:   #0D0C0B;
+  --color-neutral-warm-gray: #6E655B;
+  --color-surface-cream:  #FDF3E4;
+  --color-surface-linen:  #EFE9E1;
+  --color-feedback-alert: #B3261E;
+
+  /* Aliases para compatibilidad de vistas existentes */
+  --canvas:        #1C1917;
+  --canvas-2:      #1E1C1A;
+  --canvas-3:      #2A2623;
+  --canvas-deep:    #0D0C0B;
+  --peach:         #23201D;
+  --blush:         #2F2B28;
+  --orange:        #E8821E;
+  --orange-2:      #F6C68B;
+  --orange-dark:   #C26A10;
+  --orange-glow:   rgba(232, 130, 30, 0.28);
+  --accent:        #E8821E;
+  --accent-2:      #F6C68B;
+  --accent-dark:   #C26A10;
+  --accent-glow:   rgba(232, 130, 30, 0.24);
+  --ink:           #FDF3E4;
+  --ink-dim:       #D4C9BD;
+  --muted:         #8E8377;
+  --border:        rgba(246, 198, 139, 0.12);
+  --border-glow:   rgba(232, 130, 30, 0.35);
+  --header-bg:     rgba(28, 25, 23, 0.88);
+  
+  --display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-accent: 'Caveat', cursive, sans-serif;
+
   background: var(--canvas);
   color: var(--ink);
-  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -30,29 +50,32 @@
 
 /* ─── Text Selection High-Contrast ──────────────────────────────────── */
 ::selection {
-  background-color: #ff7a30;
+  background-color: var(--color-primary);
   color: #ffffff;
 }
 
-/* ─── Light theme ────────────────────────────────────────────────────── */
+/* ─── Light theme — Lino y Crema Orgánico ───────────────────────────── */
 [data-theme="light"] {
-  --canvas:      #f5f5f5;
-  --canvas-2:    #ebebeb;
-  --canvas-3:    #e0e0e0;
-  --peach:       #ededed;
-  --blush:       #dcdcdc;
-  --orange:      #ff7a30;
-  --orange-2:    #ff9f50;
-  --orange-glow: rgba(255,122,48,0.22);
-  --accent:      #ff7a30;
-  --accent-2:    #e05a10;
-  --accent-glow: rgba(255,122,48,0.2);
-  --ink:         #111111;
-  --ink-dim:     #444444;
-  --muted:       #777777;
-  --border:      rgba(0,0,0,0.1);
-  --border-glow: rgba(255,122,48,0.4);
-  --header-bg:   rgba(255, 236, 220, 0.9);
+  --canvas:        #FDF3E4;
+  --canvas-2:      #EFE9E1;
+  --canvas-3:      #E3D9CD;
+  --canvas-deep:    #D9CFBF;
+  --peach:         #EFE9E1;
+  --blush:         #E4DCD2;
+  --orange:        #E8821E;
+  --orange-2:      #C26A10;
+  --orange-dark:   #A35308;
+  --orange-glow:   rgba(232, 130, 30, 0.2);
+  --accent:        #E8821E;
+  --accent-2:      #C26A10;
+  --accent-dark:   #A35308;
+  --accent-glow:   rgba(232, 130, 30, 0.2);
+  --ink:           #1C1917;
+  --ink-dim:       #3E3835;
+  --muted:         #6E655B;
+  --border:        rgba(110, 101, 91, 0.16);
+  --border-glow:   rgba(232, 130, 30, 0.4);
+  --header-bg:     rgba(253, 243, 228, 0.92);
   background: var(--canvas);
   color: var(--ink);
 }
@@ -72,9 +95,10 @@ body {
   min-width: 320px;
   background: var(--canvas);
   background-image:
-    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(255,122,48,0.12) 0%, transparent 65%),
-    radial-gradient(ellipse 40% 30% at 90% 100%, rgba(255,122,48,0.08) 0%, transparent 55%);
+    radial-gradient(ellipse 70% 45% at 50% -8%, rgba(232, 130, 30, 0.12) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 30% at 90% 100%, rgba(232, 130, 30, 0.08) 0%, transparent 55%);
   min-height: 100vh;
+  min-height: 100dvh;
   transition: background-color .3s ease;
 }
 
@@ -84,6 +108,17 @@ a:focus-visible, button:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 3px;
   border-radius: 6px;
+}
+
+/* Tabular nums para alineación de montos monetarios según el Brand Book */
+.tabular-nums,
+[data-testid="account-balance"],
+.account-balance,
+.asset-amount,
+.transaction-amount,
+.historial-amount {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
 }
 
 .sr-only {

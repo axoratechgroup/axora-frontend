@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth.ts'
+import { BrandLogo } from './components/common/BrandLogo.tsx'
 import './App.css'
 
 const menuLinks = [
@@ -15,6 +16,51 @@ const services = [
   { number: '01', title: 'Compra de moneda', description: 'Compra la moneda que necesitas usando el saldo disponible en tu billetera.' },
   { number: '02', title: 'Venta de moneda', description: 'Vende una moneda de tu balance y consulta la tasa aplicada antes de confirmar.' },
   { number: '03', title: 'Transferencias', description: 'Envía saldo simulado a otra persona de forma clara, rápida y trazable.' },
+]
+
+const coverageDestinations = [
+  {
+    name: 'Europa (Zona Euro)',
+    badge: 'EUR',
+    flag: '🇪🇺',
+    detail: 'España, Francia, Alemania y +20 países bajo el estándar Euro',
+    featured: true,
+  },
+  {
+    name: 'Estados Unidos',
+    badge: 'USD',
+    flag: '🇺🇸',
+    detail: 'Dólares estadounidenses y transferencias globales',
+    featured: false,
+  },
+  {
+    name: 'Colombia',
+    badge: 'COP',
+    flag: '🇨🇴',
+    detail: 'Moneda local y transferencias en Pesos colombianos',
+    featured: false,
+  },
+  {
+    name: 'México',
+    badge: 'MXN',
+    flag: '🇲🇽',
+    detail: 'Operaciones en Pesos mexicanos sin fricciones',
+    featured: false,
+  },
+  {
+    name: 'Argentina',
+    badge: 'ARS',
+    flag: '🇦🇷',
+    detail: 'Conversión directa y saldos en Pesos argentinos',
+    featured: false,
+  },
+  {
+    name: 'Brasil',
+    badge: 'BRL',
+    flag: '🇧🇷',
+    detail: 'Gestión integrada en Reales brasileños',
+    featured: false,
+  },
 ]
 
 function CurrencySimulator() {
@@ -128,8 +174,29 @@ function App() {
   return (
     <div className="site-shell">
       <header className="site-header">
-        <a className="brand" href="#inicio" onClick={closeMenu} aria-label="AXORA, ir al inicio">AXORA</a>
+        <BrandLogo size="md" to="#inicio" onClick={closeMenu} />
+        <nav className="desktop-nav" aria-label="Navegación principal">
+          <ul>
+            {menuLinks.map((link) =>
+              <li key={link.to ?? link.href}>
+                {link.to
+                  ? <Link to={link.to}>{link.label}</Link>
+                  : <a href={link.href!}>{link.label}</a>
+                }
+              </li>
+            )}
+          </ul>
+        </nav>
         <div className="header-actions">
+          <button 
+            type="button" 
+            className="header-theme-btn" 
+            onClick={toggleTheme} 
+            aria-label={`Cambiar a modo ${theme === 'dark' ? 'claro' : 'oscuro'}`}
+            title={`Modo ${theme === 'dark' ? 'claro' : 'oscuro'}`}
+          >
+            <span aria-hidden="true">{theme === 'dark' ? '☀️' : '🌙'}</span>
+          </button>
           <Link className="login-link" to="/login">Iniciar sesión</Link>
           <Link className="register-link" to="/registro">Regístrate</Link>
           <button className="menu-button" type="button" aria-expanded={isMenuOpen} aria-controls="main-menu" onClick={() => setIsMenuOpen((isOpen) => !isOpen)}>
@@ -142,7 +209,7 @@ function App() {
       <div className={`menu-overlay ${isMenuOpen ? 'is-visible' : ''}`} onClick={closeMenu} />
       <aside id="main-menu" className={`side-menu ${isMenuOpen ? 'is-open' : ''}`} aria-label="Menú principal">
         <div className="side-menu__top">
-          <span className="brand">AXORA</span>
+          <BrandLogo size="md" to="#inicio" onClick={closeMenu} />
           <button className="close-menu" type="button" onClick={closeMenu} aria-label="Cerrar menú">×</button>
         </div>
         <nav>
@@ -227,8 +294,25 @@ function App() {
         </section>
 
         <section className="countries-section" aria-labelledby="countries-title">
-          <p className="section-label">ALCANCE GLOBAL</p><h2 id="countries-title">Envía dinero a más de 5 países</h2>
-          <div className="country-list" aria-label="Países disponibles próximamente">{['México', 'Argentina', 'Colombia', 'Europa', 'Inglaterra'].map((country) => <span key={country}><i aria-hidden="true"></i>{country}</span>)}</div>
+          <p className="section-label">ALCANCE GLOBAL</p>
+          <h2 id="countries-title">Envía dinero a más de 5 países y a toda Europa</h2>
+          <p className="countries-subtitle">
+            El Euro (EUR) es el estándar monetario que te conecta con España y más de 20 países europeos desde una sola cuenta, junto a las principales economías de América.
+          </p>
+          <div className="coverage-grid" aria-label="Destinos y monedas disponibles">
+            {coverageDestinations.map((dest) => (
+              <article key={dest.name} className={`coverage-card ${dest.featured ? 'coverage-card--featured' : ''}`}>
+                <div className="coverage-flag" aria-hidden="true">{dest.flag}</div>
+                <div className="coverage-info">
+                  <div className="coverage-header">
+                    <h3 className="coverage-name">{dest.name}</h3>
+                    <span className="coverage-badge">{dest.badge}</span>
+                  </div>
+                  <p className="coverage-detail">{dest.detail}</p>
+                </div>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section id="faq" className="faq-section" aria-labelledby="faq-title">
@@ -267,7 +351,17 @@ function App() {
         <section id="registro" className="register-section"><p>¿Listo para gestionar tus monedas?</p><Link className="primary-button" to="/registro">Crear mi cuenta</Link></section>
       </main>
 
-      <footer className="site-footer"><div><a href="#contacto">Contacto</a><a href="#faq">FAQ</a></div><p>2026 · AXORA. Todos los derechos reservados.</p></footer>
+      <footer className="site-footer">
+        <div className="site-footer-content">
+          <BrandLogo size="sm" to="#inicio" />
+          <div className="footer-links">
+            <a href="#contacto">Contacto</a>
+            <a href="#faq">FAQ</a>
+            <Link to="/soporte">Soporte</Link>
+          </div>
+        </div>
+        <p>2026 · AXORA. Todos los derechos reservados.</p>
+      </footer>
     </div>
   )
 }

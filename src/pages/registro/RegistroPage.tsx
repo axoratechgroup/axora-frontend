@@ -3,6 +3,7 @@ import type { SyntheticEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { registerApi } from '../../api/auth.api.ts'
 import { PasswordInput } from '../../components/common/PasswordInput.tsx'
+import { BrandLogo } from '../../components/common/BrandLogo.tsx'
 import { useAuth } from '../../hooks/useAuth.ts'
 import './RegistroPage.css'
 
@@ -77,15 +78,16 @@ export default function RegistroPage() {
   return (
     <div className="registro-page">
       {/* Volver */}
-      <button type="button" className="registro-back" onClick={() => navigate(-1)}>
-        <span aria-hidden="true">←</span>
-        Volver
-      </button>
+      <div className="registro-nav-top">
+        <button type="button" className="registro-back" onClick={() => navigate(-1)}>
+          <span aria-hidden="true">←</span>
+          Volver
+        </button>
+      </div>
 
       {/* Brand mark */}
-      <div className="registro-brand" aria-label="Axora">
-        <img src="/favicon.svg" alt="" aria-hidden="true" className="registro-brand-icon" />
-        <p className="registro-brand-name">AXORA</p>
+      <div className="registro-brand-wrapper">
+        <BrandLogo size="lg" to="/" />
       </div>
 
       {/* Card */}
@@ -138,6 +140,9 @@ export default function RegistroPage() {
               className={`form-input${error ? ' has-error' : ''}`}
               type="text"
               autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               placeholder="nombredeusuario"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -155,6 +160,9 @@ export default function RegistroPage() {
               className={`form-input${error ? ' has-error' : ''}`}
               type="email"
               autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               placeholder="pitty@correo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

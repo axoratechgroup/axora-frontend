@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactCountryFlag from "react-country-flag";
+import { ArrowLeft } from "lucide-react";
 import { topupApi } from "../../api/wallet.api.ts";
 import { formatAmountInputDisplay, parseAmountInputDisplay } from "../../utils/formatters.ts";
 import { CURRENCY_TO_COUNTRY, getCountryCode } from "../../utils/currency.ts";
@@ -75,6 +76,18 @@ export default function TopUpPage() {
   return (
     <div className="topup-page">
       <div className="topup-card">
+        <div className="op-card-header">
+          <button
+            type="button"
+            className="op-back-btn"
+            onClick={() => navigate("/dashboard")}
+            aria-label="Volver al panel"
+          >
+            <ArrowLeft size={16} aria-hidden="true" />
+            <span>Volver al panel</span>
+          </button>
+        </div>
+
         <h1 className="topup-title">Cargar dinero</h1>
         <p className="topup-subtitle">Agrega saldo a tu cuenta Axora.</p>
 

@@ -4,15 +4,17 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 100svh;
-  padding: 24px 16px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 24px 16px 48px;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   text-align: center;
 }
 
 .not-found-page::before {
-  background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255, 122, 48, 0.14) 0%, transparent 65%);
+  background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(232, 130, 30, 0.14) 0%, transparent 65%);
   content: '';
   inset: 0;
   pointer-events: none;
@@ -20,30 +22,13 @@
 }
 
 /* ─── Brand header ───────────────────────────────────────────────────── */
-.not-found-brand {
+.not-found-brand-wrapper {
   align-items: center;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 32px;
+  justify-content: center;
+  margin-bottom: 24px;
   position: relative;
-}
-
-.not-found-brand-icon {
-  width: 22px;
-  height: 22px;
-}
-
-.not-found-brand-name {
-  background: linear-gradient(135deg, var(--ink) 0%, var(--accent-2) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-family: var(--display);
-  font-size: 1.6rem;
-  font-weight: 900;
-  letter-spacing: .18em;
-  margin: 0;
+  z-index: 2;
 }
 
 /* ─── Card ───────────────────────────────────────────────────────────── */

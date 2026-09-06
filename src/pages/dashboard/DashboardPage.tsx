@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, Globe, ShieldCheck, type LucideIcon } from 'lucide-react'
+import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, Globe, ShieldCheck, Compass, type LucideIcon } from 'lucide-react'
 import ReactCountryFlag from 'react-country-flag'
 import { getCountryCode } from '../../utils/currency.ts'
 import { useAuth } from '../../hooks/useAuth.ts'
 import { useWallet } from '../../hooks/useWallet.ts'
 import { AssetCard } from '../../components/dashboard/AssetCard.tsx'
 import { CurrencyHistoryChart } from '../../components/dashboard/CurrencyHistoryChart.tsx'
+import { BrandLogo } from '../../components/common/BrandLogo.tsx'
 import { formatAmount, formatTransactionType } from '../../utils/formatters.ts'
 import type { StoredUser } from '../../types/auth.ts'
 import { ChatWidget } from '../../components/chat/ChatWidget.tsx'
@@ -20,7 +21,7 @@ const TRANSACTION_ICONS: Record<string, LucideIcon> = {
 
 const SLOGANS = [
   'Tu dinero, sin fronteras.',
-  'Axora, tu banco favorito.',
+  'Axora, tu billetera de viaje.',
   'Un solo lugar para todas tus divisas.',
 ]
 
@@ -68,18 +69,21 @@ export default function DashboardPage() {
     <div className="dashboard-page">
       {/* HEADER */}
       <header className="dashboard-header">
-        <div className="dashboard-greeting">
-          Hola, <span className="text-orange">{firstName}</span>
-          {user?.username && (
-            <span className="username-badge" title={`Usuario: @${user.username}`}>
-              @{user.username}
-            </span>
-          )}
+        <div className="dashboard-header-left">
+          <BrandLogo size="sm" to="/dashboard" />
+          <div className="dashboard-greeting">
+            Hola, <span className="text-orange">{firstName}</span>
+            {user?.username && (
+              <span className="username-badge" title={`Usuario: @${user.username}`}>
+                @{user.username}
+              </span>
+            )}
+          </div>
         </div>
 
-        <div className="dashboard-search-bar">
-          <img src="/favicon.svg" alt="" aria-hidden="true" className="search-icon" />
-          <input type="text" placeholder={slogan} className="search-input" readOnly />
+        <div className="dashboard-slogan-badge" role="status" aria-label="Lema de Axora">
+          <Compass size={15} aria-hidden="true" className="slogan-icon" />
+          <span className="slogan-text">{slogan}</span>
         </div>
 
         <div className="dashboard-header-icons">

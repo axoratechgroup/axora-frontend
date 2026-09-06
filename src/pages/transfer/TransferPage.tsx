@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactCountryFlag from "react-country-flag";
+import { ArrowLeft } from "lucide-react";
 import { transferApi } from "../../api/wallet.api.ts";
 import { formatAmountInputDisplay, parseAmountInputDisplay } from "../../utils/formatters.ts";
 import { CURRENCY_TO_COUNTRY, getCountryCode } from "../../utils/currency.ts";
@@ -21,6 +22,7 @@ export default function TransferPage() {
   const [recipientUsername, setRecipientUsername] = useState("");
   const [currency, setCurrency] = useState("USD");
   const [amount, setAmount] = useState("");
+  const [memo, setMemo] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -63,6 +65,18 @@ export default function TransferPage() {
   return (
     <div className="transfer-page">
       <div className="transfer-card">
+        <div className="op-card-header">
+          <button
+            type="button"
+            className="op-back-btn"
+            onClick={() => navigate("/dashboard")}
+            aria-label="Volver al panel"
+          >
+            <ArrowLeft size={16} aria-hidden="true" />
+            <span>Volver al panel</span>
+          </button>
+        </div>
+
         <h1 className="transfer-title">Enviar dinero</h1>
         <p className="transfer-subtitle">Transfiere saldo a otro usuario de Axora.</p>
 
@@ -78,6 +92,9 @@ export default function TransferPage() {
                 id="recipient_username"
                 className={`form-input${error ? " has-error" : ""}`}
                 type="text"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 placeholder="usuario123"
                 value={recipientUsername}
                 onChange={(e) => setRecipientUsername(e.target.value)}
@@ -131,6 +148,21 @@ export default function TransferPage() {
                 placeholder="0,00"
                 value={formatAmountInputDisplay(amount)}
                 onChange={(e) => setAmount(parseAmountInputDisplay(e.target.value))}
+                disabled={loading}
+              />
+            </div>
+
+            <div className="form-field">
+              <label className="form-label" htmlFor="memo">
+                Nota o motivo (opcional)
+              </label>
+              <input
+                id="memo"
+                className="form-input form-input-handwriting"
+                type="text"
+                placeholder="Para las cervezas en Bangkok 🍻"
+                value={memo}
+                onChange={(e) => setMemo(e.target.value)}
                 disabled={loading}
               />
             </div>

@@ -1,49 +1,43 @@
-/* ─── Login page shell ───────────────────────────────────────────────── */
+/* ─── Registro page shell ────────────────────────────────────────────── */
 .registro-page {
   align-items: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 100svh;
-  padding: 24px 16px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 24px 16px 48px;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Ambient glow background */
 .registro-page::before {
-  background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255, 122, 48, 0.14) 0%, transparent 65%);
+  background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(232, 130, 30, 0.14) 0%, transparent 65%);
   content: '';
   inset: 0;
   pointer-events: none;
   position: absolute;
 }
 
-/* ─── Brand header ───────────────────────────────────────────────────── */
-.registro-brand {
+/* ─── Brand & Top Nav ────────────────────────────────────────────────── */
+.registro-nav-top {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 12px;
+  max-width: 400px;
+  width: 100%;
+  z-index: 2;
+}
+
+.registro-brand-wrapper {
   align-items: center;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 32px;
+  justify-content: center;
+  margin-bottom: 24px;
   position: relative;
-}
-
-.registro-brand-icon {
-  width: 22px;
-  height: 22px;
-}
-
-.registro-brand-name {
-  background: linear-gradient(135deg, var(--ink) 0%, var(--accent-2) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-family: var(--display);
-  font-size: 1.6rem;
-  font-weight: 900;
-  letter-spacing: .18em;
-  margin: 0;
+  z-index: 2;
 }
 
 /* ─── Card ───────────────────────────────────────────────────────────── */
@@ -221,22 +215,24 @@
 /* ─── Back link ──────────────────────────────────────────────────────── */
 .registro-back {
   align-items: center;
-  background: none;
-  border: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
   cursor: pointer;
   color: var(--muted);
   display: inline-flex;
   font: inherit;
   font-size: .85rem;
   gap: 6px;
-  left: 24px;
-  padding: 0;
-  position: absolute;
+  padding: 6px 12px;
   text-decoration: none;
-  top: 24px;
-  transition: color .2s;
+  transition: color .2s, border-color .2s, background .2s;
 }
-.registro-back:hover { color: var(--ink); }
+.registro-back:hover {
+  color: var(--ink);
+  border-color: var(--border-glow);
+  background: rgba(232, 130, 30, 0.08);
+}
 
 .form-hint {
   font-size: 0.8rem;
