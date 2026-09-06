@@ -4,6 +4,7 @@ export interface User {
   last_name: string
   username: string
   email: string
+  role?: string
 }
 
 export type StoredUser = User

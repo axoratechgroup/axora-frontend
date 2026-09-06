@@ -132,6 +132,19 @@ export default function TopUpPage() {
               />
             </div>
 
+            <div className="topup-summary-box">
+              <div className="summary-line">
+                <span>Costo de transacción:</span>
+                <span className="summary-free">Gratuito ($0,00)</span>
+              </div>
+              <div className="summary-line">
+                <span>Total a acreditar:</span>
+                <span className="summary-highlight">
+                  {amount ? `${formatAmountInputDisplay(amount)} ${currency}` : `0,00 ${currency}`}
+                </span>
+              </div>
+            </div>
+
             {error && (
               <div className="topup-error" role="alert">
                 <em className="topup-error-icon" aria-hidden="true">

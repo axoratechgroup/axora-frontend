@@ -10,6 +10,8 @@ import TopUpPage from './pages/topup/TopUpPage.tsx'
 import TransferPage from './pages/transfer/TransferPage.tsx'
 import ExchangePage from './pages/exchange/ExchangePage.tsx'
 import HistorialPage from './pages/historial/HistorialPage.tsx'
+import ConfiguracionPage from './pages/configuracion/ConfiguracionPage.tsx'
+import AdminPage from './pages/admin/AdminPage.tsx'
 import NotFoundPage from './pages/not-found/NotFoundPage.tsx'
 import { AuthProvider } from './context/AuthContext.tsx'
 import ProtectedRoute from './routes/ProtectedRoute.tsx'
@@ -28,6 +30,8 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/transfer" element={<ProtectedRoute><TransferPage /></ProtectedRoute>} />
           <Route path="/exchange" element={<ProtectedRoute><ExchangePage /></ProtectedRoute>} />
           <Route path="/historial" element={<ProtectedRoute><HistorialPage /></ProtectedRoute>} />
+          <Route path="/configuracion" element={<ProtectedRoute><ConfiguracionPage /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>

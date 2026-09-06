@@ -14,11 +14,14 @@ const TRANSACTION_ICONS: Record<string, LucideIcon> = {
 function transactionSubtitle(tx: Transaction): string {
   if (tx.type === 'TRANSFER' && tx.counterparty_username) {
     return tx.direction === 'sent'
-      ? `Enviado a ${tx.counterparty_username}`
-      : `Recibido de ${tx.counterparty_username}`
+      ? `Enviado a @${tx.counterparty_username}`
+      : `Recibido de @${tx.counterparty_username}`
   }
   if (tx.type === 'SWAP' && tx.from_currency) {
-    return `${tx.from_currency} → ${tx.to_currency}`
+    const rate = tx.applied_exchange_rate
+      ? ` • Tasa: ${Number(tx.applied_exchange_rate).toLocaleString('es-AR', { maximumFractionDigits: 4 })}`
+      : ''
+    return `${tx.from_currency} → ${tx.to_currency}${rate}`
   }
   return formatTransactionType(tx.type)
 }

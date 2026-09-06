@@ -135,6 +135,19 @@ export default function TransferPage() {
               />
             </div>
 
+            <div className="transfer-summary-box">
+              <div className="summary-line">
+                <span>Costo de transferencia:</span>
+                <span className="summary-free">Gratuito ($0,00)</span>
+              </div>
+              <div className="summary-line">
+                <span>Monto a transferir:</span>
+                <span className="summary-highlight">
+                  {amount ? `${formatAmountInputDisplay(amount)} ${currency}` : `0,00 ${currency}`}
+                </span>
+              </div>
+            </div>
+
             {error && (
               <div className="transfer-error" role="alert">
                 <em className="transfer-error-icon" aria-hidden="true">

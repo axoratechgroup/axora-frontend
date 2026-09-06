@@ -9,6 +9,7 @@ export interface Balance {
 export interface WalletResponse {
   wallet_id: string
   created_at: string
+  total_in_usd?: number
   balances: Balance[]
 }
 
