@@ -57,8 +57,27 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
-    if (isAdmin) {
-      loadData()
+    if (!isAdmin) return
+
+    let isMounted = true
+
+    Promise.all([getAdminUsersApi(), getAdminTransactionsApi()])
+      .then(([usersData, txData]) => {
+        if (!isMounted) return
+        setUsers(usersData)
+        setTransactions(txData)
+      })
+      .catch((err: unknown) => {
+        if (!isMounted) return
+        setError(err instanceof Error ? err.message : 'Error al cargar los datos de administración.')
+      })
+      .finally(() => {
+        if (!isMounted) return
+        setLoading(false)
+      })
+
+    return () => {
+      isMounted = false
     }
   }, [isAdmin])
 
