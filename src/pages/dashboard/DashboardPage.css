@@ -106,9 +106,16 @@
 
 /* ─── MAIN CONTENT GRID ─────────────────────────────────────────────── */
 .dashboard-main {
-  display: grid;
-  grid-template-columns: 1.08fr 0.92fr;
+  display: flex;
+  flex-direction: column;
   gap: 28px;
+}
+
+.dashboard-top-row {
+  display: grid;
+  grid-template-columns: 1.65fr 1fr;
+  gap: 28px;
+  align-items: stretch;
 }
 
 .dashboard-card {
@@ -131,7 +138,7 @@
 
 /* ─── LEFT COLUMN: Account Section ───────────────────────────────────── */
 .account-section {
-  margin-bottom: 28px;
+  margin-bottom: 0;
 }
 
 .account-card-header {
@@ -256,7 +263,7 @@
 /* Actions Grid (5 columnas limpias y táctiles) */
 .account-actions {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   border-top: 1px solid var(--border);
   padding-top: 20px;
@@ -493,6 +500,190 @@
   min-height: 310px;
 }
 
+/* ─── ACTIVIDAD (full width) ─────────────────────────────────────────── */
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.activity-count {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.activity-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.activity-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--canvas-3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 12px;
+  flex: 1 1 240px;
+  color: var(--muted);
+}
+
+.activity-search input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ink);
+  font-size: 0.85rem;
+  padding: 10px 0;
+  width: 100%;
+  font-family: inherit;
+}
+
+.activity-select {
+  background: var(--canvas-3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 12px;
+  color: var(--ink-dim);
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.activity-date-range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--canvas-3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 12px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.activity-date-range input[type='date'] {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ink-dim);
+  font-size: 0.82rem;
+  padding: 9px 0;
+  font-family: inherit;
+  color-scheme: dark;
+}
+
+.activity-table-header {
+  display: grid;
+  grid-template-columns: 2.3fr 1.6fr 1.3fr 1fr;
+  gap: 12px;
+  padding: 0 4px 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-row {
+  display: grid;
+  grid-template-columns: 2.3fr 1.6fr 1.3fr 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.activity-row:last-child {
+  border-bottom: none;
+}
+
+.activity-movement {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.activity-counterparty {
+  font-size: 0.85rem;
+  color: var(--ink-dim);
+}
+
+.activity-amount {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.activity-date {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.activity-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 22px;
+}
+
+.page-btn {
+  background: var(--canvas-3);
+  border: 1px solid var(--border);
+  color: var(--ink-dim);
+  border-radius: 8px;
+  min-width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: var(--canvas-2);
+  border-color: var(--border-glow);
+  color: var(--ink);
+}
+
+.page-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-ellipsis {
+  color: var(--muted);
+  padding: 0 4px;
+  font-size: 0.82rem;
+}
 .assets-empty {
   color: var(--muted);
   font-size: 0.9rem;
@@ -501,9 +692,8 @@
 
 /* ─── RESPONSIVE: Tablet & Mobile ────────────────────────────────────── */
 @media (max-width: 900px) {
-  .dashboard-main {
+  .dashboard-top-row {
     grid-template-columns: 1fr;
-    gap: 24px;
   }
 }
 
@@ -561,5 +751,25 @@
 
   .assets-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .activity-table-header {
+    display: none;
+  }
+
+  .activity-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .activity-filters {
+    flex-direction: column;
+  }
+
+  .activity-select,
+  .activity-date-range {
+    width: 100%;
   }
 }
