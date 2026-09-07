@@ -25,6 +25,22 @@ export function formatTransactionType(type: string): string {
   return TRANSACTION_TYPE_LABELS[type] ?? type
 }
 
+const TRANSACTION_STATUS_LABELS: Record<string, string> = {
+  PENDING: 'Pendiente',
+  COMPLETED: 'Completada',
+  FAILED: 'Fallida',
+  CANCELLED: 'Cancelada',
+}
+
+/**
+ * Traduce el status interno de una transacción (PENDING/COMPLETED/FAILED/
+ * CANCELLED, valores en inglés en la base) a un texto legible en español.
+ * Si el status no está mapeado, devuelve el valor original tal cual.
+ */
+export function formatTransactionStatus(status: string): string {
+  return TRANSACTION_STATUS_LABELS[status] ?? status
+}
+
 /**
  * Limpia el valor de un input de monto mientras se escribe: solo permite
  * dígitos y un único separador decimal (punto). Bloquea letras, signos y
