@@ -179,6 +179,7 @@ graph TD
 | `/exchange` | `ExchangePage` | **Protegido** | Conversión instantánea entre monedas con cotización y comisión del 0.3%. |
 | `/historial` | `HistorialPage` | **Protegido** | Histórico general de transacciones con filtros y detalles de contrapartes. |
 | `/configuracion` | `ConfiguracionPage` | **Protegido** | Perfil de usuario, detalles de cuenta y cierre de sesión. |
+| `/admin` | `AdminPage` | **Protegido** | Panel de administración (usuarios y transacciones). El control de rol es interno al componente: usuarios sin rol `admin` ven un aviso de acceso restringido. |
 | `*` | `NotFoundPage` | **Público** | Página de error 404 con enlace de retorno al inicio. |
 
 ---

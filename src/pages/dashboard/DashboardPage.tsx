@@ -275,7 +275,7 @@ export default function DashboardPage() {
                 <div className="action-circle">
                   <Plus size={22} aria-hidden="true" />
                 </div>
-                <span>Cargar<br />saldo</span>
+                <span>Cargar</span>
               </button>
               <button
                 className="action-item"
@@ -290,7 +290,7 @@ export default function DashboardPage() {
                 <div className="action-circle">
                   <ArrowLeftRight size={20} aria-hidden="true" />
                 </div>
-                <span>Comprar /<br />vender</span>
+                <span>Cambiar</span>
               </button>
               <button
                 className="action-item"
@@ -315,7 +315,7 @@ export default function DashboardPage() {
                 <div className="action-circle">
                   <Settings size={20} aria-hidden="true" />
                 </div>
-                <span>Configuración</span>
+                <span>Ajustes</span>
               </button>
             </div>
           </section>

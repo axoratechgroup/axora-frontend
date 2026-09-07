@@ -78,7 +78,7 @@ describe("TopUpPage", () => {
     topupApiMock.mockResolvedValueOnce({
       id: "tx-topup",
       type: "TOP_UP",
-    } as any);
+    } as unknown as Awaited<ReturnType<typeof topupApi>>);
     renderTopUp();
 
     await user.type(screen.getByLabelText("Monto"), "50");

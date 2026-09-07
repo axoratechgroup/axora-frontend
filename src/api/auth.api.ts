@@ -33,3 +33,36 @@ export async function registerApi(userData: RegisterData): Promise<AuthResponse>
 
   return data
 }
+
+
+export async function forgotPasswordApi(email: string): Promise<{ message: string }> {
+  const response = await fetch(`${API_URL}/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  })
+
+  const data = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(data.error || 'No se pudo procesar la solicitud.')
+  }
+
+  return data
+}
+
+export async function resetPasswordApi(token: string, newPassword: string): Promise<{ message: string }> {
+  const response = await fetch(`${API_URL}/auth/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, newPassword }),
+  })
+
+  const data = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(data.error || 'No se pudo restablecer la contraseña.')
+  }
+
+  return data
+}

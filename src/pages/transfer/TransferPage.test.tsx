@@ -90,7 +90,7 @@ describe("TransferPage", () => {
     transferApiMock.mockResolvedValueOnce({
       id: "tx-1",
       type: "TRANSFER",
-    } as any);
+    } as unknown as Awaited<ReturnType<typeof transferApi>>);
     renderTransfer();
 
     await user.type(screen.getByLabelText("Nombre de usuario del destinatario"), "camilo");

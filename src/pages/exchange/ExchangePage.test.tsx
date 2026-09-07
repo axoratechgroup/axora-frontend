@@ -106,7 +106,7 @@ describe("ExchangePage", () => {
       type: "SWAP",
       to_amount: "48500",
       to_currency: "ARS",
-    } as any);
+    } as unknown as Awaited<ReturnType<typeof exchangeApi>>);
     renderExchange();
 
     await user.type(screen.getByLabelText(/Monto a cambiar/i), "50");
