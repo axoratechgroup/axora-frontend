@@ -12,10 +12,10 @@ export default function LoginPage() {
   const location = useLocation()
   const { setAuthenticated } = useAuth()
 
-  const [email, setEmail]       = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError]       = useState('')
-  const [loading, setLoading]   = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault()
@@ -123,6 +123,9 @@ export default function LoginPage() {
 
       {/* Footer links */}
       <footer className="login-footer">
+        <p>
+          <Link to="/forgot-password">¿Olvidaste tu contraseña?</Link>
+        </p>
         <p>
           ¿No tienes cuenta?{' '}
           <Link to="/registro">crear cuenta</Link>
