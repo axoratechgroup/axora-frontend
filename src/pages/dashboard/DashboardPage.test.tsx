@@ -86,7 +86,6 @@ describe('DashboardPage', () => {
     expect(balanceEl).toHaveTextContent('1.504,00')
     await user.click(screen.getByRole('button', { name: 'Ocultar saldo' }))
     expect(screen.getByTestId('account-balance')).toHaveTextContent('••••••')
-    expect(screen.getAllByText('••••').length).toBeGreaterThanOrEqual(1)
     await user.click(screen.getByRole('button', { name: 'Mostrar saldo' }))
     expect(screen.getByTestId('account-balance')).toHaveTextContent('1.504,00')
   })

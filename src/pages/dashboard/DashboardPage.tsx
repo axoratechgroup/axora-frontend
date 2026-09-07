@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, Globe, ShieldCheck, Compass, type LucideIcon } from 'lucide-react'
+import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, Globe, ShieldCheck, Compass, Search, ChevronLeft, ChevronRight, type LucideIcon } from 'lucide-react'
 import ReactCountryFlag from 'react-country-flag'
 import { getCountryCode } from '../../utils/currency.ts'
 import { useAuth } from '../../hooks/useAuth.ts'
 import { useWallet } from '../../hooks/useWallet.ts'
-import { AssetCard } from '../../components/dashboard/AssetCard.tsx'
+
 import { CurrencyHistoryChart } from '../../components/dashboard/CurrencyHistoryChart.tsx'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
 import { formatAmount, formatTransactionType } from '../../utils/formatters.ts'
@@ -24,6 +24,19 @@ const SLOGANS = [
   'Axora, tu billetera de viaje.',
   'Un solo lugar para todas tus divisas.',
 ]
+
+
+function getPaginationRange(current: number, total: number): (number | 'ellipsis')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+  const range: (number | 'ellipsis')[] = [1]
+  if (current > 3) range.push('ellipsis')
+  const start = Math.max(2, current - 1)
+  const end = Math.min(total - 1, current + 1)
+  for (let i = start; i <= end; i++) range.push(i)
+  if (current < total - 2) range.push('ellipsis')
+  range.push(total)
+  return range
+}
 
 export default function DashboardPage() {
   const navigate = useNavigate()
@@ -44,6 +57,50 @@ export default function DashboardPage() {
   const [showBalance, setShowBalance] = useState(true)
   const [slogan] = useState(() => SLOGANS[Math.floor(Math.random() * SLOGANS.length)])
 
+  const [searchQuery, setSearchQuery] = useState('')
+  const [typeFilter, setTypeFilter] = useState('')
+  const [currencyFilter, setCurrencyFilter] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const ACTIVITY_PAGE_SIZE = 8
+
+  const availableCurrencies = useMemo(() => {
+    const set = new Set<string>()
+    transactions.forEach((tx) => {
+      if (tx.to_currency) set.add(tx.to_currency)
+      if (tx.from_currency) set.add(tx.from_currency)
+    })
+    return Array.from(set).sort()
+  }, [transactions])
+
+  const filteredTransactions = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase().replace(/^@/, '')
+    return transactions.filter((tx) => {
+      if (typeFilter && tx.type !== typeFilter) return false
+      if (currencyFilter && tx.to_currency !== currencyFilter && tx.from_currency !== currencyFilter) return false
+
+      if (query) {
+        const matchesUsername = tx.counterparty_username?.toLowerCase().includes(query)
+        const matchesType = formatTransactionType(tx.type).toLowerCase().includes(query)
+        const matchesDescription = tx.description?.toLowerCase().includes(query)
+        if (!matchesUsername && !matchesType && !matchesDescription) return false
+      }
+
+      const txDate = new Date(tx.created_at)
+      if (dateFrom && txDate < new Date(`${dateFrom}T00:00:00`)) return false
+      if (dateTo && txDate > new Date(`${dateTo}T23:59:59`)) return false
+
+      return true
+    })
+  }, [transactions, typeFilter, currencyFilter, searchQuery, dateFrom, dateTo])
+
+  const totalPages = Math.max(1, Math.ceil(filteredTransactions.length / ACTIVITY_PAGE_SIZE))
+  const safePage = Math.min(currentPage, totalPages)
+  const paginatedTransactions = filteredTransactions.slice(
+    (safePage - 1) * ACTIVITY_PAGE_SIZE,
+    safePage * ACTIVITY_PAGE_SIZE,
+  )
   const activeBalance = wallet?.balances.find((b) => b.currency === selectedCurrency)
 
   const user: StoredUser | null = (() => {
@@ -117,8 +174,8 @@ export default function DashboardPage() {
 
       {/* MAIN CONTENT */}
       <main className="dashboard-main">
-        {/* LEFT COLUMN */}
-        <div className="dashboard-left">
+               {/* FILA SUPERIOR: cuenta + histórico de divisa */}
+        <div className="dashboard-top-row">
           {/* CUENTA AXORA */}
           <section className="dashboard-card account-section">
             <div className="account-card-header">
@@ -192,12 +249,15 @@ export default function DashboardPage() {
                   '••••••'
                 )}
               </p>
-              {!walletLoading && showBalance && (
+                           {!walletLoading && showBalance && (
                 <p className="account-balance-hint" data-testid="account-balance-hint">
                   {selectedCurrency === 'TOTAL'
                     ? 'Patrimonio total consolidado en USD (según tipo de cambio actual)'
                     : activeBalance?.currency_name ?? selectedCurrency}
                 </p>
+              )}
+              {walletError && (
+                <p className="assets-empty">No se pudo cargar tu saldo: {walletError}</p>
               )}
             </div>
 
@@ -247,12 +307,6 @@ export default function DashboardPage() {
                 </div>
                 <span>Transferir</span>
               </button>
-              <button className="action-item" onClick={() => navigate('/historial')}>
-                <div className="action-circle">
-                  <History size={20} aria-hidden="true" />
-                </div>
-                <span>Historial</span>
-              </button>
               <button
                 className="action-item"
                 onClick={() => navigate('/configuracion')}
@@ -266,67 +320,106 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          {/* MIS ACTIVOS */}
-          <section className="assets-section">
-            <div className="section-header">
-              <h2 className="section-title">Mis activos</h2>
-              <button
-                className="btn-small"
-                onClick={() => navigate('/exchange')}
-                title="Ir a comprar / vender activos"
-              >
-                Ver más
-              </button>
-            </div>
-
-            <div className="assets-grid">
-              {walletError && (
-                <p className="assets-empty">No se pudieron cargar tus activos: {walletError}</p>
-              )}
-
-              {!walletError && !walletLoading && wallet?.balances.length === 0 && (
-                <p className="assets-empty">
-                  Todavía no tienes saldo en ninguna moneda. Recarga o recibe dinero para ver tus activos aquí.
-                </p>
-              )}
-
-              {!walletError &&
-                wallet?.balances.map((balance) => (
-                  <AssetCard
-                    key={balance.currency}
-                    balance={balance}
-                    showBalance={showBalance}
-                    isSelected={selectedCurrency === balance.currency}
-                    onClick={() => setSelectedCurrency(balance.currency)}
-                  />
-                ))}
-            </div>
+          {/* HISTORICO DE DIVISA */}
+          <section className="dashboard-card history-section">
+            <CurrencyHistoryChart />
           </section>
         </div>
 
-        {/* RIGHT COLUMN */}
-        <div className="dashboard-right">
-          {/* TRANSACCIONES RECIENTES */}
-          <section className="dashboard-card transactions-section">
-            <div className="section-header">
-              <h2 className="section-title">Transacciones recientes</h2>
-              <button className="btn-small" onClick={() => navigate('/historial')}>Ver más</button>
+        {/* ACTIVIDAD */}
+        <section className="dashboard-card activity-section">
+          <div className="activity-header">
+            <h2 className="section-title">Actividad</h2>
+            <span className="activity-count">{filteredTransactions.length} movimientos</span>
+          </div>
+
+          <div className="activity-filters">
+            <div className="activity-search">
+              <Search size={16} aria-hidden="true" />
+              <input
+                type="text"
+                placeholder="Buscar por usuario o descripción..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  setCurrentPage(1)
+                }}
+              />
             </div>
 
-            <ul className="transaction-list">
-              {transactionsError && (
-                <p className="assets-empty">No se pudieron cargar tus transacciones: {transactionsError}</p>
-              )}
+            <select
+              className="activity-select"
+              value={typeFilter}
+              onChange={(e) => {
+                setTypeFilter(e.target.value)
+                setCurrentPage(1)
+              }}
+            >
+              <option value="">Todo tipo</option>
+              <option value="TOP_UP">Recarga</option>
+              <option value="TRANSFER">Transferencia</option>
+              <option value="SWAP">Cambio de moneda</option>
+            </select>
 
-              {!transactionsError && !transactionsLoading && transactions.length === 0 && (
-                <p className="assets-empty">Todavía no hiciste ninguna transacción.</p>
-              )}
+            <select
+              className="activity-select"
+              value={currencyFilter}
+              onChange={(e) => {
+                setCurrencyFilter(e.target.value)
+                setCurrentPage(1)
+              }}
+            >
+              <option value="">Toda moneda</option>
+              {availableCurrencies.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
 
-              {!transactionsError &&
-                transactions.map((tx) => {
-                  const TxIcon = TRANSACTION_ICONS[tx.type] ?? History
-                  return (
-                    <li className="transaction-item" key={tx.id}>
+            <div className="activity-date-range">
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => {
+                  setDateFrom(e.target.value)
+                  setCurrentPage(1)
+                }}
+                aria-label="Desde"
+              />
+              <span>—</span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => {
+                  setDateTo(e.target.value)
+                  setCurrentPage(1)
+                }}
+                aria-label="Hasta"
+              />
+            </div>
+          </div>
+
+          <div className="activity-table-header">
+            <span>Movimiento</span>
+            <span>Contraparte</span>
+            <span>Monto</span>
+            <span>Fecha</span>
+          </div>
+
+          <ul className="activity-list">
+            {transactionsError && (
+              <p className="assets-empty">No se pudieron cargar tus transacciones: {transactionsError}</p>
+            )}
+
+            {!transactionsError && !transactionsLoading && filteredTransactions.length === 0 && (
+              <p className="assets-empty">No se encontraron movimientos con esos filtros.</p>
+            )}
+
+            {!transactionsError &&
+              paginatedTransactions.map((tx) => {
+                const TxIcon = TRANSACTION_ICONS[tx.type] ?? History
+                return (
+                  <li className="activity-row" key={tx.id}>
+                    <div className="activity-movement">
                       <div className="transaction-icon">
                         <TxIcon size={16} aria-hidden="true" />
                       </div>
@@ -334,27 +427,59 @@ export default function DashboardPage() {
                         <span className="transaction-type">{formatTransactionType(tx.type)}</span>
                         <span className="transaction-source">
                           {tx.type === 'SWAP' && tx.from_currency
-                            ? `${tx.from_currency} → ${tx.to_currency}${tx.applied_exchange_rate ? ` • Tasa: ${Number(tx.applied_exchange_rate).toLocaleString('es-AR', { maximumFractionDigits: 4 })}` : ''}`
-                            : tx.type === 'TRANSFER' && tx.counterparty_username
-                            ? `${tx.direction === 'sent' ? 'Para' : 'De'} @${tx.counterparty_username}`
+                            ? `${tx.from_currency} → ${tx.to_currency}`
                             : tx.status}
                         </span>
                       </div>
-                      <div className="transaction-value">
-                        <span className="transaction-amount">{formatAmount(tx.to_amount)} {tx.to_currency}</span>
-                        <span className="transaction-date">{new Date(tx.created_at).toLocaleString('es-AR')}</span>
-                      </div>
-                    </li>
-                  )
-                })}
-            </ul>
-          </section>
+                    </div>
+                    <div className="activity-counterparty">
+                      {tx.counterparty_username ? `@${tx.counterparty_username}` : '—'}
+                    </div>
+                    <div className="activity-amount">
+                      {formatAmount(tx.to_amount)} {tx.to_currency}
+                    </div>
+                    <div className="activity-date">
+                      {new Date(tx.created_at).toLocaleDateString('es-AR')}
+                    </div>
+                  </li>
+                )
+              })}
+          </ul>
 
-          {/* HISTORICO DE DIVISA */}
-          <section className="dashboard-card history-section">
-            <CurrencyHistoryChart />
-          </section>
-        </div>
+          {totalPages > 1 && (
+            <div className="activity-pagination">
+              <button
+                className="page-btn"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={safePage === 1}
+                aria-label="Página anterior"
+              >
+                <ChevronLeft size={16} aria-hidden="true" />
+              </button>
+              {getPaginationRange(safePage, totalPages).map((item, idx) =>
+                item === 'ellipsis' ? (
+                  <span key={`ellipsis-${idx}`} className="page-ellipsis">…</span>
+                ) : (
+                  <button
+                    key={item}
+                    className={`page-btn ${item === safePage ? 'active' : ''}`}
+                    onClick={() => setCurrentPage(item)}
+                  >
+                    {item}
+                  </button>
+                ),
+              )}
+              <button
+                className="page-btn"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={safePage === totalPages}
+                aria-label="Página siguiente"
+              >
+                <ChevronRight size={16} aria-hidden="true" />
+              </button>
+            </div>
+          )}
+        </section>
       </main>
 
       {/* CHAT IA */}
