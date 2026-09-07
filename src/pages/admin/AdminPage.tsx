@@ -13,7 +13,7 @@ import {
   PlusCircle,
 } from 'lucide-react'
 import { getAdminUsersApi, getAdminTransactionsApi, type AdminUser, type AdminTransaction } from '../../api/admin.api.ts'
-import { formatAmount, formatTransactionType } from '../../utils/formatters.ts'
+import { formatAmount, formatTransactionType, formatTransactionStatus } from '../../utils/formatters.ts'
 import './AdminPage.css'
 
 export default function AdminPage() {
@@ -328,7 +328,9 @@ export default function AdminPage() {
                           : '—'}
                       </td>
                       <td>
-                        <span className="tx-status-badge status-completed">{tx.status}</span>
+                        <span className={`tx-status-badge status-${tx.status.toLowerCase()}`}>
+                          {formatTransactionStatus(tx.status)}
+                        </span>
                       </td>
                     </tr>
                   ))}
