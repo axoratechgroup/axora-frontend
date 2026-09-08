@@ -18,14 +18,18 @@ import SoportePage from './pages/soporte/SoportePage.tsx'
 import NotFoundPage from './pages/not-found/NotFoundPage.tsx'
 import { AuthProvider } from './context/AuthContext.tsx'
 import { ThemeProvider } from './context/ThemeContext.tsx'
+import { ThemedToastContainer } from './components/common/ThemedToastContainer.tsx'
 import ProtectedRoute from './routes/ProtectedRoute.tsx'
 import PublicOnlyRoute from './routes/PublicOnlyRoute.tsx'
 
 createRoot(document.getElementById('root')!).render(
+
   <StrictMode>
     <ThemeProvider>
+      <ThemedToastContainer />
       <AuthProvider>
         <BrowserRouter>
+
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, User, Shield, Moon, Sun, CheckCircle } from 'lucide-react'
-import { useTheme } from '../../context/ThemeContext.tsx'
+import { toast } from 'react-toastify'
+import { useTheme } from '../../hooks/useTheme.ts'
 import './ConfiguracionPage.css'
 
 interface StoredUser {
@@ -14,6 +15,14 @@ interface StoredUser {
 export default function ConfiguracionPage() {
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
+
+  const handleToggleTheme = () => {
+    toggleTheme()
+    toast.info(`Modo ${theme === 'dark' ? 'claro' : 'oscuro'} activado`, {
+      autoClose: 1800,
+    })
+  }
+
 
   const user: StoredUser = (() => {
     try {
@@ -94,9 +103,10 @@ export default function ConfiguracionPage() {
             <button
               type="button"
               className="btn-toggle-theme"
-              onClick={toggleTheme}
+              onClick={handleToggleTheme}
               aria-label="Alternar tema visual"
             >
+
               {theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
               <span>Modo {theme === 'dark' ? 'oscuro' : 'claro'}</span>
             </button>

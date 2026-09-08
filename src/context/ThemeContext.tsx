@@ -1,14 +1,5 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-
-export type Theme = 'dark' | 'light'
-
-export interface ThemeContextType {
-  theme: Theme
-  setTheme: (theme: Theme) => void
-  toggleTheme: () => void
-}
-
-const ThemeContext = createContext<ThemeContextType | null>(null)
+import { useEffect, useState, type ReactNode } from 'react'
+import { ThemeContext, type Theme } from './themeContext.ts'
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
@@ -44,40 +35,3 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   )
 }
 
-export function useTheme(): ThemeContextType {
-  const context = useContext(ThemeContext)
-  if (!context) {
-    let currentTheme: Theme = 'dark'
-    try {
-      const saved = localStorage.getItem('theme')
-      if (saved === 'light' || saved === 'dark') {
-        currentTheme = saved
-      }
-    } catch {
-      // Ignorar errores en entornos de prueba
-    }
-
-    return {
-      theme: currentTheme,
-      setTheme: (t: Theme) => {
-        document.documentElement.setAttribute('data-theme', t)
-        try {
-          localStorage.setItem('theme', t)
-        } catch {
-          // Ignorar
-        }
-      },
-      toggleTheme: () => {
-        const next: Theme = currentTheme === 'dark' ? 'light' : 'dark'
-        document.documentElement.setAttribute('data-theme', next)
-        try {
-          localStorage.setItem('theme', next)
-        } catch {
-          // Ignorar
-        }
-      },
-    }
-  }
-
-  return context
-}

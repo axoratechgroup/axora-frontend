@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { SyntheticEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { loginApi } from '../../api/auth.api.ts'
 import { PasswordInput } from '../../components/common/PasswordInput.tsx'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
@@ -34,16 +35,20 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(data.user))
 
       setAuthenticated(true)
+      toast.success('¡Bienvenido de nuevo!')
 
       const from = (location.state as { from?: { pathname?: string } | string } | null)?.from
       const destination = typeof from === 'string' ? from : from?.pathname || '/dashboard'
       navigate(destination, { replace: true })
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error inesperado. Intenta de nuevo.')
+      const msg = err instanceof Error ? err.message : 'Error inesperado. Intenta de nuevo.'
+      setError(msg)
+      toast.error(msg)
     } finally {
       setLoading(false)
     }
   }
+
 
   return (
     <div className="login-page">
