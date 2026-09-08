@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, Globe, ShieldCheck, Compass, Search, ChevronLeft, ChevronRight, type LucideIcon } from 'lucide-react'
+import { toast } from 'react-toastify'
+import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, Globe, ShieldCheck, Compass, Search, ChevronLeft, ChevronRight, ArrowDownLeft, ArrowUpRight, type LucideIcon } from 'lucide-react'
 import ReactCountryFlag from 'react-country-flag'
 import { getCountryCode } from '../../utils/currency.ts'
 import { useAuth } from '../../hooks/useAuth.ts'
 import { useWallet } from '../../hooks/useWallet.ts'
+
 
 import { CurrencyHistoryChart } from '../../components/dashboard/CurrencyHistoryChart.tsx'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
@@ -129,7 +131,15 @@ export default function DashboardPage() {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     setAuthenticated(false)
+    toast.info('Sesión cerrada correctamente.')
     navigate('/login')
+  }
+
+  const handleCopyUsername = () => {
+    if (!user?.username) return
+    navigator.clipboard.writeText(`@${user.username}`).then(() => {
+      toast.success(`Usuario @${user.username} copiado al portapapeles.`, { autoClose: 2000 })
+    }).catch(() => {})
   }
 
   return (
@@ -141,12 +151,19 @@ export default function DashboardPage() {
           <div className="dashboard-greeting">
             Hola, <span className="text-orange">{firstName}</span>
             {user?.username && (
-              <span className="username-badge" title={`Usuario: @${user.username}`}>
+              <button
+                type="button"
+                className="username-badge"
+                title={`Copiar @${user.username}`}
+                onClick={handleCopyUsername}
+                style={{ cursor: 'pointer', border: 'none', font: 'inherit' }}
+              >
                 @{user.username}
-              </span>
+              </button>
             )}
           </div>
         </div>
+
 
         <div className="dashboard-slogan-badge" role="status" aria-label="Lema de Axora">
           <Compass size={15} aria-hidden="true" className="slogan-icon" />
@@ -434,28 +451,52 @@ export default function DashboardPage() {
 
             {!transactionsError &&
               paginatedTransactions.map((tx) => {
-                const TxIcon = TRANSACTION_ICONS[tx.type] ?? History
                 const isIncoming = tx.direction === 'received' || tx.type === 'TOP_UP'
                 const isOutgoing = tx.direction === 'sent'
                 const sign = isIncoming ? '+ ' : isOutgoing ? '- ' : ''
 
+                const TxIcon =
+                  tx.type === 'TRANSFER'
+                    ? tx.direction === 'received'
+                      ? ArrowDownLeft
+                      : ArrowUpRight
+                    : TRANSACTION_ICONS[tx.type] ?? History
+
+                const iconTypeClass =
+                  tx.type === 'TRANSFER'
+                    ? tx.direction === 'received'
+                      ? 'is-received'
+                      : 'is-sent'
+                    : tx.type === 'TOP_UP'
+                      ? 'is-topup'
+                      : tx.type === 'SWAP'
+                        ? 'is-swap'
+                        : ''
+
+                const transactionSubtitle =
+                  tx.type === 'SWAP' && tx.from_currency
+                    ? `${tx.from_currency} → ${tx.to_currency}${tx.applied_exchange_rate ? ` • Tasa: ${formatExchangeRate(tx.applied_exchange_rate)}` : ''}`
+                    : tx.type === 'TRANSFER' && tx.counterparty_username
+                      ? tx.direction === 'sent'
+                        ? `Enviado a @${tx.counterparty_username}`
+                        : `Recibido de @${tx.counterparty_username}`
+                      : tx.type === 'TRANSFER'
+                        ? tx.direction === 'sent'
+                          ? 'Transferencia enviada'
+                          : 'Transferencia recibida'
+                        : tx.type === 'TOP_UP'
+                          ? 'Recarga de saldo'
+                          : ''
+
                 return (
                   <li className="activity-row" key={tx.id}>
                     <div className="activity-movement">
-                      <div className="transaction-icon">
+                      <div className={`transaction-icon ${iconTypeClass}`}>
                         <TxIcon size={16} aria-hidden="true" />
                       </div>
                       <div className="transaction-details">
                         <span className="transaction-type">{formatTransactionType(tx.type)}</span>
-                        <span className="transaction-source">
-                          {tx.type === 'SWAP' && tx.from_currency
-                            ? `${tx.from_currency} → ${tx.to_currency}${tx.applied_exchange_rate ? ` • Tasa: ${formatExchangeRate(tx.applied_exchange_rate)}` : ''}`
-                            : tx.counterparty_username
-                              ? `${tx.direction === 'sent' ? 'Para' : 'De'} @${tx.counterparty_username}`
-                              : tx.type === 'TOP_UP'
-                                ? 'Recarga de saldo'
-                                : ''}
-                        </span>
+                        <span className="transaction-source">{transactionSubtitle}</span>
                         {tx.type === 'TRANSFER' && tx.description && (
                           <span className="transaction-memo">{tx.description}</span>
                         )}
@@ -465,7 +506,14 @@ export default function DashboardPage() {
                       {tx.counterparty_username ? `@${tx.counterparty_username}` : '—'}
                     </div>
                     <div className="activity-amount">
-                      <span className={isIncoming ? 'is-positive' : ''}>
+                      <span className={isIncoming ? 'is-positive' : isOutgoing ? 'is-negative' : ''}>
+                        {tx.type === 'TRANSFER' && (
+                          tx.direction === 'received' ? (
+                            <ArrowDownLeft size={13} aria-hidden="true" style={{ display: 'inline', verticalAlign: 'middle', marginRight: 2 }} />
+                          ) : (
+                            <ArrowUpRight size={13} aria-hidden="true" style={{ display: 'inline', verticalAlign: 'middle', marginRight: 2 }} />
+                          )
+                        )}
                         {sign}{formatAmount(tx.to_amount)} {tx.to_currency}
                       </span>
                     </div>
@@ -478,6 +526,7 @@ export default function DashboardPage() {
                   </li>
                 )
               })}
+
           </ul>
 
           {totalPages > 1 && (

@@ -264,4 +264,54 @@ describe('DashboardPage', () => {
 
     expect(document.documentElement.getAttribute('data-theme')).toBe('light')
   })
+
+  it('distingue transferencias enviadas y recibidas con texto explícito de dirección y signos', async () => {
+    globalThis.fetch = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify(mockWalletData), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            transactions: [
+              {
+                id: 'tx-sent',
+                type: 'TRANSFER',
+                status: 'COMPLETED',
+                direction: 'sent',
+                counterparty_username: 'carlos',
+                from_currency: 'USD',
+                from_amount: '30',
+                to_currency: 'USD',
+                to_amount: '30',
+                applied_exchange_rate: null,
+                description: null,
+                created_at: '2026-09-04T12:00:00Z',
+              },
+              {
+                id: 'tx-received',
+                type: 'TRANSFER',
+                status: 'COMPLETED',
+                direction: 'received',
+                counterparty_username: 'maria',
+                from_currency: 'USD',
+                from_amount: '45',
+                to_currency: 'USD',
+                to_amount: '45',
+                applied_exchange_rate: null,
+                description: null,
+                created_at: '2026-09-04T13:00:00Z',
+              },
+            ],
+          }),
+          { status: 200 },
+        ),
+      )
+
+    renderDashboard()
+
+    expect(await screen.findByText('Enviado a @carlos')).toBeInTheDocument()
+    expect(screen.getByText('Recibido de @maria')).toBeInTheDocument()
+    expect(screen.getByText(/- 30,00 USD/)).toBeInTheDocument()
+    expect(screen.getByText(/\+ 45,00 USD/)).toBeInTheDocument()
+  })
 })
+

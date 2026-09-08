@@ -306,11 +306,13 @@ h1, h2, h3, p { margin-top: 0; }
 h1, h2, h3 { color: var(--ink); font-family: var(--display); }
 
 h1 {
-  font-size: clamp(2.6rem, 10vw, 5rem);
+  font-size: clamp(2.2rem, 5.5vw, 3.6rem);
   font-weight: 900;
-  line-height: .95;
-  margin-bottom: 22px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
 }
+
 h2 {
   font-size: clamp(2rem, 7vw, 3.6rem);
   font-weight: 800;
@@ -894,7 +896,7 @@ h3 { font-size: 1.2rem; margin: 16px 0 8px; }
   .login-link { font-size: 1rem; }
   .register-link { font-size: 1rem; }
   .hero-section { gap: 80px; min-height: 560px; padding: 88px 80px; }
-  .hero-copy { max-width: 520px; }
+  .hero-copy { max-width: 600px; }
   .hero-placeholder { min-height: 400px; }
   .services-section, .countries-section { padding: 104px 80px; }
   .services-grid { gap: 28px; }
@@ -917,8 +919,9 @@ h3 { font-size: 1.2rem; margin: 16px 0 8px; }
 /* ─── Responsive: Wide ───────────────────────────────────────────────── */
 @media (min-width: 1180px) {
   .site-header { padding-left: 96px; padding-right: 96px; }
-  .hero-section { grid-template-columns: 1.2fr .8fr; padding-left: 96px; padding-right: 96px; }
+  .hero-section { grid-template-columns: 1.15fr .85fr; align-items: center; padding-left: 96px; padding-right: 96px; }
   .services-section, .countries-section, .simulator-section { padding-left: 96px; padding-right: 96px; }
+
   .register-section { margin-left: 64px; margin-right: 64px; }
   .site-footer { padding-left: 96px; padding-right: 96px; }
 }
