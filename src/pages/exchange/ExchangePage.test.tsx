@@ -16,6 +16,14 @@ vi.mock("../../api/wallet.api.ts", () => ({
   getWalletTransactionsApi: vi.fn().mockResolvedValue([]),
 }));
 
+vi.mock("../../api/rates.api.ts", () => ({
+  getExchangeRateQuoteApi: vi.fn().mockResolvedValue({
+    from: "USD",
+    to: "ARS",
+    rate: 1050,
+  }),
+}));
+
 import { exchangeApi } from "../../api/wallet.api.ts";
 import ExchangePage from "./ExchangePage.tsx";
 
@@ -98,7 +106,14 @@ describe("ExchangePage", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Saldo insuficiente");
   });
 
-  it("ejecuta el cambio con éxito y muestra el monto recibido", async () => {
+  it("muestra la tasa de cotización en vivo antes de la transacción", async () => {
+    renderExchange();
+    expect(
+      await screen.findByText(/1 USD = 1\.050,00 ARS/),
+    ).toBeInTheDocument();
+  });
+
+  it("ejecuta el cambio con éxito y muestra el monto recibido y la tasa aplicada", async () => {
     const user = userEvent.setup();
     vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
     exchangeApiMock.mockResolvedValueOnce({
@@ -106,6 +121,7 @@ describe("ExchangePage", () => {
       type: "SWAP",
       to_amount: "48500",
       to_currency: "ARS",
+      applied_exchange_rate: "1050.25",
     } as unknown as Awaited<ReturnType<typeof exchangeApi>>);
     renderExchange();
 
@@ -114,7 +130,10 @@ describe("ExchangePage", () => {
 
     expect(exchangeApiMock).toHaveBeenCalledWith("USD", "ARS", 50);
     expect(
-      await screen.findByText(/Cambio exitoso: recibiste 48500 ARS/),
+      await screen.findByText(/Cambio exitoso: recibiste 48\.500,00 ARS/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Tasa aplicada: 1 USD = 1\.050,25 ARS/),
     ).toBeInTheDocument();
   });
 });

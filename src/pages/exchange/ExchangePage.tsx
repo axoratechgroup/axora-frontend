@@ -1,11 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactCountryFlag from "react-country-flag";
 import { ArrowLeft, ArrowLeftRight } from "lucide-react";
 import { useWallet } from "../../hooks/useWallet.ts";
 import { exchangeApi } from "../../api/wallet.api.ts";
-import { formatAmount, formatAmountInputDisplay, parseAmountInputDisplay } from "../../utils/formatters.ts";
+import { getExchangeRateQuoteApi } from "../../api/rates.api.ts";
+import {
+  formatAmount,
+  formatAmountInputDisplay,
+  parseAmountInputDisplay,
+  formatExchangeRate,
+} from "../../utils/formatters.ts";
 import { CURRENCY_TO_COUNTRY, getCountryCode } from "../../utils/currency.ts";
 import "./ExchangePage.css";
 
@@ -16,6 +22,15 @@ const CURRENCY_NAMES: Record<string, string> = {
   COP: "Peso colombiano",
   BRL: "Real brasileño",
   EUR: "Euro",
+};
+
+const FALLBACK_RATES_TO_USD: Record<string, number> = {
+  USD: 1,
+  EUR: 1.08,
+  ARS: 0.00075,
+  COP: 0.00025,
+  MXN: 0.051,
+  BRL: 0.17,
 };
 
 function CurrencySelect({
@@ -67,7 +82,45 @@ export default function ExchangePage() {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<{ toAmount: string; toCurrency: string } | null>(null);
+  const [result, setResult] = useState<{
+    toAmount: string;
+    toCurrency: string;
+    appliedRate?: string | null;
+  } | null>(null);
+  const [quoteRate, setQuoteRate] = useState<number | null>(null);
+  const [quoteLoading, setQuoteLoading] = useState(false);
+
+  useEffect(() => {
+    let isCurrent = true;
+    if (fromCurrency === toCurrency) {
+      setQuoteRate(1);
+      return;
+    }
+
+    setQuoteLoading(true);
+    getExchangeRateQuoteApi(fromCurrency, toCurrency)
+      .then((data) => {
+        if (isCurrent) {
+          setQuoteRate(data.rate);
+        }
+      })
+      .catch(() => {
+        if (isCurrent) {
+          const fromRate = FALLBACK_RATES_TO_USD[fromCurrency] ?? 1;
+          const toRate = FALLBACK_RATES_TO_USD[toCurrency] ?? 1;
+          setQuoteRate(fromRate / toRate);
+        }
+      })
+      .finally(() => {
+        if (isCurrent) {
+          setQuoteLoading(false);
+        }
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [fromCurrency, toCurrency]);
 
   const currentBalance = wallet?.balances.find((b) => b.currency === fromCurrency);
   const availableAmount = Number(currentBalance?.amount || 0);
@@ -75,6 +128,8 @@ export default function ExchangePage() {
   const numericAmount = Number(amount) || 0;
   const fee = Math.round(numericAmount * 0.003 * 100) / 100;
   const netAmount = Math.max(0, numericAmount - fee);
+  const grossToAmount = quoteRate ? numericAmount * quoteRate : 0;
+  const estimatedToAmount = quoteRate ? Math.max(0, grossToAmount * (1 - 0.003)) : 0;
 
   const handleSwap = () => {
     setFromCurrency(toCurrency);
@@ -95,14 +150,25 @@ export default function ExchangePage() {
       return;
     }
 
-    if (!window.confirm(`¿Confirmas el cambio de ${numericAmount} ${fromCurrency} a ${toCurrency}?`)) {
+    const confirmMessage =
+      quoteRate && estimatedToAmount > 0
+        ? `¿Confirmas el cambio de ${formatAmount(numericAmount)} ${fromCurrency} a aproximadamente ${formatAmount(
+            estimatedToAmount,
+          )} ${toCurrency}?\nTasa: 1 ${fromCurrency} = ${formatExchangeRate(quoteRate)} ${toCurrency}`
+        : `¿Confirmas el cambio de ${numericAmount} ${fromCurrency} a ${toCurrency}?`;
+
+    if (!window.confirm(confirmMessage)) {
       return;
     }
 
     setLoading(true);
     try {
       const transaction = await exchangeApi(fromCurrency, toCurrency, numericAmount);
-      setResult({ toAmount: transaction.to_amount, toCurrency: transaction.to_currency });
+      setResult({
+        toAmount: transaction.to_amount,
+        toCurrency: transaction.to_currency,
+        appliedRate: transaction.applied_exchange_rate,
+      });
       setTimeout(() => navigate("/dashboard"), 2000);
     } catch (err: unknown) {
       setError(
@@ -132,10 +198,17 @@ export default function ExchangePage() {
         <p className="exchange-subtitle">Cambia saldo entre monedas dentro de tu cuenta Axora.</p>
 
         {result ? (
-          <p className="exchange-success">
-            Cambio exitoso: recibiste {result.toAmount} {result.toCurrency}. Volviendo a tu
-            cuenta…
-          </p>
+          <div className="exchange-success">
+            <p style={{ margin: 0 }}>
+              Cambio exitoso: recibiste {formatAmount(result.toAmount)} {result.toCurrency}. Volviendo a tu
+              cuenta…
+            </p>
+            {result.appliedRate ? (
+              <p className="exchange-success-rate">
+                Tasa aplicada: 1 {fromCurrency} = {formatExchangeRate(result.appliedRate)} {result.toCurrency}
+              </p>
+            ) : null}
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="exchange-form" noValidate>
             <div className="form-field">
@@ -175,6 +248,21 @@ export default function ExchangePage() {
               />
             </div>
 
+            {fromCurrency !== toCurrency && (
+              <div className="exchange-rate-banner" aria-live="polite">
+                <span className="exchange-rate-label">Tasa de cambio:</span>
+                <span className="exchange-rate-value">
+                  {quoteLoading ? (
+                    "Consultando cotización en vivo…"
+                  ) : quoteRate !== null ? (
+                    `1 ${fromCurrency} = ${formatExchangeRate(quoteRate)} ${toCurrency}`
+                  ) : (
+                    "Cotización no disponible"
+                  )}
+                </span>
+              </div>
+            )}
+
             <div className="form-field">
               <label className="form-label" htmlFor="amount">
                 Monto a cambiar (en {fromCurrency})
@@ -193,6 +281,12 @@ export default function ExchangePage() {
 
             {numericAmount > 0 && (
               <div className="exchange-summary-box">
+                {quoteRate !== null && fromCurrency !== toCurrency && (
+                  <div className="summary-line">
+                    <span>Tasa de conversión:</span>
+                    <span>1 {fromCurrency} = {formatExchangeRate(quoteRate)} {toCurrency}</span>
+                  </div>
+                )}
                 <div className="summary-line">
                   <span>Comisión de cambio (0.3%):</span>
                   <span>{formatAmount(fee)} {fromCurrency}</span>
@@ -201,6 +295,12 @@ export default function ExchangePage() {
                   <span>Monto neto a convertir:</span>
                   <span className="summary-highlight">{formatAmount(netAmount)} {fromCurrency}</span>
                 </div>
+                {quoteRate !== null && estimatedToAmount > 0 && fromCurrency !== toCurrency && (
+                  <div className="summary-line summary-receive-row">
+                    <span>Recibirás aproximadamente:</span>
+                    <span className="summary-receive-amount">≈ {formatAmount(estimatedToAmount)} {toCurrency}</span>
+                  </div>
+                )}
               </div>
             )}
 

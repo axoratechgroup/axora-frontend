@@ -75,3 +75,20 @@ export function parseAmountInputDisplay(displayValue: string): string {
   const withDotDecimal = withoutThousands.replace(',', '.')
   return sanitizeAmountInput(withDotDecimal)
 }
+
+/**
+ * Formatea una tasa de cambio mostrando hasta 4 decimales significativos
+ * con formato en español.
+ * Ejemplo: 0.92 -> "0,92", 0.00075 -> "0,0008", 4150.25 -> "4.150,25"
+ */
+export function formatExchangeRate(rate: number | string | null | undefined): string {
+  if (rate === null || rate === undefined || rate === '') return '—'
+  const num = typeof rate === 'string' ? parseFloat(rate) : rate
+  if (isNaN(num)) return '—'
+  return num.toLocaleString('es-ES', {
+    useGrouping: true,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4,
+  })
+}
+

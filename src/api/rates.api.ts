@@ -35,3 +35,33 @@ export async function getRateHistoryApi(
     ),
   }
 }
+
+export interface ExchangeRateQuoteResponse {
+  from_currency: string
+  to_currency: string
+  rate: number
+}
+
+export async function getExchangeRateQuoteApi(
+  from: string,
+  to: string,
+): Promise<ExchangeRateQuoteResponse> {
+  if (from === to) {
+    return { from_currency: from, to_currency: to, rate: 1 }
+  }
+
+  const query = new URLSearchParams({ from, to })
+  const response = await fetch(`${API_URL}/rates/quote?${query}`)
+  const data = (await response.json().catch(() => ({}))) as Partial<ExchangeRateQuoteResponse> & { error?: string }
+
+  if (!response.ok || typeof data.rate !== 'number') {
+    throw new Error(data.error || 'No se pudo obtener la cotización actual.')
+  }
+
+  return {
+    from_currency: from,
+    to_currency: to,
+    rate: data.rate,
+  }
+}
+

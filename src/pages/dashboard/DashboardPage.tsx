@@ -8,7 +8,7 @@ import { useWallet } from '../../hooks/useWallet.ts'
 
 import { CurrencyHistoryChart } from '../../components/dashboard/CurrencyHistoryChart.tsx'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
-import { formatAmount, formatTransactionType, formatTransactionStatus } from '../../utils/formatters.ts'
+import { formatAmount, formatTransactionType, formatTransactionStatus, formatExchangeRate } from '../../utils/formatters.ts'
 import type { StoredUser } from '../../types/auth.ts'
 import { ChatWidget } from '../../components/chat/ChatWidget.tsx'
 import './DashboardPage.css'
@@ -449,7 +449,7 @@ export default function DashboardPage() {
                         <span className="transaction-type">{formatTransactionType(tx.type)}</span>
                         <span className="transaction-source">
                           {tx.type === 'SWAP' && tx.from_currency
-                            ? `${tx.from_currency} → ${tx.to_currency}`
+                            ? `${tx.from_currency} → ${tx.to_currency}${tx.applied_exchange_rate ? ` • Tasa: ${formatExchangeRate(tx.applied_exchange_rate)}` : ''}`
                             : tx.counterparty_username
                               ? `${tx.direction === 'sent' ? 'Para' : 'De'} @${tx.counterparty_username}`
                               : tx.type === 'TOP_UP'

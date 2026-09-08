@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatAmount } from './formatters.ts'
+import { formatAmount, formatExchangeRate } from './formatters.ts'
 
 describe('formatAmount', () => {
   it('formatea correctamente valores en cero o con muchos decimales', () => {
@@ -19,5 +19,19 @@ describe('formatAmount', () => {
     expect(formatAmount(undefined)).toBe('0,00')
     expect(formatAmount('')).toBe('0,00')
     expect(formatAmount('abc')).toBe('0,00')
+  })
+})
+
+describe('formatExchangeRate', () => {
+  it('formatea tasas de cambio con separador decimal y miles en español', () => {
+    expect(formatExchangeRate(0.92)).toBe('0,92')
+    expect(formatExchangeRate('18.4521')).toBe('18,4521')
+    expect(formatExchangeRate(4150.5)).toBe('4.150,50')
+  })
+
+  it('devuelve guión para valores nulos o no numéricos', () => {
+    expect(formatExchangeRate(null)).toBe('—')
+    expect(formatExchangeRate(undefined)).toBe('—')
+    expect(formatExchangeRate('invalid')).toBe('—')
   })
 })
