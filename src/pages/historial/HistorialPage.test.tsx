@@ -60,7 +60,7 @@ describe("HistorialPage", () => {
 
     renderHistorial();
     expect(
-      screen.getByText("Todavía no hiciste ninguna transacción."),
+      screen.getByText("Todavía no has realizado ninguna transacción."),
     ).toBeInTheDocument();
   });
 

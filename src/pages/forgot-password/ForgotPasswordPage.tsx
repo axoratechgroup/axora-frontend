@@ -16,7 +16,7 @@ export default function ForgotPasswordPage() {
     setError('')
 
     if (!email.trim()) {
-      setError('Ingresá tu email.')
+      setError('Ingresa tu correo electrónico.')
       return
     }
 
@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
 
         {sent ? (
           <p className="login-footer-note" style={{ fontSize: '.9rem', opacity: 1 }}>
-            Si el email existe en nuestro sistema, vas a recibir un link para restablecer tu contraseña. Revisá tu bandeja de entrada (y spam).
+            Si el correo electrónico existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada o correo no deseado (spam).
           </p>
         ) : (
           <form className="login-form" onSubmit={handleSubmit} noValidate>
@@ -84,7 +84,7 @@ export default function ForgotPasswordPage() {
               type="submit"
               disabled={loading}
             >
-              {loading ? 'Enviando…' : 'Enviar link'}
+              {loading ? 'Enviando…' : 'Enviar enlace'}
             </button>
           </form>
         )}
@@ -92,7 +92,7 @@ export default function ForgotPasswordPage() {
 
       <footer className="login-footer">
         <p>
-          ¿Te acordaste? <Link to="/login">Volver a iniciar sesión</Link>
+          ¿Recordaste tu contraseña? <Link to="/login">Volver a iniciar sesión</Link>
         </p>
       </footer>
     </div>

@@ -22,7 +22,7 @@ export default function ResetPasswordPage() {
     setError('')
 
     if (!token) {
-      setError('El link de recuperación no es válido.')
+      setError('El enlace de recuperación no es válido.')
       return
     }
 
@@ -60,13 +60,13 @@ export default function ResetPasswordPage() {
         {!token && (
           <div className="login-error" role="alert">
             <em className="login-error-icon" aria-hidden="true">✕</em>
-            Este link no es válido. Pedí uno nuevo desde "Olvidé mi contraseña".
+            Este enlace no es válido. Solicita uno nuevo desde "¿Olvidaste tu contraseña?".
           </div>
         )}
 
         {done ? (
           <p className="login-footer-note" style={{ fontSize: '.9rem', opacity: 1 }}>
-            Contraseña actualizada. Te llevamos al login…
+            Contraseña actualizada. Redirigiendo al inicio de sesión…
           </p>
         ) : (
           token && (

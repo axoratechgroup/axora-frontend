@@ -3,6 +3,8 @@
   flex-direction: column;
   min-height: 270px;
   touch-action: pan-y;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .currency-history__header {
@@ -81,10 +83,15 @@
   align-items: center;
   min-height: 220px;
   touch-action: pan-y;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .currency-history__content > div {
-  width: 100%;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
 }
 
 .currency-history__message {
