@@ -43,7 +43,6 @@ export default function LoginPage() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error inesperado. Intenta de nuevo.'
       setError(msg)
-      toast.error(msg)
     } finally {
       setLoading(false)
     }

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { toast } from "react-toastify";
 import { transferApi } from "../../api/wallet.api.ts";
 import { formatAmount } from "../../utils/formatters.ts";
 import { CURRENCY_NAMES, CURRENCY_TO_COUNTRY } from "../../utils/currency.ts";
@@ -78,12 +77,10 @@ export default function TransferPage() {
         amount: numericAmount,
         memo: normalizedMemo,
       });
-      toast.success("Transferencia realizada con éxito.");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "No se pudo procesar la transferencia.";
       setError(msg);
       setIsConfirmOpen(false);
-      toast.error(msg);
     } finally {
       setLoading(false);
     }

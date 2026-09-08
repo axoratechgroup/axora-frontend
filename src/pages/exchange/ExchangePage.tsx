@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeftRight } from "lucide-react";
-import { toast } from "react-toastify";
 import { useWalletBalances } from "../../hooks/useWalletBalances.ts";
 import { exchangeApi } from "../../api/wallet.api.ts";
 import { getExchangeRateQuoteApi } from "../../api/rates.api.ts";
@@ -144,12 +143,10 @@ export default function ExchangePage() {
         appliedRate: transaction.applied_exchange_rate,
         fee,
       });
-      toast.success("Cambio de moneda realizado con éxito.");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "No se pudo procesar el cambio de moneda.";
       setError(msg);
       setIsConfirmOpen(false);
-      toast.error(msg);
     } finally {
       setLoading(false);
     }
