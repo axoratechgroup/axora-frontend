@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
+import { ThemeProvider } from '../../context/ThemeContext.tsx'
 import ConfiguracionPage from './ConfiguracionPage.tsx'
 
 function renderConfiguracion() {
@@ -17,12 +18,14 @@ function renderConfiguracion() {
   )
 
   return render(
-    <MemoryRouter initialEntries={['/configuracion']}>
-      <Routes>
-        <Route path="/configuracion" element={<ConfiguracionPage />} />
-        <Route path="/dashboard" element={<p>Dashboard Mock</p>} />
-      </Routes>
-    </MemoryRouter>,
+    <ThemeProvider>
+      <MemoryRouter initialEntries={['/configuracion']}>
+        <Routes>
+          <Route path="/configuracion" element={<ConfiguracionPage />} />
+          <Route path="/dashboard" element={<p>Dashboard Mock</p>} />
+        </Routes>
+      </MemoryRouter>
+    </ThemeProvider>,
   )
 }
 

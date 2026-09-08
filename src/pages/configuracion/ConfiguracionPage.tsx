@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, User, Shield, Moon, Sun, CheckCircle } from 'lucide-react'
+import { useTheme } from '../../context/ThemeContext.tsx'
 import './ConfiguracionPage.css'
 
 interface StoredUser {
@@ -13,6 +13,7 @@ interface StoredUser {
 
 export default function ConfiguracionPage() {
   const navigate = useNavigate()
+  const { theme, toggleTheme } = useTheme()
 
   const user: StoredUser = (() => {
     try {
@@ -22,19 +23,6 @@ export default function ConfiguracionPage() {
       return {}
     }
   })()
-
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    return (localStorage.getItem('theme') as 'dark' | 'light') || 'dark'
-  })
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('theme', theme)
-  }, [theme])
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
-  }
 
   return (
     <div className="config-page">

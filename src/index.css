@@ -3,6 +3,8 @@
 /* ─── AXORA Design Tokens ─────────────────────────────────────────────── */
 /* Dark theme (default) — Neutros Cálidos Carbón/Piedra */
 :root {
+  color-scheme: dark;
+  --color-scheme: dark;
   --color-primary:        #E8821E;
   --color-primary-dark:   #C26A10;
   --color-primary-light:  #F6C68B;
@@ -56,6 +58,19 @@
 
 /* ─── Light theme — Lino y Crema Orgánico ───────────────────────────── */
 [data-theme="light"] {
+  color-scheme: light;
+  --color-scheme: light;
+  --color-primary:        #E8821E;
+  --color-primary-dark:   #C26A10;
+  --color-primary-light:  #C26A10;
+  --color-neutral-dark-1: #1C1917;
+  --color-neutral-dark-2: #3E3835;
+  --color-neutral-deep:   #1C1917;
+  --color-neutral-warm-gray: #6E655B;
+  --color-surface-cream:  #FDF3E4;
+  --color-surface-linen:  #EFE9E1;
+  --color-feedback-alert: #B3261E;
+
   --canvas:        #FDF3E4;
   --canvas-2:      #EFE9E1;
   --canvas-3:      #E3D9CD;
