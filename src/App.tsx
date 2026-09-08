@@ -1,9 +1,14 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Sun, Moon, Plus, ArrowLeftRight, Send, Globe, ArrowDown } from 'lucide-react'
 import { useAuth } from './hooks/useAuth.ts'
-import { useTheme } from './context/ThemeContext.tsx'
+import { useTheme } from './hooks/useTheme.ts'
 import { BrandLogo } from './components/common/BrandLogo.tsx'
+
+
+import { getFallbackExchangeRate } from './utils/currency.ts'
 import './App.css'
+
 
 const menuLinks = [
   { label: 'Inicio',               href: '#inicio',        to: null },
@@ -69,21 +74,9 @@ function CurrencySimulator() {
   const [from, setFrom] = useState('USD')
   const [to, setTo] = useState('EUR')
 
-  const RATES: Record<string, number> = {
-    'USD_EUR': 0.92,
-    'EUR_USD': 1.08,
-    'USD_ARS': 1300,
-    'ARS_USD': 0.00077,
-    'USD_COP': 4100,
-    'COP_USD': 0.00024,
-    'USD_MXN': 19.5,
-    'MXN_USD': 0.051,
-    'USD_BRL': 5.8,
-    'BRL_USD': 0.17,
-  }
-
-  const rate = from === to ? 1 : (RATES[`${from}_${to}`] ?? 1)
-  const converted = (Number(amount) || 0) * rate
+  const rate = getFallbackExchangeRate(from, to)
+  const hasRate = rate > 0
+  const converted = hasRate ? (Number(amount) || 0) * rate : 0
 
   return (
     <div className="simulator-widget" aria-label="Simulador de cambio">
@@ -114,7 +107,11 @@ function CurrencySimulator() {
       </div>
 
       <div className="simulator-rate-info">
-        <span>Tasa de cambio de referencia: 1 {from} ≈ {rate.toLocaleString('es-ES', { maximumFractionDigits: 4 })} {to}</span>
+        {hasRate ? (
+          <span>Tasa de cambio de referencia: 1 {from} ≈ {rate.toLocaleString('es-ES', { maximumFractionDigits: 4 })} {to}</span>
+        ) : (
+          <span className="simulator-rate-unavailable">Cotización no disponible para este par</span>
+        )}
       </div>
 
       <div className="simulator-field">
@@ -124,7 +121,7 @@ function CurrencySimulator() {
             id="sim-result"
             type="text"
             readOnly
-            value={converted.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            value={hasRate ? converted.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'No disponible'}
             aria-label="Monto aproximado que recibe"
           />
           <select
@@ -144,6 +141,7 @@ function CurrencySimulator() {
     </div>
   )
 }
+
 
 function App() {
   const navigate = useNavigate()
@@ -185,7 +183,7 @@ function App() {
             aria-label={`Cambiar a modo ${theme === 'dark' ? 'claro' : 'oscuro'}`}
             title={`Modo ${theme === 'dark' ? 'claro' : 'oscuro'}`}
           >
-            <span aria-hidden="true">{theme === 'dark' ? '☀️' : '🌙'}</span>
+            {theme === 'dark' ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
           </button>
           <Link className="login-link" to="/login">Iniciar sesión</Link>
           <Link className="register-link" to="/registro">Regístrate</Link>
@@ -226,7 +224,9 @@ function App() {
         
         <div className="theme-toggle">
           <div className="theme-toggle-label">
-            <span>{theme === 'dark' ? '🌙' : '☀️'}</span>
+            <span style={{ display: 'inline-flex', verticalAlign: 'middle', marginRight: 8 }}>
+              {theme === 'dark' ? <Moon size={15} aria-hidden="true" /> : <Sun size={15} aria-hidden="true" />}
+            </span>
             Modo {theme === 'dark' ? 'oscuro' : 'claro'}
           </div>
           <button 
@@ -236,7 +236,7 @@ function App() {
             aria-label="Alternar tema"
           >
             <span className="theme-switch-icon" aria-hidden="true">
-              {theme === 'light' ? '☀️' : '🌙'}
+              {theme === 'light' ? <Sun size={13} /> : <Moon size={13} />}
             </span>
           </button>
         </div>
@@ -247,7 +247,7 @@ function App() {
           <div className="hero-copy">
             <p className="eyebrow">TU CUENTA GLOBAL PARA</p>
             <h1>MOVER DINERO ENTRE MONEDAS</h1>
-            <p className="hero-description">Más de 5 personas confían en nosotros.</p>
+            <p className="hero-description">Gestiona seis monedas desde una sola cuenta.</p>
             <Link className="primary-button" to="/registro">Crear cuenta</Link>
           </div>
           <div className="hero-app-mockup" aria-label="Vista previa de la aplicación AXORA">
@@ -262,16 +262,28 @@ function App() {
                 <span className="mockup-label">Cuenta Axora</span>
                 <p className="mockup-amount">≈ $ 1.504,00 <span className="mockup-currency">USD</span></p>
                 <div className="mockup-pills">
-                  <span className="mockup-pill active">🌐 Total USD</span>
-                  <span className="mockup-pill">🇺🇸 USD</span>
-                  <span className="mockup-pill">🇪🇺 EUR</span>
-                  <span className="mockup-pill">🇦🇷 ARS</span>
+                  <span className="mockup-pill active">
+                    <Globe size={13} aria-hidden="true" style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+                    Total USD
+                  </span>
+                  <span className="mockup-pill">USD</span>
+                  <span className="mockup-pill">EUR</span>
+                  <span className="mockup-pill">ARS</span>
                 </div>
               </div>
               <div className="mockup-actions">
-                <div className="mockup-action-btn"><span>➕</span> Cargar</div>
-                <div className="mockup-action-btn"><span>🔄</span> Cambiar</div>
-                <div className="mockup-action-btn"><span>↗️</span> Transferir</div>
+                <div className="mockup-action-btn">
+                  <Plus size={14} aria-hidden="true" />
+                  <span>Cargar</span>
+                </div>
+                <div className="mockup-action-btn">
+                  <ArrowLeftRight size={14} aria-hidden="true" />
+                  <span>Cambiar</span>
+                </div>
+                <div className="mockup-action-btn">
+                  <Send size={14} aria-hidden="true" />
+                  <span>Transferir</span>
+                </div>
               </div>
             </div>
           </div>
@@ -287,10 +299,13 @@ function App() {
             <p className="section-label">SIMULA ANTES DE ENVIAR</p>
             <h2 id="simulator-title">Transferencias internacionales al mejor precio</h2>
             <p>Consulta cuánto envías, cuánto recibe tu contacto y la tasa usada antes de confirmar.</p>
-            <Link className="text-link" to="/registro">Crear cuenta para transferir <span aria-hidden="true">↓</span></Link>
+            <Link className="text-link" to="/registro">
+              Crear cuenta para transferir <ArrowDown size={15} aria-hidden="true" style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 4 }} />
+            </Link>
           </div>
           <CurrencySimulator />
         </section>
+
 
         <section className="countries-section" aria-labelledby="countries-title">
           <p className="section-label">ALCANCE GLOBAL</p>

@@ -1,126 +1,102 @@
 import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import ReactCountryFlag from "react-country-flag";
-import { ArrowLeft, ArrowLeftRight } from "lucide-react";
-import { useWallet } from "../../hooks/useWallet.ts";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { ArrowLeftRight } from "lucide-react";
+import { toast } from "react-toastify";
+import { useWalletBalances } from "../../hooks/useWalletBalances.ts";
 import { exchangeApi } from "../../api/wallet.api.ts";
 import { getExchangeRateQuoteApi } from "../../api/rates.api.ts";
 import {
   formatAmount,
-  formatAmountInputDisplay,
-  parseAmountInputDisplay,
   formatExchangeRate,
 } from "../../utils/formatters.ts";
-import { CURRENCY_TO_COUNTRY, getCountryCode } from "../../utils/currency.ts";
+import {
+  CURRENCY_TO_COUNTRY,
+  getFallbackExchangeRate,
+} from "../../utils/currency.ts";
+import { OperationLayout } from "../../components/common/OperationLayout.tsx";
+import { CurrencySelect } from "../../components/common/CurrencySelect.tsx";
+import { AmountInput } from "../../components/common/AmountInput.tsx";
+import { OperationConfirmModal } from "../../components/common/OperationConfirmModal.tsx";
+import { OperationReceipt } from "../../components/common/OperationReceipt.tsx";
 import "./ExchangePage.css";
 
-const CURRENCY_NAMES: Record<string, string> = {
-  USD: "Dólar estadounidense",
-  ARS: "Peso argentino",
-  MXN: "Peso mexicano",
-  COP: "Peso colombiano",
-  BRL: "Real brasileño",
-  EUR: "Euro",
-};
-
-const FALLBACK_RATES_TO_USD: Record<string, number> = {
-  USD: 1,
-  EUR: 1.08,
-  ARS: 0.00075,
-  COP: 0.00025,
-  MXN: 0.051,
-  BRL: 0.17,
-};
-
-function CurrencySelect({
-  id,
-  value,
-  onChange,
-  disabled,
-}: {
-  id: string;
-  value: string;
-  onChange: (value: string) => void;
-  disabled: boolean;
-}) {
-  const countryCode = getCountryCode(value);
-
-  return (
-    <div className="exchange-currency-row">
-      {countryCode && (
-        <ReactCountryFlag
-          countryCode={countryCode}
-          svg
-          style={{ width: "28px", height: "28px", borderRadius: "50%", flexShrink: 0 }}
-          aria-label={CURRENCY_NAMES[value] ?? value}
-        />
-      )}
-      <select
-        id={id}
-        className="form-input"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        disabled={disabled}
-      >
-        {Object.keys(CURRENCY_TO_COUNTRY).map((code) => (
-          <option key={code} value={code}>
-            {code} — {CURRENCY_NAMES[code] ?? code}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
+interface ExchangeReceiptData {
+  transactionId: string;
+  fromAmount: number;
+  fromCurrency: string;
+  toAmount: string;
+  toCurrency: string;
+  appliedRate?: string | null;
+  fee: number;
 }
 
 export default function ExchangePage() {
   const navigate = useNavigate();
-  const { wallet } = useWallet();
+  const [searchParams] = useSearchParams();
+  const { wallet } = useWalletBalances();
 
-  const [fromCurrency, setFromCurrency] = useState("USD");
-  const [toCurrency, setToCurrency] = useState("ARS");
+  const [fromCurrency, setFromCurrency] = useState(() => {
+    const paramFrom = searchParams.get("from")?.trim().toUpperCase();
+    if (paramFrom && paramFrom in CURRENCY_TO_COUNTRY) {
+      return paramFrom;
+    }
+    return "USD";
+  });
+
+  const [toCurrency, setToCurrency] = useState(() => {
+    const paramFrom = searchParams.get("from")?.trim().toUpperCase();
+    const paramTo = searchParams.get("to")?.trim().toUpperCase();
+    const effectiveFrom = paramFrom && paramFrom in CURRENCY_TO_COUNTRY ? paramFrom : "USD";
+    if (paramTo && paramTo in CURRENCY_TO_COUNTRY && paramTo !== effectiveFrom) {
+      return paramTo;
+    }
+    return effectiveFrom === "ARS" ? "USD" : "ARS";
+  });
+
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<{
-    toAmount: string;
-    toCurrency: string;
-    appliedRate?: string | null;
-  } | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [receipt, setReceipt] = useState<ExchangeReceiptData | null>(null);
   const [quoteRate, setQuoteRate] = useState<number | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
 
   useEffect(() => {
-    let isCurrent = true;
     if (fromCurrency === toCurrency) {
-      setQuoteRate(1);
       return;
     }
 
-    setQuoteLoading(true);
-    getExchangeRateQuoteApi(fromCurrency, toCurrency)
-      .then((data) => {
+    let isCurrent = true;
+
+    async function loadQuote() {
+      setQuoteLoading(true);
+      try {
+        const data = await getExchangeRateQuoteApi(fromCurrency, toCurrency);
         if (isCurrent) {
           setQuoteRate(data.rate);
         }
-      })
-      .catch(() => {
+      } catch {
         if (isCurrent) {
-          const fromRate = FALLBACK_RATES_TO_USD[fromCurrency] ?? 1;
-          const toRate = FALLBACK_RATES_TO_USD[toCurrency] ?? 1;
-          setQuoteRate(fromRate / toRate);
+          const fallback = getFallbackExchangeRate(fromCurrency, toCurrency);
+          setQuoteRate(fallback || null);
         }
-      })
-      .finally(() => {
+      } finally {
         if (isCurrent) {
           setQuoteLoading(false);
         }
-      });
+      }
+    }
+
+    void loadQuote();
 
     return () => {
       isCurrent = false;
     };
   }, [fromCurrency, toCurrency]);
+
+  const effectiveQuoteRate = fromCurrency === toCurrency ? 1 : quoteRate;
+  const effectiveQuoteLoading = fromCurrency === toCurrency ? false : quoteLoading;
 
   const currentBalance = wallet?.balances.find((b) => b.currency === fromCurrency);
   const availableAmount = Number(currentBalance?.amount || 0);
@@ -128,15 +104,15 @@ export default function ExchangePage() {
   const numericAmount = Number(amount) || 0;
   const fee = Math.round(numericAmount * 0.003 * 100) / 100;
   const netAmount = Math.max(0, numericAmount - fee);
-  const grossToAmount = quoteRate ? numericAmount * quoteRate : 0;
-  const estimatedToAmount = quoteRate ? Math.max(0, grossToAmount * (1 - 0.003)) : 0;
+  const grossToAmount = effectiveQuoteRate ? numericAmount * effectiveQuoteRate : 0;
+  const estimatedToAmount = effectiveQuoteRate ? Math.max(0, grossToAmount * (1 - 0.003)) : 0;
 
   const handleSwap = () => {
     setFromCurrency(toCurrency);
     setToCurrency(fromCurrency);
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleOpenConfirm = (e: FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -150,183 +126,230 @@ export default function ExchangePage() {
       return;
     }
 
-    const confirmMessage =
-      quoteRate && estimatedToAmount > 0
-        ? `¿Confirmas el cambio de ${formatAmount(numericAmount)} ${fromCurrency} a aproximadamente ${formatAmount(
-            estimatedToAmount,
-          )} ${toCurrency}?\nTasa: 1 ${fromCurrency} = ${formatExchangeRate(quoteRate)} ${toCurrency}`
-        : `¿Confirmas el cambio de ${numericAmount} ${fromCurrency} a ${toCurrency}?`;
+    setIsConfirmOpen(true);
+  };
 
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
-
+  const handleConfirmExchange = async () => {
     setLoading(true);
+    setError("");
     try {
       const transaction = await exchangeApi(fromCurrency, toCurrency, numericAmount);
-      setResult({
+      setIsConfirmOpen(false);
+      setReceipt({
+        transactionId: transaction.id,
+        fromAmount: numericAmount,
+        fromCurrency,
         toAmount: transaction.to_amount,
         toCurrency: transaction.to_currency,
         appliedRate: transaction.applied_exchange_rate,
+        fee,
       });
-      setTimeout(() => navigate("/dashboard"), 2000);
+      toast.success("Cambio de moneda realizado con éxito.");
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "No se pudo procesar el cambio de moneda.",
-      );
+      const msg = err instanceof Error ? err.message : "No se pudo procesar el cambio de moneda.";
+      setError(msg);
+      setIsConfirmOpen(false);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="exchange-page">
-      <div className="exchange-card">
-        <div className="op-card-header">
+    <OperationLayout
+      title="Comprar / vender"
+      subtitle="Cambia saldo entre monedas dentro de tu cuenta Axora."
+      className="exchange-page"
+      cardClassName="exchange-card"
+    >
+      {receipt ? (
+        <OperationReceipt
+          title="¡Cambio realizado con éxito!"
+          subtitle={`Has convertido ${formatAmount(receipt.fromAmount)} ${receipt.fromCurrency} a ${receipt.toCurrency}.`}
+          referenceId={receipt.transactionId}
+          items={[
+            {
+              label: "Monto entregado",
+              value: `${formatAmount(receipt.fromAmount)} ${receipt.fromCurrency}`,
+            },
+            {
+              label: "Comisión Axora (0.3%)",
+              value: `${formatAmount(receipt.fee)} ${receipt.fromCurrency}`,
+            },
+            {
+              label: "Tasa aplicada",
+              value: receipt.appliedRate
+                ? `1 ${receipt.fromCurrency} = ${formatExchangeRate(receipt.appliedRate)} ${receipt.toCurrency}`
+                : "N/A",
+            },
+            {
+              label: "Total acreditado",
+              value: `${formatAmount(receipt.toAmount)} ${receipt.toCurrency}`,
+              isHighlight: true,
+            },
+          ]}
+          primaryActionText="Ir al panel principal"
+          onPrimaryAction={() => navigate("/dashboard")}
+          secondaryActionText="Hacer otro cambio"
+          onSecondaryAction={() => {
+            setReceipt(null);
+            setAmount("");
+          }}
+        />
+      ) : (
+        <form onSubmit={handleOpenConfirm} className="exchange-form" noValidate>
+          <div className="form-field">
+            <label className="form-label" htmlFor="from_currency">
+              De
+            </label>
+            <CurrencySelect
+              id="from_currency"
+              value={fromCurrency}
+              onChange={setFromCurrency}
+              disabled={loading}
+              ariaLabel="Moneda de origen"
+            />
+            <span className="exchange-balance-hint">
+              Saldo disponible: <strong>{formatAmount(availableAmount)} {fromCurrency}</strong>
+            </span>
+          </div>
+
           <button
             type="button"
-            className="op-back-btn"
-            onClick={() => navigate("/dashboard")}
-            aria-label="Volver al panel"
+            className="exchange-swap-btn"
+            onClick={handleSwap}
+            disabled={loading}
+            aria-label="Invertir monedas"
           >
-            <ArrowLeft size={16} aria-hidden="true" />
-            <span>Volver al panel</span>
+            <ArrowLeftRight size={18} aria-hidden="true" />
           </button>
-        </div>
 
-        <h1 className="exchange-title">Comprar / vender</h1>
-        <p className="exchange-subtitle">Cambia saldo entre monedas dentro de tu cuenta Axora.</p>
-
-        {result ? (
-          <div className="exchange-success">
-            <p style={{ margin: 0 }}>
-              Cambio exitoso: recibiste {formatAmount(result.toAmount)} {result.toCurrency}. Volviendo a tu
-              cuenta…
-            </p>
-            {result.appliedRate ? (
-              <p className="exchange-success-rate">
-                Tasa aplicada: 1 {fromCurrency} = {formatExchangeRate(result.appliedRate)} {result.toCurrency}
-              </p>
-            ) : null}
+          <div className="form-field">
+            <label className="form-label" htmlFor="to_currency">
+              A
+            </label>
+            <CurrencySelect
+              id="to_currency"
+              value={toCurrency}
+              onChange={setToCurrency}
+              disabled={loading}
+              ariaLabel="Moneda de destino"
+            />
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="exchange-form" noValidate>
-            <div className="form-field">
-              <label className="form-label" htmlFor="from_currency">
-                De
-              </label>
-              <CurrencySelect
-                id="from_currency"
-                value={fromCurrency}
-                onChange={setFromCurrency}
-                disabled={loading}
-              />
-              <span className="exchange-balance-hint">
-                Saldo disponible: <strong>{formatAmount(availableAmount)} {fromCurrency}</strong>
+
+          {fromCurrency !== toCurrency && (
+            <div className="exchange-rate-banner" aria-live="polite">
+              <span className="exchange-rate-label">Tasa de cambio:</span>
+              <span className="exchange-rate-value">
+                {effectiveQuoteLoading ? (
+                  "Consultando cotización en vivo…"
+                ) : effectiveQuoteRate !== null ? (
+                  `1 ${fromCurrency} = ${formatExchangeRate(effectiveQuoteRate)} ${toCurrency}`
+                ) : (
+                  "Cotización no disponible"
+                )}
               </span>
             </div>
+          )}
 
-            <button
-              type="button"
-              className="exchange-swap-btn"
-              onClick={handleSwap}
+          <div className="form-field">
+            <label className="form-label" htmlFor="amount">
+              Monto a cambiar (en {fromCurrency})
+            </label>
+            <AmountInput
+              id="amount"
+              value={amount}
+              onChange={setAmount}
               disabled={loading}
-              aria-label="Invertir monedas"
-            >
-              <ArrowLeftRight size={18} aria-hidden="true" />
-            </button>
+              hasError={Boolean(error)}
+              ariaLabel={`Monto a cambiar en ${fromCurrency}`}
+            />
+          </div>
 
-            <div className="form-field">
-              <label className="form-label" htmlFor="to_currency">
-                A
-              </label>
-              <CurrencySelect
-                id="to_currency"
-                value={toCurrency}
-                onChange={setToCurrency}
-                disabled={loading}
-              />
-            </div>
-
-            {fromCurrency !== toCurrency && (
-              <div className="exchange-rate-banner" aria-live="polite">
-                <span className="exchange-rate-label">Tasa de cambio:</span>
-                <span className="exchange-rate-value">
-                  {quoteLoading ? (
-                    "Consultando cotización en vivo…"
-                  ) : quoteRate !== null ? (
-                    `1 ${fromCurrency} = ${formatExchangeRate(quoteRate)} ${toCurrency}`
-                  ) : (
-                    "Cotización no disponible"
-                  )}
-                </span>
-              </div>
-            )}
-
-            <div className="form-field">
-              <label className="form-label" htmlFor="amount">
-                Monto a cambiar (en {fromCurrency})
-              </label>
-              <input
-                id="amount"
-                className={`form-input${error ? " has-error" : ""}`}
-                type="text"
-                inputMode="decimal"
-                placeholder="0,00"
-                value={formatAmountInputDisplay(amount)}
-                onChange={(e) => setAmount(parseAmountInputDisplay(e.target.value))}
-                disabled={loading}
-              />
-            </div>
-
-            {numericAmount > 0 && (
-              <div className="exchange-summary-box">
-                {quoteRate !== null && fromCurrency !== toCurrency && (
-                  <div className="summary-line">
-                    <span>Tasa de conversión:</span>
-                    <span>1 {fromCurrency} = {formatExchangeRate(quoteRate)} {toCurrency}</span>
-                  </div>
-                )}
+          {numericAmount > 0 && (
+            <div className="exchange-summary-box">
+              {effectiveQuoteRate !== null && fromCurrency !== toCurrency && (
                 <div className="summary-line">
-                  <span>Comisión de cambio (0.3%):</span>
-                  <span>{formatAmount(fee)} {fromCurrency}</span>
+                  <span>Tasa de conversión:</span>
+                  <span>1 {fromCurrency} = {formatExchangeRate(effectiveQuoteRate)} {toCurrency}</span>
                 </div>
-                <div className="summary-line">
-                  <span>Monto neto a convertir:</span>
-                  <span className="summary-highlight">{formatAmount(netAmount)} {fromCurrency}</span>
+              )}
+              <div className="summary-line">
+                <span>Comisión de cambio (0.3%):</span>
+                <span>{formatAmount(fee)} {fromCurrency}</span>
+              </div>
+              <div className="summary-line">
+                <span>Monto neto a convertir:</span>
+                <span className="summary-highlight">{formatAmount(netAmount)} {fromCurrency}</span>
+              </div>
+              {effectiveQuoteRate !== null && estimatedToAmount > 0 && fromCurrency !== toCurrency && (
+                <div className="summary-line summary-receive-row">
+                  <span>Recibirás aproximadamente:</span>
+                  <span className="summary-receive-amount">≈ {formatAmount(estimatedToAmount)} {toCurrency}</span>
                 </div>
-                {quoteRate !== null && estimatedToAmount > 0 && fromCurrency !== toCurrency && (
-                  <div className="summary-line summary-receive-row">
-                    <span>Recibirás aproximadamente:</span>
-                    <span className="summary-receive-amount">≈ {formatAmount(estimatedToAmount)} {toCurrency}</span>
-                  </div>
-                )}
-              </div>
-            )}
+              )}
+            </div>
+          )}
 
-            {error && (
-              <div className="exchange-error" role="alert">
-                <em className="exchange-error-icon" aria-hidden="true">
-                  ✕
-                </em>
-                {error}
-              </div>
-            )}
+          {error && (
+            <div className="exchange-error" role="alert">
+              <em className="exchange-error-icon" aria-hidden="true">
+                ✕
+              </em>
+              {error}
+            </div>
+          )}
 
-            <button type="submit" className="exchange-submit" disabled={loading}>
-              {loading ? "Procesando…" : "Cambiar"}
-            </button>
-            <button
-              type="button"
-              className="exchange-cancel"
-              onClick={() => navigate("/dashboard")}
-              disabled={loading}
-            >
-              Cancelar
-            </button>
-          </form>
-        )}
-      </div>
-    </div>
+          <button type="submit" className="exchange-submit" disabled={loading}>
+            {loading ? "Procesando…" : "Cambiar"}
+          </button>
+          <button
+            type="button"
+            className="exchange-cancel"
+            onClick={() => navigate("/dashboard")}
+            disabled={loading}
+          >
+            Cancelar
+          </button>
+        </form>
+      )}
+
+      <OperationConfirmModal
+        isOpen={isConfirmOpen}
+        title="Confirmar cambio de moneda"
+        subtitle="Verifica las condiciones antes de completar la conversión."
+        confirmText="Confirmar cambio"
+        cancelText="Volver"
+        loading={loading}
+        onConfirm={handleConfirmExchange}
+        onClose={() => setIsConfirmOpen(false)}
+        items={[
+          {
+            label: "De",
+            value: `${formatAmount(numericAmount)} ${fromCurrency}`,
+          },
+          {
+            label: "Tasa aplicada / estimada",
+            value:
+              effectiveQuoteRate !== null
+                ? `1 ${fromCurrency} = ${formatExchangeRate(effectiveQuoteRate)} ${toCurrency}`
+                : "No disponible",
+          },
+          {
+            label: "Comisión Axora (0.3%)",
+            value: `${formatAmount(fee)} ${fromCurrency}`,
+          },
+          {
+            label: "Monto neto a convertir",
+            value: `${formatAmount(netAmount)} ${fromCurrency}`,
+          },
+          {
+            label: "Recibirás aprox.",
+            value: `≈ ${formatAmount(estimatedToAmount)} ${toCurrency}`,
+            isHighlight: true,
+          },
+        ]}
+      />
+    </OperationLayout>
   );
 }

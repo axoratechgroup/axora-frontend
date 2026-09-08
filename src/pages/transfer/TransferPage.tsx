@@ -1,214 +1,285 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import ReactCountryFlag from "react-country-flag";
-import { ArrowLeft } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { transferApi } from "../../api/wallet.api.ts";
-import { formatAmountInputDisplay, parseAmountInputDisplay } from "../../utils/formatters.ts";
-import { CURRENCY_TO_COUNTRY, getCountryCode } from "../../utils/currency.ts";
+import { formatAmount } from "../../utils/formatters.ts";
+import { CURRENCY_NAMES, CURRENCY_TO_COUNTRY } from "../../utils/currency.ts";
+import { OperationLayout } from "../../components/common/OperationLayout.tsx";
+import { CurrencySelect } from "../../components/common/CurrencySelect.tsx";
+import { AmountInput } from "../../components/common/AmountInput.tsx";
+import { OperationConfirmModal } from "../../components/common/OperationConfirmModal.tsx";
+import { OperationReceipt } from "../../components/common/OperationReceipt.tsx";
 import "./TransferPage.css";
 
-const CURRENCY_NAMES: Record<string, string> = {
-  USD: "Dólar estadounidense",
-  ARS: "Peso argentino",
-  MXN: "Peso mexicano",
-  COP: "Peso colombiano",
-  BRL: "Real brasileño",
-  EUR: "Euro",
-};
+interface TransferReceiptData {
+  transactionId?: string;
+  recipient: string;
+  currency: string;
+  amount: number;
+  memo?: string;
+}
 
 export default function TransferPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [recipientUsername, setRecipientUsername] = useState("");
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState(() => {
+    const paramCurrency = searchParams.get("currency")?.trim().toUpperCase();
+    if (paramCurrency && paramCurrency in CURRENCY_TO_COUNTRY) {
+      return paramCurrency;
+    }
+    return "USD";
+  });
+
   const [amount, setAmount] = useState("");
   const [memo, setMemo] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [receipt, setReceipt] = useState<TransferReceiptData | null>(null);
 
-  const countryCode = getCountryCode(currency);
+  const numericAmount = Number(amount);
+  const normalizedRecipient = recipientUsername.trim().replace(/^@/, "");
+  const normalizedMemo = memo.trim();
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleOpenConfirm = (e: FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (!recipientUsername.trim()) {
+    if (!normalizedRecipient) {
       setError("Ingresa el nombre de usuario del destinatario.");
       return;
     }
 
-    const numericAmount = Number(amount);
     if (!numericAmount || numericAmount <= 0) {
       setError("Ingresa un monto válido, mayor a 0.");
       return;
     }
 
-    const normalizedMemo = memo.trim();
-    const confirmationMessage = `¿Confirmas la transferencia de ${numericAmount} ${currency} a ${recipientUsername.trim()}?${
-      normalizedMemo ? `\nNota: ${normalizedMemo}` : ""
-    }`;
+    setIsConfirmOpen(true);
+  };
 
-    if (!window.confirm(confirmationMessage)) {
-      return;
-    }
-
+  const handleConfirmTransfer = async () => {
     setLoading(true);
+    setError("");
     try {
-      await transferApi(recipientUsername.trim(), currency, numericAmount, normalizedMemo || undefined);
-      setSuccess(true);
-      setTimeout(() => navigate("/dashboard"), 1500);
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "No se pudo procesar la transferencia.",
+      const transaction = await transferApi(
+        normalizedRecipient,
+        currency,
+        numericAmount,
+        normalizedMemo || undefined,
       );
+      setIsConfirmOpen(false);
+      setReceipt({
+        transactionId: transaction?.id,
+        recipient: normalizedRecipient,
+        currency,
+        amount: numericAmount,
+        memo: normalizedMemo,
+      });
+      toast.success("Transferencia realizada con éxito.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "No se pudo procesar la transferencia.";
+      setError(msg);
+      setIsConfirmOpen(false);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="transfer-page">
-      <div className="transfer-card">
-        <div className="op-card-header">
+    <OperationLayout
+      title="Enviar dinero"
+      subtitle="Transfiere saldo a otro usuario de Axora de forma instantánea."
+      className="transfer-page"
+      cardClassName="transfer-card"
+    >
+      {receipt ? (
+        <OperationReceipt
+          title="¡Transferencia exitosa!"
+          subtitle={`Has enviado ${formatAmount(receipt.amount)} ${receipt.currency} a @${receipt.recipient}.`}
+          referenceId={receipt.transactionId}
+          items={[
+            {
+              label: "Destinatario",
+              value: `@${receipt.recipient}`,
+            },
+            {
+              label: "Monto transferido",
+              value: `${formatAmount(receipt.amount)} ${receipt.currency}`,
+            },
+            {
+              label: "Costo de transferencia",
+              value: "Gratuito ($0,00)",
+            },
+            ...(receipt.memo
+              ? [
+                  {
+                    label: "Nota",
+                    value: receipt.memo,
+                  },
+                ]
+              : []),
+            {
+              label: "Total debitado",
+              value: `${formatAmount(receipt.amount)} ${receipt.currency}`,
+              isHighlight: true,
+            },
+          ]}
+          primaryActionText="Ir al panel principal"
+          onPrimaryAction={() => navigate("/dashboard")}
+          secondaryActionText="Enviar otra transferencia"
+          onSecondaryAction={() => {
+            setReceipt(null);
+            setAmount("");
+            setMemo("");
+            setRecipientUsername("");
+          }}
+        />
+      ) : (
+        <form onSubmit={handleOpenConfirm} className="transfer-form" noValidate>
+          <div className="form-field">
+            <label className="form-label" htmlFor="recipient_username">
+              Nombre de usuario del destinatario
+            </label>
+            <input
+              id="recipient_username"
+              className={`form-input${error && !normalizedRecipient ? " has-error" : ""}`}
+              type="text"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              placeholder="usuario123"
+              value={recipientUsername}
+              onChange={(e) => setRecipientUsername(e.target.value)}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="form-field">
+            <label className="form-label" htmlFor="currency">
+              Moneda
+            </label>
+            <CurrencySelect
+              id="currency"
+              value={currency}
+              onChange={setCurrency}
+              disabled={loading}
+              ariaLabel="Moneda"
+            />
+          </div>
+
+          <div className="form-field">
+            <label className="form-label" htmlFor="amount">
+              Monto
+            </label>
+            <AmountInput
+              id="amount"
+              value={amount}
+              onChange={setAmount}
+              disabled={loading}
+              hasError={Boolean(error && (!numericAmount || numericAmount <= 0))}
+              ariaLabel="Monto"
+            />
+          </div>
+
+          <div className="form-field">
+            <label className="form-label" htmlFor="memo">
+              Nota o motivo (opcional)
+            </label>
+            <input
+              id="memo"
+              className="form-input"
+              type="text"
+              placeholder="Para las cervezas en Bangkok 🍻"
+              maxLength={255}
+              value={memo}
+              onChange={(e) => setMemo(e.target.value)}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="transfer-summary-box">
+            <div className="summary-line">
+              <span>Costo de transferencia:</span>
+              <span className="summary-free">Gratuito ($0,00)</span>
+            </div>
+            <div className="summary-line">
+              <span>Monto a transferir:</span>
+              <span className="summary-highlight">
+                {numericAmount > 0
+                  ? `${formatAmount(numericAmount)} ${currency}`
+                  : `0,00 ${currency}`}
+              </span>
+            </div>
+          </div>
+
+          {error && (
+            <div className="transfer-error" role="alert">
+              <em className="transfer-error-icon" aria-hidden="true">
+                ✕
+              </em>
+              {error}
+            </div>
+          )}
+
+          <button type="submit" className="transfer-submit" disabled={loading}>
+            {loading ? "Procesando…" : "Enviar dinero"}
+          </button>
           <button
             type="button"
-            className="op-back-btn"
+            className="transfer-cancel"
             onClick={() => navigate("/dashboard")}
-            aria-label="Volver al panel"
+            disabled={loading}
           >
-            <ArrowLeft size={16} aria-hidden="true" />
-            <span>Volver al panel</span>
+            Cancelar
           </button>
-        </div>
+        </form>
+      )}
 
-        <h1 className="transfer-title">Enviar dinero</h1>
-        <p className="transfer-subtitle">Transfiere saldo a otro usuario de Axora.</p>
-
-        {success ? (
-          <p className="transfer-success">Transferencia exitosa. Volviendo a tu cuenta…</p>
-        ) : (
-          <form onSubmit={handleSubmit} className="transfer-form" noValidate>
-            <div className="form-field">
-              <label className="form-label" htmlFor="recipient_username">
-                Nombre de usuario del destinatario
-              </label>
-              <input
-                id="recipient_username"
-                className={`form-input${error ? " has-error" : ""}`}
-                type="text"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                placeholder="usuario123"
-                value={recipientUsername}
-                onChange={(e) => setRecipientUsername(e.target.value)}
-                disabled={loading}
-              />
-            </div>
-
-            <div className="form-field">
-              <label className="form-label" htmlFor="currency">
-                Moneda
-              </label>
-              <div className="transfer-currency-row">
-                {countryCode && (
-                  <ReactCountryFlag
-                    countryCode={countryCode}
-                    svg
-                    style={{
-                      width: "28px",
-                      height: "28px",
-                      borderRadius: "50%",
-                      flexShrink: 0,
-                    }}
-                    aria-label={CURRENCY_NAMES[currency] ?? currency}
-                  />
-                )}
-                <select
-                  id="currency"
-                  className="form-input"
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
-                  disabled={loading}
-                >
-                  {Object.keys(CURRENCY_TO_COUNTRY).map((code) => (
-                    <option key={code} value={code}>
-                      {code} — {CURRENCY_NAMES[code] ?? code}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="form-field">
-              <label className="form-label" htmlFor="amount">
-                Monto
-              </label>
-              <input
-                id="amount"
-                className={`form-input${error ? " has-error" : ""}`}
-                type="text"
-                inputMode="decimal"
-                placeholder="0,00"
-                value={formatAmountInputDisplay(amount)}
-                onChange={(e) => setAmount(parseAmountInputDisplay(e.target.value))}
-                disabled={loading}
-              />
-            </div>
-
-            <div className="form-field">
-              <label className="form-label" htmlFor="memo">
-                Nota o motivo (opcional)
-              </label>
-              <input
-                id="memo"
-                className="form-input"
-                type="text"
-                placeholder="Para las cervezas en Bangkok 🍻"
-                maxLength={255}
-                value={memo}
-                onChange={(e) => setMemo(e.target.value)}
-                disabled={loading}
-              />
-            </div>
-
-            <div className="transfer-summary-box">
-              <div className="summary-line">
-                <span>Costo de transferencia:</span>
-                <span className="summary-free">Gratuito ($0,00)</span>
-              </div>
-              <div className="summary-line">
-                <span>Monto a transferir:</span>
-                <span className="summary-highlight">
-                  {amount ? `${formatAmountInputDisplay(amount)} ${currency}` : `0,00 ${currency}`}
-                </span>
-              </div>
-            </div>
-
-            {error && (
-              <div className="transfer-error" role="alert">
-                <em className="transfer-error-icon" aria-hidden="true">
-                  ✕
-                </em>
-                {error}
-              </div>
-            )}
-
-            <button type="submit" className="transfer-submit" disabled={loading}>
-              {loading ? "Procesando…" : "Enviar dinero"}
-            </button>
-            <button
-              type="button"
-              className="transfer-cancel"
-              onClick={() => navigate("/dashboard")}
-              disabled={loading}
-            >
-              Cancelar
-            </button>
-          </form>
-        )}
-      </div>
-    </div>
+      <OperationConfirmModal
+        isOpen={isConfirmOpen}
+        title="Confirmar transferencia"
+        subtitle="Verifica los datos del envío antes de procesar."
+        confirmText="Confirmar envío"
+        cancelText="Volver"
+        loading={loading}
+        onConfirm={handleConfirmTransfer}
+        onClose={() => setIsConfirmOpen(false)}
+        items={[
+          {
+            label: "Destinatario",
+            value: `@${normalizedRecipient}`,
+          },
+          {
+            label: "Moneda",
+            value: `${currency} — ${CURRENCY_NAMES[currency] ?? currency}`,
+          },
+          {
+            label: "Monto",
+            value: `${formatAmount(numericAmount)} ${currency}`,
+          },
+          ...(normalizedMemo
+            ? [
+                {
+                  label: "Nota",
+                  value: normalizedMemo,
+                },
+              ]
+            : []),
+          {
+            label: "Costo de transferencia",
+            value: "Gratuito ($0,00)",
+          },
+          {
+            label: "Total a debitar",
+            value: `${formatAmount(numericAmount)} ${currency}`,
+            isHighlight: true,
+          },
+        ]}
+      />
+    </OperationLayout>
   );
 }

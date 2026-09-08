@@ -3,8 +3,9 @@ import ReactApexChart from 'react-apexcharts'
 import type { ApexAxisChartSeries, ApexOptions } from 'apexcharts'
 import { getRateHistoryApi } from '../../api/rates.api.ts'
 import type { RateHistoryRange, RateHistoryResponse } from '../../types/rates.ts'
-import { useTheme } from '../../context/ThemeContext.tsx'
+import { useTheme } from '../../hooks/useTheme.ts'
 import './CurrencyHistoryChart.css'
+
 
 const BASE_CURRENCY = 'USD'
 const QUOTE_CURRENCIES = ['MXN', 'EUR', 'ARS', 'COP', 'BRL']

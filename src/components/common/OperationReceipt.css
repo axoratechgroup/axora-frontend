@@ -1,0 +1,180 @@
+/* ─── Operation Receipt Styles ───────────────────────────────────────── */
+.op-receipt-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: opReceiptFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+}
+
+@keyframes opReceiptFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.op-receipt-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.14);
+  border: 2px solid rgba(34, 197, 94, 0.4);
+  color: #22c55e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.op-receipt-title {
+  font-family: var(--display, inherit);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 6px;
+}
+
+.op-receipt-subtitle {
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+  margin: 0 0 18px;
+  line-height: 1.45;
+}
+
+.op-receipt-ref-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--canvas-3);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.op-receipt-ref-id {
+  font-family: monospace;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.op-receipt-copy-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.op-receipt-copy-btn:hover {
+  color: var(--color-primary, #ff7a30);
+}
+
+.op-receipt-box {
+  background: var(--canvas-3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 24px;
+}
+
+.op-receipt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  gap: 12px;
+  text-align: left;
+}
+
+.op-receipt-row.is-highlight {
+  border-top: 1px dashed var(--border);
+  padding-top: 10px;
+  margin-top: 2px;
+}
+
+.op-receipt-row.is-highlight .op-receipt-row-label {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.op-receipt-row.is-highlight .op-receipt-row-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #22c55e;
+}
+
+.op-receipt-row-label {
+  color: var(--muted);
+}
+
+.op-receipt-row-value {
+  color: var(--ink);
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+}
+
+.op-receipt-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.op-receipt-btn-primary {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff9a3c 0%, #ff5500 100%);
+  border: none;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.2s;
+  box-shadow: 0 4px 14px rgba(255, 122, 48, 0.25);
+  font-family: inherit;
+}
+
+.op-receipt-btn-primary:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.op-receipt-btn-secondary {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--ink-dim);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  font-family: inherit;
+}
+
+.op-receipt-btn-secondary:hover {
+  background: var(--canvas-3);
+  color: var(--ink);
+  border-color: var(--border-glow);
+}
