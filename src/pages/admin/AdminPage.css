@@ -336,6 +336,26 @@
   font-size: 0.75rem;
 }
 
+.tx-transfer-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 180px;
+}
+
+.tx-transfer-detail span {
+  color: var(--ink, #FDF3E4);
+  font-weight: 600;
+}
+
+.tx-transfer-detail small {
+  color: var(--muted, #8E8377);
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .tx-type-pill {
   display: inline-flex;
   align-items: center;

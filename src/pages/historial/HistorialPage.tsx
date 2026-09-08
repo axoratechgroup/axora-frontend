@@ -65,6 +65,9 @@ export default function HistorialPage() {
                   <div className="historial-details">
                     <span className="historial-type">{formatTransactionType(tx.type)}</span>
                     <span className="historial-subtitle">{transactionSubtitle(tx)}</span>
+                    {tx.type === 'TRANSFER' && tx.description && (
+                      <span className="historial-memo">{tx.description}</span>
+                    )}
                   </div>
                   <div className="historial-value">
                     <span

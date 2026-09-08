@@ -430,6 +430,9 @@ export default function DashboardPage() {
                             ? `${tx.from_currency} → ${tx.to_currency}`
                             : tx.status}
                         </span>
+                        {tx.type === 'TRANSFER' && tx.description && (
+                          <span className="transaction-memo">{tx.description}</span>
+                        )}
                       </div>
                     </div>
                     <div className="activity-counterparty">

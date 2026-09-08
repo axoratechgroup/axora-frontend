@@ -85,6 +85,21 @@ describe('AdminPage', () => {
         description: 'Cambio de USD a EUR',
         created_at: '2026-09-04T13:00:00Z',
       },
+      {
+        id: 'tx-2',
+        type: 'TRANSFER',
+        status: 'COMPLETED',
+        username: 'camilag',
+        email: 'camila@axora.test',
+        from_currency: 'USD',
+        from_amount: '50',
+        to_currency: 'USD',
+        to_amount: '50',
+        applied_exchange_rate: null,
+        recipient_username: 'mateos',
+        description: 'Cena del viaje',
+        created_at: '2026-09-04T14:00:00Z',
+      },
     ])
 
     renderAdminPage()
@@ -103,13 +118,15 @@ describe('AdminPage', () => {
     expect(screen.getByText('@mateos')).toBeInTheDocument()
 
     // Cambiar a la pestaña de transacciones
-    const txTab = screen.getByRole('button', { name: /Transacciones \(1\)/i })
+    const txTab = screen.getByRole('button', { name: /Transacciones \(2\)/i })
     await user.click(txTab)
 
     // Ver transacción
     expect(await screen.findByText('USD → EUR')).toBeInTheDocument()
     expect(screen.getByText('91,72 EUR')).toBeInTheDocument()
     expect(screen.getByText('0,92')).toBeInTheDocument()
+    expect(screen.getByText('@camilag → @mateos')).toBeInTheDocument()
+    expect(screen.getByText('Cena del viaje')).toBeInTheDocument()
   })
 
   it('permite filtrar usuarios mediante el buscador', async () => {

@@ -115,7 +115,9 @@ export default function AdminPage() {
         t.email.toLowerCase().includes(query) ||
         t.type.toLowerCase().includes(query) ||
         t.to_currency.toLowerCase().includes(query) ||
-        (t.from_currency && t.from_currency.toLowerCase().includes(query)),
+        (t.from_currency && t.from_currency.toLowerCase().includes(query)) ||
+        (t.recipient_username && t.recipient_username.toLowerCase().includes(query)) ||
+        (t.description && t.description.toLowerCase().includes(query)),
     )
   }, [transactions, searchTerm])
 
@@ -315,9 +317,16 @@ export default function AdminPage() {
                         </span>
                       </td>
                       <td>
-                        {tx.type === 'SWAP' && tx.from_currency
-                          ? `${tx.from_currency} → ${tx.to_currency}`
-                          : tx.description || 'Operación estándar'}
+                        {tx.type === 'TRANSFER' ? (
+                          <div className="tx-transfer-detail">
+                            <span>@{tx.username} → {tx.recipient_username ? `@${tx.recipient_username}` : '—'}</span>
+                            {tx.description && <small>{tx.description}</small>}
+                          </div>
+                        ) : tx.type === 'SWAP' && tx.from_currency ? (
+                          `${tx.from_currency} → ${tx.to_currency}`
+                        ) : (
+                          tx.description || 'Operación estándar'
+                        )}
                       </td>
                       <td>
                         <strong>{formatAmount(tx.to_amount)} {tx.to_currency}</strong>

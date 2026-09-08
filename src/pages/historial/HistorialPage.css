@@ -122,6 +122,15 @@
   white-space: nowrap;
 }
 
+.historial-memo {
+  color: var(--ink-dim);
+  font-size: 0.78rem;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .historial-value {
   align-items: flex-end;
   display: flex;

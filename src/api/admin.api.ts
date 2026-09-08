@@ -23,6 +23,7 @@ export interface AdminTransaction {
   to_amount: string
   applied_exchange_rate: string | null
   description: string | null
+  recipient_username: string | null
   created_at: string
 }
 

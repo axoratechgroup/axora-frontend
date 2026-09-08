@@ -74,6 +74,7 @@ describe("HistorialPage", () => {
           from_currency: "USD",
           from_amount: 30,
           counterparty_username: "amigo1",
+          description: "Cena del viaje",
           created_at: "2026-09-04T12:00:00Z",
         },
         {
@@ -105,6 +106,7 @@ describe("HistorialPage", () => {
 
     expect(screen.getByText("Enviado a @amigo1")).toBeInTheDocument();
     expect(screen.getByText("Recibido de @amigo2")).toBeInTheDocument();
+    expect(screen.getByText("Cena del viaje")).toBeInTheDocument();
     expect(screen.getByText(/USD → EUR • Tasa: 0,9/)).toBeInTheDocument();
   });
 
