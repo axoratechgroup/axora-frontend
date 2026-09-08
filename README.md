@@ -228,6 +228,22 @@ Configura el archivo `.env` en la raíz del proyecto:
 | :--- | :---: | :--- | :--- |
 | `VITE_API_URL` | **Sí** | URL base del servidor backend de AXORA | `http://localhost:3000` *(local)* o `https://axora-backend-production-4e8d.up.railway.app` |
 
+### Función de email transaccional
+
+Vercel publica `api/send-email.ts` como `POST /api/send-email`. La función es un transporte privado entre Railway y AWS SES: valida el secreto compartido y envía el correo con el SDK de SES. El navegador nunca la invoca directamente.
+
+Configura estas variables solo en el panel de Vercel. No deben llevar prefijo `VITE_` ni subirse a Git:
+
+| Variable | Descripción |
+| :--- | :--- |
+| `AWS_REGION` | Región donde se verificó la identidad SES. |
+| `AWS_ACCESS_KEY_ID` | Credencial AWS con permiso limitado de envío SES. |
+| `AWS_SECRET_ACCESS_KEY` | Secreto de la credencial AWS. |
+| `SES_FROM_EMAIL` | Remitente previamente verificado en SES. |
+| `EMAIL_API_SECRET` | Secreto que Railway incluye en el header `x-email-api-secret`. |
+
+El logo usado por los correos se sirve como recurso estático desde `public/axora-email-logo.png`, disponible en producción como `${FRONTEND_URL}/axora-email-logo.png`.
+
 ---
 
 ## 🚀 Scripts Disponibles
