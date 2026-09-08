@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { topupApi } from "../../api/wallet.api.ts";
-import { formatAmount } from "../../utils/formatters.ts";
-import { CURRENCY_NAMES, CURRENCY_TO_COUNTRY } from "../../utils/currency.ts";
+import { getExchangeRateQuoteApi } from "../../api/rates.api.ts";
+import {
+  formatAmount,
+  formatExchangeRate,
+} from "../../utils/formatters.ts";
+import {
+  CURRENCY_NAMES,
+  CURRENCY_TO_COUNTRY,
+  getFallbackExchangeRate,
+} from "../../utils/currency.ts";
 import { OperationLayout } from "../../components/common/OperationLayout.tsx";
 import { CurrencySelect } from "../../components/common/CurrencySelect.tsx";
 import { AmountInput } from "../../components/common/AmountInput.tsx";
@@ -32,6 +40,8 @@ interface TopUpReceiptData {
   transactionId?: string;
   currency: string;
   amount: number;
+  referenceRate?: number | null;
+  usdEquivalent?: number | null;
 }
 
 export default function TopUpPage() {
@@ -51,8 +61,52 @@ export default function TopUpPage() {
   const [error, setError] = useState("");
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [receipt, setReceipt] = useState<TopUpReceiptData | null>(null);
+  const [quoteRate, setQuoteRate] = useState<number | null>(null);
+  const [quoteLoading, setQuoteLoading] = useState(false);
 
-  const numericAmount = Number(amount);
+  useEffect(() => {
+    if (currency === "USD") {
+      setQuoteRate(1);
+      setQuoteLoading(false);
+      return;
+    }
+
+    let isCurrent = true;
+
+    async function loadQuote() {
+      setQuoteLoading(true);
+      try {
+        const data = await getExchangeRateQuoteApi("USD", currency);
+        if (isCurrent) {
+          setQuoteRate(data.rate);
+        }
+      } catch {
+        if (isCurrent) {
+          const fallback = getFallbackExchangeRate("USD", currency);
+          setQuoteRate(fallback || null);
+        }
+      } finally {
+        if (isCurrent) {
+          setQuoteLoading(false);
+        }
+      }
+    }
+
+    void loadQuote();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [currency]);
+
+  const numericAmount = Number(amount) || 0;
+  const effectiveQuoteRate = currency === "USD" ? 1 : quoteRate;
+  const usdEquivalent =
+    currency === "USD"
+      ? numericAmount
+      : effectiveQuoteRate && effectiveQuoteRate > 0
+        ? Math.round((numericAmount / effectiveQuoteRate) * 100) / 100
+        : null;
 
   const handleOpenConfirm = (e: FormEvent) => {
     e.preventDefault();
@@ -76,6 +130,8 @@ export default function TopUpPage() {
         transactionId: transaction?.id,
         currency,
         amount: numericAmount,
+        referenceRate: currency !== "USD" ? effectiveQuoteRate : null,
+        usdEquivalent: currency !== "USD" ? usdEquivalent : null,
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "No se pudo procesar la carga.";
@@ -103,6 +159,22 @@ export default function TopUpPage() {
               label: "Monto cargado",
               value: `${formatAmount(receipt.amount)} ${receipt.currency}`,
             },
+            ...(receipt.currency !== "USD" && receipt.referenceRate
+              ? [
+                  {
+                    label: "Tasa de referencia (USD)",
+                    value: `1 USD ≈ ${formatExchangeRate(receipt.referenceRate)} ${receipt.currency}`,
+                  },
+                  ...(receipt.usdEquivalent !== null && receipt.usdEquivalent !== undefined
+                    ? [
+                        {
+                          label: "Equivalente aprox. en USD",
+                          value: `≈ $${formatAmount(receipt.usdEquivalent)} USD`,
+                        },
+                      ]
+                    : []),
+                ]
+              : []),
             {
               label: "Costo de operación",
               value: "Gratuito ($0,00)",
@@ -136,6 +208,21 @@ export default function TopUpPage() {
             />
           </div>
 
+          {currency !== "USD" && (
+            <div className="topup-rate-banner" aria-live="polite">
+              <span className="topup-rate-label">Tasa de referencia (USD):</span>
+              <span className="topup-rate-value">
+                {quoteLoading ? (
+                  "Consultando cotización en vivo…"
+                ) : effectiveQuoteRate !== null ? (
+                  `1 USD ≈ ${formatExchangeRate(effectiveQuoteRate)} ${currency}`
+                ) : (
+                  "Cotización no disponible"
+                )}
+              </span>
+            </div>
+          )}
+
           <div className="form-field">
             <label className="form-label" htmlFor="amount">
               Monto
@@ -155,6 +242,18 @@ export default function TopUpPage() {
               <span>Costo de transacción:</span>
               <span className="summary-free">Gratuito ($0,00)</span>
             </div>
+            {currency !== "USD" && effectiveQuoteRate !== null && (
+              <div className="summary-line">
+                <span>Tasa de referencia (USD):</span>
+                <span>1 USD ≈ {formatExchangeRate(effectiveQuoteRate)} {currency}</span>
+              </div>
+            )}
+            {currency !== "USD" && numericAmount > 0 && usdEquivalent !== null && (
+              <div className="summary-line">
+                <span>Equivalente aprox. en USD:</span>
+                <span className="summary-usd-approx">≈ ${formatAmount(usdEquivalent)} USD</span>
+              </div>
+            )}
             <div className="summary-line">
               <span>Total a acreditar:</span>
               <span className="summary-highlight">
@@ -202,6 +301,22 @@ export default function TopUpPage() {
             label: "Moneda",
             value: `${currency} — ${CURRENCY_NAMES[currency] ?? currency}`,
           },
+          ...(currency !== "USD" && effectiveQuoteRate !== null
+            ? [
+                {
+                  label: "Tasa de referencia (USD)",
+                  value: `1 USD ≈ ${formatExchangeRate(effectiveQuoteRate)} ${currency}`,
+                },
+                ...(numericAmount > 0 && usdEquivalent !== null
+                  ? [
+                      {
+                        label: "Equivalente aprox. en USD",
+                        value: `≈ $${formatAmount(usdEquivalent)} USD`,
+                      },
+                    ]
+                  : []),
+              ]
+            : []),
           {
             label: "Costo de transacción",
             value: "Gratuito ($0,00)",

@@ -269,5 +269,36 @@
 .summary-highlight {
   color: #fff;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-usd-approx {
+  color: #22c55e;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Reference Rate Banner ─────────────────────────────────────────── */
+.topup-rate-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(232, 130, 30, 0.08);
+  border: 1px solid var(--border-glow, rgba(232, 130, 30, 0.25));
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  margin: 2px 0 6px;
+}
+
+.topup-rate-label {
+  color: var(--muted, #a1a1aa);
+  font-weight: 500;
+}
+
+.topup-rate-value {
+  color: var(--accent, #ff9a3c);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
