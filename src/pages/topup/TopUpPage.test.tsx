@@ -44,21 +44,22 @@ describe("TopUpPage", () => {
     expect(topupApiMock).not.toHaveBeenCalled();
   });
 
-  it("no ejecuta la carga si se cancela la confirmación", async () => {
+  it("no ejecuta la carga si se cancela en el modal de confirmación", async () => {
     const user = userEvent.setup();
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(false));
     renderTopUp();
 
     await user.type(screen.getByLabelText("Monto"), "100");
     await user.click(screen.getByRole("button", { name: "Cargar saldo" }));
 
-    expect(window.confirm).toHaveBeenCalled();
+    expect(screen.getByText("Confirmar carga de saldo")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Volver" }));
+
     expect(topupApiMock).not.toHaveBeenCalled();
+    expect(screen.queryByText("Confirmar carga de saldo")).not.toBeInTheDocument();
   });
 
   it("muestra error si la API rechaza la carga (ej. límite de USD superado)", async () => {
     const user = userEvent.setup();
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
     topupApiMock.mockRejectedValueOnce(
       new Error("superarías el límite de USD 10000 en tu cuenta"),
     );
@@ -67,16 +68,17 @@ describe("TopUpPage", () => {
     await user.type(screen.getByLabelText("Monto"), "1000");
     await user.click(screen.getByRole("button", { name: "Cargar saldo" }));
 
+    await user.click(screen.getByRole("button", { name: "Confirmar carga" }));
+
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "superarías el límite de USD 10000",
     );
   });
 
-  it("procesa la carga exitosamente y muestra mensaje", async () => {
+  it("procesa la carga exitosamente y muestra comprobante persistente", async () => {
     const user = userEvent.setup();
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
     topupApiMock.mockResolvedValueOnce({
-      id: "tx-topup",
+      id: "tx-topup-456",
       type: "TOP_UP",
     } as unknown as Awaited<ReturnType<typeof topupApi>>);
     renderTopUp();
@@ -84,9 +86,28 @@ describe("TopUpPage", () => {
     await user.type(screen.getByLabelText("Monto"), "50");
     await user.click(screen.getByRole("button", { name: "Cargar saldo" }));
 
+    expect(screen.getByText("Confirmar carga de saldo")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Confirmar carga" }));
+
     expect(topupApiMock).toHaveBeenCalledWith(expect.any(String), 50);
     expect(
-      await screen.findByText(/Carga exitosa/i),
+      await screen.findByText(/¡Carga completada!/i),
     ).toBeInTheDocument();
+    expect(screen.getByText("tx-topup-456")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ir al panel principal" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cargar más saldo" })).toBeInTheDocument();
+  });
+
+  it("respeta el parámetro ?currency de la URL", () => {
+    render(
+      <MemoryRouter initialEntries={["/topup?currency=EUR"]}>
+        <Routes>
+          <Route path="/topup" element={<TopUpPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const select = screen.getByLabelText("Moneda") as HTMLSelectElement;
+    expect(select.value).toBe("EUR");
   });
 });

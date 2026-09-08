@@ -1,21 +1,16 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import ReactCountryFlag from "react-country-flag";
-import { ArrowLeft } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { topupApi } from "../../api/wallet.api.ts";
-import { formatAmountInputDisplay, parseAmountInputDisplay } from "../../utils/formatters.ts";
-import { CURRENCY_TO_COUNTRY, getCountryCode } from "../../utils/currency.ts";
+import { formatAmount } from "../../utils/formatters.ts";
+import { CURRENCY_NAMES, CURRENCY_TO_COUNTRY } from "../../utils/currency.ts";
+import { OperationLayout } from "../../components/common/OperationLayout.tsx";
+import { CurrencySelect } from "../../components/common/CurrencySelect.tsx";
+import { AmountInput } from "../../components/common/AmountInput.tsx";
+import { OperationConfirmModal } from "../../components/common/OperationConfirmModal.tsx";
+import { OperationReceipt } from "../../components/common/OperationReceipt.tsx";
 import "./TopUpPage.css";
-
-const CURRENCY_NAMES: Record<string, string> = {
-  USD: "Dólar estadounidense",
-  ARS: "Peso argentino",
-  MXN: "Peso mexicano",
-  COP: "Peso colombiano",
-  BRL: "Real brasileño",
-  EUR: "Euro",
-};
 
 const COUNTRY_TO_CURRENCY = Object.fromEntries(
   Object.entries(CURRENCY_TO_COUNTRY).map(([currency, country]) => [
@@ -34,153 +29,193 @@ function detectCurrencyFromBrowser(): string {
   }
 }
 
+interface TopUpReceiptData {
+  transactionId?: string;
+  currency: string;
+  amount: number;
+}
+
 export default function TopUpPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const [currency, setCurrency] = useState(detectCurrencyFromBrowser);
+  const [currency, setCurrency] = useState(() => {
+    const paramCurrency = searchParams.get("currency")?.trim().toUpperCase();
+    if (paramCurrency && paramCurrency in CURRENCY_TO_COUNTRY) {
+      return paramCurrency;
+    }
+    return detectCurrencyFromBrowser();
+  });
+
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [receipt, setReceipt] = useState<TopUpReceiptData | null>(null);
 
-  const countryCode = getCountryCode(currency);
+  const numericAmount = Number(amount);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleOpenConfirm = (e: FormEvent) => {
     e.preventDefault();
     setError("");
 
-    const numericAmount = Number(amount);
     if (!numericAmount || numericAmount <= 0) {
       setError("Ingresa un monto válido, mayor a 0.");
       return;
     }
 
-    if (!window.confirm(`¿Confirmas la carga de ${numericAmount} ${currency}?`)) {
-      return;
-    }
+    setIsConfirmOpen(true);
+  };
 
+  const handleConfirmTopUp = async () => {
     setLoading(true);
+    setError("");
     try {
-      await topupApi(currency, numericAmount);
-      setSuccess(true);
-      setTimeout(() => navigate("/dashboard"), 1500);
+      const transaction = await topupApi(currency, numericAmount);
+      setIsConfirmOpen(false);
+      setReceipt({
+        transactionId: transaction?.id,
+        currency,
+        amount: numericAmount,
+      });
+      toast.success("Carga realizada con éxito.");
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "No se pudo procesar la carga.",
-      );
+      const msg = err instanceof Error ? err.message : "No se pudo procesar la carga.";
+      setError(msg);
+      setIsConfirmOpen(false);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="topup-page">
-      <div className="topup-card">
-        <div className="op-card-header">
+    <OperationLayout
+      title="Cargar dinero"
+      subtitle="Agrega saldo a tu cuenta Axora de forma inmediata."
+      className="topup-page"
+      cardClassName="topup-card"
+    >
+      {receipt ? (
+        <OperationReceipt
+          title="¡Carga completada!"
+          subtitle={`Se han acreditado ${formatAmount(receipt.amount)} ${receipt.currency} en tu cuenta.`}
+          referenceId={receipt.transactionId}
+          items={[
+            {
+              label: "Monto cargado",
+              value: `${formatAmount(receipt.amount)} ${receipt.currency}`,
+            },
+            {
+              label: "Costo de operación",
+              value: "Gratuito ($0,00)",
+            },
+            {
+              label: "Total acreditado",
+              value: `${formatAmount(receipt.amount)} ${receipt.currency}`,
+              isHighlight: true,
+            },
+          ]}
+          primaryActionText="Ir al panel principal"
+          onPrimaryAction={() => navigate("/dashboard")}
+          secondaryActionText="Cargar más saldo"
+          onSecondaryAction={() => {
+            setReceipt(null);
+            setAmount("");
+          }}
+        />
+      ) : (
+        <form onSubmit={handleOpenConfirm} className="topup-form" noValidate>
+          <div className="form-field">
+            <label className="form-label" htmlFor="currency">
+              Moneda
+            </label>
+            <CurrencySelect
+              id="currency"
+              value={currency}
+              onChange={setCurrency}
+              disabled={loading}
+              ariaLabel="Moneda"
+            />
+          </div>
+
+          <div className="form-field">
+            <label className="form-label" htmlFor="amount">
+              Monto
+            </label>
+            <AmountInput
+              id="amount"
+              value={amount}
+              onChange={setAmount}
+              disabled={loading}
+              hasError={Boolean(error)}
+              ariaLabel="Monto"
+            />
+          </div>
+
+          <div className="topup-summary-box">
+            <div className="summary-line">
+              <span>Costo de transacción:</span>
+              <span className="summary-free">Gratuito ($0,00)</span>
+            </div>
+            <div className="summary-line">
+              <span>Total a acreditar:</span>
+              <span className="summary-highlight">
+                {numericAmount > 0
+                  ? `${formatAmount(numericAmount)} ${currency}`
+                  : `0,00 ${currency}`}
+              </span>
+            </div>
+          </div>
+
+          {error && (
+            <div className="topup-error" role="alert">
+              <em className="topup-error-icon" aria-hidden="true">
+                ✕
+              </em>
+              {error}
+            </div>
+          )}
+
+          <button type="submit" className="topup-submit" disabled={loading}>
+            {loading ? "Procesando…" : "Cargar saldo"}
+          </button>
           <button
             type="button"
-            className="op-back-btn"
+            className="topup-cancel"
             onClick={() => navigate("/dashboard")}
-            aria-label="Volver al panel"
+            disabled={loading}
           >
-            <ArrowLeft size={16} aria-hidden="true" />
-            <span>Volver al panel</span>
+            Cancelar
           </button>
-        </div>
+        </form>
+      )}
 
-        <h1 className="topup-title">Cargar dinero</h1>
-        <p className="topup-subtitle">Agrega saldo a tu cuenta Axora.</p>
-
-        {success ? (
-          <p className="topup-success">Carga exitosa. Volviendo a tu cuenta…</p>
-        ) : (
-          <form onSubmit={handleSubmit} className="topup-form" noValidate>
-            <div className="form-field">
-              <label className="form-label" htmlFor="currency">
-                Moneda
-              </label>
-              <div className="topup-currency-row">
-                {countryCode && (
-                  <ReactCountryFlag
-                    countryCode={countryCode}
-                    svg
-                    style={{
-                      width: "28px",
-                      height: "28px",
-                      borderRadius: "50%",
-                      flexShrink: 0,
-                    }}
-                    aria-label={CURRENCY_NAMES[currency] ?? currency}
-                  />
-                )}
-                <select
-                  id="currency"
-                  className="form-input"
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
-                  disabled={loading}
-                >
-                  {Object.keys(CURRENCY_TO_COUNTRY).map((code) => (
-                    <option key={code} value={code}>
-                      {code} — {CURRENCY_NAMES[code] ?? code}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="form-field">
-              <label className="form-label" htmlFor="amount">
-                Monto
-              </label>
-              <input
-                id="amount"
-                className={`form-input${error ? " has-error" : ""}`}
-                type="text"
-                inputMode="decimal"
-                placeholder="0,00"
-                value={formatAmountInputDisplay(amount)}
-                onChange={(e) => setAmount(parseAmountInputDisplay(e.target.value))}
-                disabled={loading}
-              />
-            </div>
-
-            <div className="topup-summary-box">
-              <div className="summary-line">
-                <span>Costo de transacción:</span>
-                <span className="summary-free">Gratuito ($0,00)</span>
-              </div>
-              <div className="summary-line">
-                <span>Total a acreditar:</span>
-                <span className="summary-highlight">
-                  {amount ? `${formatAmountInputDisplay(amount)} ${currency}` : `0,00 ${currency}`}
-                </span>
-              </div>
-            </div>
-
-            {error && (
-              <div className="topup-error" role="alert">
-                <em className="topup-error-icon" aria-hidden="true">
-                  ✕
-                </em>
-                {error}
-              </div>
-            )}
-
-            <button type="submit" className="topup-submit" disabled={loading}>
-              {loading ? "Procesando…" : "Cargar saldo"}
-            </button>
-            <button
-              type="button"
-              className="topup-cancel"
-              onClick={() => navigate("/dashboard")}
-              disabled={loading}
-            >
-              Cancelar
-            </button>
-          </form>
-        )}
-      </div>
-    </div>
+      <OperationConfirmModal
+        isOpen={isConfirmOpen}
+        title="Confirmar carga de saldo"
+        subtitle="Verifica los detalles antes de acreditar fondos."
+        confirmText="Confirmar carga"
+        cancelText="Volver"
+        loading={loading}
+        onConfirm={handleConfirmTopUp}
+        onClose={() => setIsConfirmOpen(false)}
+        items={[
+          {
+            label: "Moneda",
+            value: `${currency} — ${CURRENCY_NAMES[currency] ?? currency}`,
+          },
+          {
+            label: "Costo de transacción",
+            value: "Gratuito ($0,00)",
+          },
+          {
+            label: "Total a acreditar",
+            value: `${formatAmount(numericAmount)} ${currency}`,
+            isHighlight: true,
+          },
+        ]}
+      />
+    </OperationLayout>
   );
 }

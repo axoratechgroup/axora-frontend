@@ -58,22 +58,23 @@ describe("TransferPage", () => {
     expect(transferApiMock).not.toHaveBeenCalled();
   });
 
-  it("no ejecuta la transferencia si el usuario cancela la confirmación", async () => {
+  it("no ejecuta la transferencia si el usuario cancela en el modal de confirmación", async () => {
     const user = userEvent.setup();
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(false));
     renderTransfer();
 
     await user.type(screen.getByLabelText("Nombre de usuario del destinatario"), "camilo");
     await user.type(screen.getByLabelText("Monto"), "50");
     await user.click(screen.getByRole("button", { name: "Enviar dinero" }));
 
-    expect(window.confirm).toHaveBeenCalled();
+    expect(screen.getByText("Confirmar transferencia")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Volver" }));
+
     expect(transferApiMock).not.toHaveBeenCalled();
+    expect(screen.queryByText("Confirmar transferencia")).not.toBeInTheDocument();
   });
 
-  it("muestra error devuelto por la API cuando falla la transferencia", async () => {
+  it("muestra error devuelto por la API cuando falla la transferencia tras confirmar", async () => {
     const user = userEvent.setup();
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
     transferApiMock.mockRejectedValueOnce(new Error("Saldo insuficiente"));
     renderTransfer();
 
@@ -81,14 +82,16 @@ describe("TransferPage", () => {
     await user.type(screen.getByLabelText("Monto"), "100");
     await user.click(screen.getByRole("button", { name: "Enviar dinero" }));
 
+    expect(screen.getByText("Confirmar transferencia")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Confirmar envío" }));
+
     expect(await screen.findByRole("alert")).toHaveTextContent("Saldo insuficiente");
   });
 
-  it("procesa la transferencia con éxito y muestra confirmación", async () => {
+  it("procesa la transferencia con éxito y muestra comprobante persistente con destinatario y nota", async () => {
     const user = userEvent.setup();
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
     transferApiMock.mockResolvedValueOnce({
-      id: "tx-1",
+      id: "tx-transfer-789",
       type: "TRANSFER",
     } as unknown as Awaited<ReturnType<typeof transferApi>>);
     renderTransfer();
@@ -98,12 +101,31 @@ describe("TransferPage", () => {
     await user.type(screen.getByLabelText("Nota o motivo (opcional)"), "Cena del viaje");
     await user.click(screen.getByRole("button", { name: "Enviar dinero" }));
 
-    expect(window.confirm).toHaveBeenCalledWith(
-      expect.stringContaining("Nota: Cena del viaje"),
-    );
+    expect(screen.getByText("Confirmar transferencia")).toBeInTheDocument();
+    expect(screen.getByText("@camilo")).toBeInTheDocument();
+    expect(screen.getByText("Cena del viaje")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Confirmar envío" }));
+
     expect(transferApiMock).toHaveBeenCalledWith("camilo", "USD", 25, "Cena del viaje");
     expect(
-      await screen.findByText(/Transferencia exitosa/i),
+      await screen.findByText(/¡Transferencia exitosa!/i),
     ).toBeInTheDocument();
+    expect(screen.getByText("tx-transfer-789")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ir al panel principal" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Enviar otra transferencia" })).toBeInTheDocument();
+  });
+
+  it("respeta el parámetro ?currency de la URL", () => {
+    render(
+      <MemoryRouter initialEntries={["/transfer?currency=EUR"]}>
+        <Routes>
+          <Route path="/transfer" element={<TransferPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const select = screen.getByLabelText("Moneda") as HTMLSelectElement;
+    expect(select.value).toBe("EUR");
   });
 });

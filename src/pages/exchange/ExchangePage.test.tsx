@@ -54,7 +54,7 @@ describe("ExchangePage", () => {
     renderExchange();
 
     // Set to_currency to USD as well
-    const toSelect = screen.getByLabelText("A");
+    const toSelect = screen.getByLabelText("Moneda de destino");
     await user.selectOptions(toSelect, "USD");
 
     await user.type(screen.getByLabelText(/Monto a cambiar/i), "100");
@@ -70,8 +70,8 @@ describe("ExchangePage", () => {
     const user = userEvent.setup();
     renderExchange();
 
-    const fromSelect = screen.getByLabelText("De") as HTMLSelectElement;
-    const toSelect = screen.getByLabelText("A") as HTMLSelectElement;
+    const fromSelect = screen.getByLabelText("Moneda de origen") as HTMLSelectElement;
+    const toSelect = screen.getByLabelText("Moneda de destino") as HTMLSelectElement;
 
     expect(fromSelect.value).toBe("USD");
     expect(toSelect.value).toBe("ARS");
@@ -82,26 +82,31 @@ describe("ExchangePage", () => {
     expect(toSelect.value).toBe("USD");
   });
 
-  it("no ejecuta el cambio si el usuario cancela la alerta de confirmación", async () => {
+  it("no ejecuta el cambio si el usuario cancela en el modal de confirmación", async () => {
     const user = userEvent.setup();
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(false));
     renderExchange();
 
     await user.type(screen.getByLabelText(/Monto a cambiar/i), "50");
     await user.click(screen.getByRole("button", { name: "Cambiar" }));
 
-    expect(window.confirm).toHaveBeenCalled();
+    // Modal is shown
+    expect(screen.getByText("Confirmar cambio de moneda")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Volver" }));
+
     expect(exchangeApiMock).not.toHaveBeenCalled();
+    expect(screen.queryByText("Confirmar cambio de moneda")).not.toBeInTheDocument();
   });
 
-  it("muestra error si la API rechaza el cambio por saldo insuficiente", async () => {
+  it("muestra error si la API rechaza el cambio por saldo insuficiente tras confirmar", async () => {
     const user = userEvent.setup();
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
     exchangeApiMock.mockRejectedValueOnce(new Error("Saldo insuficiente"));
     renderExchange();
 
     await user.type(screen.getByLabelText(/Monto a cambiar/i), "500");
     await user.click(screen.getByRole("button", { name: "Cambiar" }));
+
+    // Confirm in modal
+    await user.click(screen.getByRole("button", { name: "Confirmar cambio" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Saldo insuficiente");
   });
@@ -113,11 +118,10 @@ describe("ExchangePage", () => {
     ).toBeInTheDocument();
   });
 
-  it("ejecuta el cambio con éxito y muestra el monto recibido y la tasa aplicada", async () => {
+  it("ejecuta el cambio con éxito y muestra el comprobante persistente con tasa y monto recibido", async () => {
     const user = userEvent.setup();
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
     exchangeApiMock.mockResolvedValueOnce({
-      id: "tx-swap",
+      id: "tx-swap-123",
       type: "SWAP",
       to_amount: "48500",
       to_currency: "ARS",
@@ -128,12 +132,35 @@ describe("ExchangePage", () => {
     await user.type(screen.getByLabelText(/Monto a cambiar/i), "50");
     await user.click(screen.getByRole("button", { name: "Cambiar" }));
 
+    // Modal breakdown
+    expect(screen.getByText("Confirmar cambio de moneda")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Confirmar cambio" }));
+
     expect(exchangeApiMock).toHaveBeenCalledWith("USD", "ARS", 50);
     expect(
-      await screen.findByText(/Cambio exitoso: recibiste 48\.500,00 ARS/),
+      await screen.findByText(/¡Cambio realizado con éxito!/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Tasa aplicada: 1 USD = 1\.050,25 ARS/),
+      screen.getByText(/48\.500,00 ARS/),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(/1 USD = 1\.050,25 ARS/),
+    ).toBeInTheDocument();
+    expect(screen.getByText("tx-swap-123")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ir al panel principal" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Hacer otro cambio" })).toBeInTheDocument();
+  });
+
+  it("respeta el parámetro ?from de la URL", () => {
+    render(
+      <MemoryRouter initialEntries={["/exchange?from=EUR"]}>
+        <Routes>
+          <Route path="/exchange" element={<ExchangePage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const fromSelect = screen.getByLabelText("Moneda de origen") as HTMLSelectElement;
+    expect(fromSelect.value).toBe("EUR");
   });
 });
