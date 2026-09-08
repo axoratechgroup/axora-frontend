@@ -91,7 +91,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   color: var(--ink);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: .95rem;
   height: 50px;
   outline: none;
@@ -146,7 +146,7 @@
   color: #fff;
   cursor: pointer;
   display: flex;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 800;
   height: 52px;
