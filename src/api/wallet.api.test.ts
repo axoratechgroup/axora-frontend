@@ -82,13 +82,13 @@ describe("wallet.api", () => {
   });
 
   describe("transferApi", () => {
-    it("envía destinatario, moneda y monto a /wallet/transfer", async () => {
+    it("envía destinatario, moneda, monto y nota a /wallet/transfer", async () => {
       const mockTx = { id: "tx-tr", type: "TRANSFER" };
       fetchWithAuthMock.mockResolvedValueOnce(
         new Response(JSON.stringify({ transaction: mockTx }), { status: 200 }),
       );
 
-      const result = await transferApi("camilo", "USD", 30);
+      const result = await transferApi("camilo", "USD", 30, "Cena del viaje");
       expect(result).toEqual(mockTx);
       expect(fetchWithAuthMock).toHaveBeenCalledWith(
         expect.stringContaining("/wallet/transfer"),
@@ -99,6 +99,7 @@ describe("wallet.api", () => {
             recipient_username: "camilo",
             currency: "USD",
             amount: 30,
+            memo: "Cena del viaje",
           }),
         },
       );

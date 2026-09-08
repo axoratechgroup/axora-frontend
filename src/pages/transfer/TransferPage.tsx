@@ -44,13 +44,18 @@ export default function TransferPage() {
       return;
     }
 
-    if (!window.confirm(`¿Confirmas la transferencia de ${numericAmount} ${currency} a ${recipientUsername.trim()}?`)) {
+    const normalizedMemo = memo.trim();
+    const confirmationMessage = `¿Confirmas la transferencia de ${numericAmount} ${currency} a ${recipientUsername.trim()}?${
+      normalizedMemo ? `\nNota: ${normalizedMemo}` : ""
+    }`;
+
+    if (!window.confirm(confirmationMessage)) {
       return;
     }
 
     setLoading(true);
     try {
-      await transferApi(recipientUsername.trim(), currency, numericAmount);
+      await transferApi(recipientUsername.trim(), currency, numericAmount, normalizedMemo || undefined);
       setSuccess(true);
       setTimeout(() => navigate("/dashboard"), 1500);
     } catch (err: unknown) {
@@ -161,6 +166,7 @@ export default function TransferPage() {
                 className="form-input form-input-handwriting"
                 type="text"
                 placeholder="Para las cervezas en Bangkok 🍻"
+                maxLength={255}
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
                 disabled={loading}

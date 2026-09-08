@@ -95,9 +95,13 @@ describe("TransferPage", () => {
 
     await user.type(screen.getByLabelText("Nombre de usuario del destinatario"), "camilo");
     await user.type(screen.getByLabelText("Monto"), "25");
+    await user.type(screen.getByLabelText("Nota o motivo (opcional)"), "Cena del viaje");
     await user.click(screen.getByRole("button", { name: "Enviar dinero" }));
 
-    expect(transferApiMock).toHaveBeenCalledWith("camilo", "USD", 25);
+    expect(window.confirm).toHaveBeenCalledWith(
+      expect.stringContaining("Nota: Cena del viaje"),
+    );
+    expect(transferApiMock).toHaveBeenCalledWith("camilo", "USD", 25, "Cena del viaje");
     expect(
       await screen.findByText(/Transferencia exitosa/i),
     ).toBeInTheDocument();

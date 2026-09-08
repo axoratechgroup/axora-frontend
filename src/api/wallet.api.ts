@@ -44,11 +44,12 @@ export async function transferApi(
   recipientUsername: string,
   currency: string,
   amount: number,
+  memo?: string,
 ): Promise<Transaction> {
   const response = await fetchWithAuth(`${API_URL}/wallet/transfer`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ recipient_username: recipientUsername, currency, amount }),
+    body: JSON.stringify({ recipient_username: recipientUsername, currency, amount, memo }),
   })
   const data = (await response.json().catch(() => ({}))) as { transaction?: Transaction; error?: string }
 
