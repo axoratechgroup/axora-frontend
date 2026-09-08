@@ -4,10 +4,9 @@ import { Sun, Moon, Plus, ArrowLeftRight, Send, Globe, ArrowDown } from 'lucide-
 import { useAuth } from './hooks/useAuth.ts'
 import { useTheme } from './hooks/useTheme.ts'
 import { BrandLogo } from './components/common/BrandLogo.tsx'
-
-
 import { getFallbackExchangeRate } from './utils/currency.ts'
 import './App.css'
+import { SUPPORT_EMAIL } from './constants/config.ts'
 
 
 const menuLinks = [
@@ -357,7 +356,7 @@ function App() {
           <h2 id="contact-title">¿Necesitas ayuda o tienes consultas?</h2>
           <p className="contact-desc">Nuestro equipo de soporte está disponible para asistirte en todo momento.</p>
           <div className="contact-actions">
-            <a className="primary-button" href="mailto:soporte@axora.test">Contactar a soporte</a>
+            <a className="primary-button" href={`mailto:${SUPPORT_EMAIL}`}>Contactar a soporte</a>
             <Link className="secondary-button" to="/soporte">Centro de ayuda</Link>
           </div>
         </section>

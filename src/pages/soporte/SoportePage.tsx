@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Mail, MessageCircle, HelpCircle, Compass, ShieldCheck } from 'lucide-react'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
 import './SoportePage.css'
+import { SUPPORT_EMAIL } from '../../constants/config.ts'
 
 export default function SoportePage() {
   const navigate = useNavigate()
@@ -39,8 +40,8 @@ export default function SoportePage() {
             </div>
             <h2>Correo de Soporte</h2>
             <p>Atención personalizada para consultas sobre tu cuenta, transferencias o balances.</p>
-            <a href="mailto:soporte@axora.test" className="soporte-card-btn">
-              soporte@axora.test
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="soporte-card-btn">
+              {SUPPORT_EMAIL}
             </a>
           </article>
 
@@ -87,7 +88,7 @@ export default function SoportePage() {
 
           <details className="soporte-faq-item">
             <summary>¿Qué hago si envié fondos a un usuario incorrecto?</summary>
-            <p>Escríbenos inmediatamente a soporte@axora.test con el ID de la transacción disponible en tu Historial.</p>
+            <p>Escríbenos inmediatamente a {SUPPORT_EMAIL} con el ID de la transacción disponible en tu Historial.</p>
           </details>
         </section>
       </div>
