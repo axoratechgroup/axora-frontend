@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, History, Plus, Send, type LucideIcon } from 'lucide-react'
 import { useWallet } from '../../hooks/useWallet.ts'
-import { formatAmount, formatTransactionType } from '../../utils/formatters.ts'
+import { formatAmount, formatTransactionType, formatExchangeRate } from '../../utils/formatters.ts'
 import type { Transaction } from '../../types/wallet.ts'
 import './HistorialPage.css'
 
@@ -19,7 +19,7 @@ function transactionSubtitle(tx: Transaction): string {
   }
   if (tx.type === 'SWAP' && tx.from_currency) {
     const rate = tx.applied_exchange_rate
-      ? ` • Tasa: ${Number(tx.applied_exchange_rate).toLocaleString('es-AR', { maximumFractionDigits: 4 })}`
+      ? ` • Tasa: ${formatExchangeRate(tx.applied_exchange_rate)}`
       : ''
     return `${tx.from_currency} → ${tx.to_currency}${rate}`
   }
@@ -49,7 +49,7 @@ export default function HistorialPage() {
         )}
 
         {!transactionsError && !transactionsLoading && transactions.length === 0 && (
-          <p className="historial-empty">Todavía no hiciste ninguna transacción.</p>
+          <p className="historial-empty">Todavía no has realizado ninguna transacción.</p>
         )}
 
         {!transactionsError && transactions.length > 0 && (
@@ -83,7 +83,7 @@ export default function HistorialPage() {
                         ))}
                       {formatAmount(tx.to_amount)} {tx.to_currency}
                     </span>
-                    <span className="historial-date">{new Date(tx.created_at).toLocaleString('es-AR')}</span>
+                    <span className="historial-date">{new Date(tx.created_at).toLocaleString('es')}</span>
                   </div>
                 </li>
               )

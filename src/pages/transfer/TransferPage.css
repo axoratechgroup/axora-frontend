@@ -53,18 +53,6 @@
   color: var(--ink);
 }
 
-.form-input-handwriting {
-  font-family: var(--font-accent, 'Caveat', cursive);
-  font-size: 1.15rem;
-  color: var(--accent);
-}
-
-.form-input-handwriting::placeholder {
-  font-family: var(--font-accent, 'Caveat', cursive);
-  font-size: 1.05rem;
-  opacity: 0.7;
-}
-
 /* ─── Card ───────────────────────────────────────────────────────────── */
 .transfer-card {
   background: var(--canvas-2);
@@ -159,7 +147,7 @@
   color: #fff;
   cursor: pointer;
   display: flex;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 800;
   height: 52px;
@@ -191,7 +179,7 @@
   border-radius: 999px;
   color: var(--muted);
   cursor: pointer;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
   height: 44px;

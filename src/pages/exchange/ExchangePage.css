@@ -178,7 +178,7 @@
   color: #fff;
   cursor: pointer;
   display: flex;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 800;
   height: 52px;
@@ -211,7 +211,7 @@
   border-radius: 999px;
   color: var(--muted);
   cursor: pointer;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
   height: 44px;
@@ -262,5 +262,49 @@
 
 .summary-highlight {
   color: #fff;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-receive-row {
+  border-top: 1px dashed var(--border, rgba(255, 255, 255, 0.12));
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.summary-receive-amount {
+  color: #22c55e;
+  font-weight: 700;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.exchange-rate-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(232, 130, 30, 0.08);
+  border: 1px solid var(--border-glow, rgba(232, 130, 30, 0.25));
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  margin: 2px 0 6px;
+}
+
+.exchange-rate-label {
+  color: var(--muted, #a1a1aa);
+  font-weight: 500;
+}
+
+.exchange-rate-value {
+  color: var(--accent, #ff9a3c);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.exchange-success-rate {
+  font-size: 0.84rem;
+  margin: 6px 0 0 0;
+  color: var(--ink-dim, #d4c9bd);
   font-weight: 600;
 }

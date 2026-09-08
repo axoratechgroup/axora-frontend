@@ -8,10 +8,20 @@ import { useWallet } from '../../hooks/useWallet.ts'
 
 import { CurrencyHistoryChart } from '../../components/dashboard/CurrencyHistoryChart.tsx'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
-import { formatAmount, formatTransactionType } from '../../utils/formatters.ts'
+import { formatAmount, formatTransactionType, formatTransactionStatus, formatExchangeRate } from '../../utils/formatters.ts'
 import type { StoredUser } from '../../types/auth.ts'
 import { ChatWidget } from '../../components/chat/ChatWidget.tsx'
 import './DashboardPage.css'
+
+function formatActivityDate(dateString: string): string {
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) return dateString
+  return date.toLocaleDateString('es', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
 
 const TRANSACTION_ICONS: Record<string, LucideIcon> = {
   TOP_UP: Plus,
@@ -410,7 +420,7 @@ export default function DashboardPage() {
             <span>Movimiento</span>
             <span>Contraparte</span>
             <span>Monto</span>
-            <span>Fecha</span>
+            <span>Fecha y estado</span>
           </div>
 
           <ul className="activity-list">
@@ -425,6 +435,10 @@ export default function DashboardPage() {
             {!transactionsError &&
               paginatedTransactions.map((tx) => {
                 const TxIcon = TRANSACTION_ICONS[tx.type] ?? History
+                const isIncoming = tx.direction === 'received' || tx.type === 'TOP_UP'
+                const isOutgoing = tx.direction === 'sent'
+                const sign = isIncoming ? '+ ' : isOutgoing ? '- ' : ''
+
                 return (
                   <li className="activity-row" key={tx.id}>
                     <div className="activity-movement">
@@ -435,8 +449,12 @@ export default function DashboardPage() {
                         <span className="transaction-type">{formatTransactionType(tx.type)}</span>
                         <span className="transaction-source">
                           {tx.type === 'SWAP' && tx.from_currency
-                            ? `${tx.from_currency} → ${tx.to_currency}`
-                            : tx.status}
+                            ? `${tx.from_currency} → ${tx.to_currency}${tx.applied_exchange_rate ? ` • Tasa: ${formatExchangeRate(tx.applied_exchange_rate)}` : ''}`
+                            : tx.counterparty_username
+                              ? `${tx.direction === 'sent' ? 'Para' : 'De'} @${tx.counterparty_username}`
+                              : tx.type === 'TOP_UP'
+                                ? 'Recarga de saldo'
+                                : ''}
                         </span>
                         {tx.type === 'TRANSFER' && tx.description && (
                           <span className="transaction-memo">{tx.description}</span>
@@ -447,10 +465,15 @@ export default function DashboardPage() {
                       {tx.counterparty_username ? `@${tx.counterparty_username}` : '—'}
                     </div>
                     <div className="activity-amount">
-                      {formatAmount(tx.to_amount)} {tx.to_currency}
+                      <span className={isIncoming ? 'is-positive' : ''}>
+                        {sign}{formatAmount(tx.to_amount)} {tx.to_currency}
+                      </span>
                     </div>
                     <div className="activity-date">
-                      {new Date(tx.created_at).toLocaleDateString('es-AR')}
+                      <span className="activity-date-text">{formatActivityDate(tx.created_at)}</span>
+                      <span className={`activity-status-badge status-${tx.status.toLowerCase()}`}>
+                        {formatTransactionStatus(tx.status)}
+                      </span>
                     </div>
                   </li>
                 )

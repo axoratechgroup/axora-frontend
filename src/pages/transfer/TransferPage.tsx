@@ -163,7 +163,7 @@ export default function TransferPage() {
               </label>
               <input
                 id="memo"
-                className="form-input form-input-handwriting"
+                className="form-input"
                 type="text"
                 placeholder="Para las cervezas en Bangkok 🍻"
                 maxLength={255}

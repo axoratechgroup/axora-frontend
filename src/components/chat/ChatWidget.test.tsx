@@ -118,7 +118,7 @@ describe("ChatWidget", () => {
 
     expect(await screen.findByText("❌ Cancelado")).toBeInTheDocument();
     expect(
-      screen.getByText("Listo, no hice ningún cambio."),
+      screen.getByText("Operación cancelada. No se ha realizado ningún cambio."),
     ).toBeInTheDocument();
   });
 });

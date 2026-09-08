@@ -110,7 +110,7 @@ export function ChatWidget({ onActionConfirmed }: ChatWidgetProps) {
     )
     setMessages((prev) => [
       ...prev,
-      { id: nextId(), role: 'assistant', text: 'Listo, no hice ningún cambio.' },
+      { id: nextId(), role: 'assistant', text: 'Operación cancelada. No se ha realizado ningún cambio.' },
     ])
   }
 

@@ -77,6 +77,35 @@ export function CurrencyHistoryChart() {
         toolbar: { show: false },
         zoom: { enabled: false },
         background: 'transparent',
+        locales: [
+          {
+            name: 'es',
+            options: {
+              months: [
+                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+              ],
+              shortMonths: [
+                'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic',
+              ],
+              days: [
+                'Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado',
+              ],
+              shortDays: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+              toolbar: {
+                download: 'Descargar SVG',
+                selection: 'Selección',
+                selectionZoom: 'Selección Zoom',
+                zoomIn: 'Acercar',
+                zoomOut: 'Alejar',
+                pan: 'Desplazamiento',
+                reset: 'Reiniciar Zoom',
+              },
+            },
+          },
+        ],
+        defaultLocale: 'es',
       },
       colors: ['#E8821E'],
       dataLabels: { enabled: false },
@@ -124,7 +153,7 @@ export function CurrencyHistoryChart() {
     <div className="currency-history">
       <div className="currency-history__header">
         <div>
-          <h2 className="section-title">histórico de divisa</h2>
+          <h2 className="section-title">Historial de cotizaciones</h2>
           <p className="currency-history__description">Valor de 1 {BASE_CURRENCY} en {quote}</p>
         </div>
 
