@@ -12,7 +12,14 @@ import {
   Send,
   PlusCircle,
 } from 'lucide-react'
-import { getAdminUsersApi, getAdminTransactionsApi, type AdminUser, type AdminTransaction } from '../../api/admin.api.ts'
+import {
+  getAdminUsersApi,
+  getAdminTransactionsApi,
+  updateUserRoleApi,
+  type AdminUser,
+  type AdminTransaction,
+  type UserRole,
+} from '../../api/admin.api.ts'
 import { formatAmount, formatTransactionType, formatTransactionStatus } from '../../utils/formatters.ts'
 import './AdminPage.css'
 
@@ -37,6 +44,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [updatingUserId, setUpdatingUserId] = useState<string | null>(null)
+  const [roleError, setRoleError] = useState<string | null>(null)
 
   const loadData = async () => {
     if (!isAdmin) return
@@ -81,15 +90,37 @@ export default function AdminPage() {
     }
   }, [isAdmin])
 
+  const handleRoleChange = async (user: AdminUser, nextRole: UserRole) => {
+    if (nextRole === user.role) return
+
+    const accionLabel = nextRole === 'admin' ? 'promover a administrador' : 'quitar el rol de administrador a'
+    const confirmado = window.confirm(
+      `¿Seguro que quieres ${accionLabel} a @${user.username}?`,
+    )
+    if (!confirmado) return
+
+    setRoleError(null)
+    setUpdatingUserId(user.id)
+    try {
+      const updated = await updateUserRoleApi(user.id, nextRole)
+      setUsers((prev) => prev.map((u) => (u.id === updated.id ? { ...u, role: updated.role } : u)))
+    } catch (err) {
+      setRoleError(err instanceof Error ? err.message : 'No se pudo actualizar el rol del usuario.')
+    } finally {
+      setUpdatingUserId(null)
+    }
+  }
+
   // Métricas calculadas
   const metrics = useMemo(() => {
     const totalUsers = users.length
+    const totalAdmins = users.filter((u) => u.role === 'admin').length
     const totalTx = transactions.length
     const swapTx = transactions.filter((t) => t.type === 'SWAP').length
     const transferTx = transactions.filter((t) => t.type === 'TRANSFER').length
     const topupTx = transactions.filter((t) => t.type === 'TOP_UP').length
 
-    return { totalUsers, totalTx, swapTx, transferTx, topupTx }
+    return { totalUsers, totalAdmins, totalTx, swapTx, transferTx, topupTx }
   }, [users, transactions])
 
   // Filtrado de usuarios
@@ -178,6 +209,15 @@ export default function AdminPage() {
             </div>
           </div>
           <div className="admin-metric-card">
+            <div className="metric-icon metric-icon-users">
+              <ShieldCheck size={22} />
+            </div>
+            <div className="metric-info">
+              <span className="metric-label">Administradores</span>
+              <span className="metric-value">{metrics.totalAdmins}</span>
+            </div>
+          </div>
+          <div className="admin-metric-card">
             <div className="metric-icon metric-icon-tx">
               <Clock size={22} />
             </div>
@@ -243,6 +283,13 @@ export default function AdminPage() {
           </div>
         )}
 
+        {roleError && (
+          <div className="admin-error-box">
+            <p>{roleError}</p>
+            <button onClick={() => setRoleError(null)}>Cerrar</button>
+          </div>
+        )}
+
         {/* Contenido según pestaña */}
         {loading ? (
           <div className="admin-loading-box">
@@ -263,23 +310,40 @@ export default function AdminPage() {
                       <th>Correo Electrónico</th>
                       <th>ID de Cuenta</th>
                       <th>Fecha de Registro</th>
+                      <th>Rol</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredUsers.map((u) => (
-                      <tr key={u.id}>
-                        <td>
-                          <div className="user-cell">
-                            <span className="user-avatar">{u.username.slice(0, 2).toUpperCase()}</span>
-                            <span className="user-username">@{u.username}</span>
-                          </div>
-                        </td>
-                        <td>{u.first_name} {u.last_name}</td>
-                        <td>{u.email}</td>
-                        <td><code className="admin-id-code">{u.id.slice(0, 8)}…</code></td>
-                        <td>{new Date(u.created_at).toLocaleString('es-AR')}</td>
-                      </tr>
-                    ))}
+                    {filteredUsers.map((u) => {
+                      const isSelf = u.id === currentUser?.id
+                      const isUpdating = updatingUserId === u.id
+                      return (
+                        <tr key={u.id}>
+                          <td>
+                            <div className="user-cell">
+                              <span className="user-avatar">{u.username.slice(0, 2).toUpperCase()}</span>
+                              <span className="user-username">@{u.username}</span>
+                            </div>
+                          </td>
+                          <td>{u.first_name} {u.last_name}</td>
+                          <td>{u.email}</td>
+                          <td><code className="admin-id-code">{u.id.slice(0, 8)}…</code></td>
+                          <td>{new Date(u.created_at).toLocaleString('es-AR')}</td>
+                          <td>
+                            <select
+                              className={`role-select role-select-${u.role}`}
+                              value={u.role}
+                              disabled={isSelf || isUpdating}
+                              title={isSelf ? 'No puedes cambiar tu propio rol' : undefined}
+                              onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
+                            >
+                              <option value="user">Usuario</option>
+                              <option value="admin">Administrador</option>
+                            </select>
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               )

@@ -163,6 +163,14 @@ export default function DashboardPage() {
           >
             {showBalance ? <Eye size={18} aria-hidden="true" /> : <EyeOff size={18} aria-hidden="true" />}
           </button>
+          <Link
+            className="icon-btn"
+            to="/configuracion"
+            aria-label="Configuración de la cuenta"
+            title="Configuración"
+          >
+            <Settings size={18} aria-hidden="true" />
+          </Link>
           <Link className="icon-btn" to="/soporte" aria-label="Soporte" title="Soporte">
             <HelpCircle size={18} aria-hidden="true" />
           </Link>

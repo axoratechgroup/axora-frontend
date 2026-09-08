@@ -539,3 +539,33 @@
     font-size: 1.4rem;
   }
 }
+
+/* Selector de rol (panel de usuarios) */
+.role-select {
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.role-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.role-select-user {
+  background: rgba(142, 131, 119, 0.15);
+  color: var(--muted, #8E8377);
+  border-color: rgba(142, 131, 119, 0.3);
+}
+
+.role-select-admin {
+  background: rgba(179, 38, 30, 0.15);
+  color: #ef4444;
+  border-color: rgba(179, 38, 30, 0.3);
+}

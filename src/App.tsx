@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth.ts'
+import { useTheme } from './context/ThemeContext.tsx'
 import { BrandLogo } from './components/common/BrandLogo.tsx'
 import './App.css'
 
@@ -157,19 +158,8 @@ function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const closeMenu = () => setIsMenuOpen(false)
 
-  // Theme state
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    return (localStorage.getItem('theme') as 'dark' | 'light') || 'dark'
-  })
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('theme', theme)
-  }, [theme])
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
-  }
+  // Global theme
+  const { theme, toggleTheme } = useTheme()
 
   return (
     <div className="site-shell">

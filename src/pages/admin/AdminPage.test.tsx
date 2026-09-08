@@ -6,10 +6,12 @@ import AdminPage from './AdminPage.tsx'
 
 const mockGetAdminUsersApi = vi.fn()
 const mockGetAdminTransactionsApi = vi.fn()
+const mockUpdateUserRoleApi = vi.fn()
 
 vi.mock('../../api/admin.api.ts', () => ({
   getAdminUsersApi: () => mockGetAdminUsersApi(),
   getAdminTransactionsApi: () => mockGetAdminTransactionsApi(),
+  updateUserRoleApi: (userId: string, role: string) => mockUpdateUserRoleApi(userId, role),
 }))
 
 function renderAdminPage() {
@@ -58,6 +60,7 @@ describe('AdminPage', () => {
         last_name: 'Gómez',
         username: 'camilag',
         email: 'camila@axora.test',
+        role: 'user',
         created_at: '2026-09-04T12:00:00Z',
       },
       {
@@ -66,6 +69,7 @@ describe('AdminPage', () => {
         last_name: 'Silva',
         username: 'mateos',
         email: 'mateo@axora.test',
+        role: 'user',
         created_at: '2026-09-04T14:00:00Z',
       },
     ])
@@ -143,6 +147,7 @@ describe('AdminPage', () => {
         last_name: 'Gómez',
         username: 'camilag',
         email: 'camila@axora.test',
+        role: 'user',
         created_at: '2026-09-04T12:00:00Z',
       },
       {
@@ -151,6 +156,7 @@ describe('AdminPage', () => {
         last_name: 'Silva',
         username: 'mateos',
         email: 'mateo@axora.test',
+        role: 'user',
         created_at: '2026-09-04T14:00:00Z',
       },
     ])
@@ -169,5 +175,95 @@ describe('AdminPage', () => {
       expect(screen.queryByText('@camilag')).not.toBeInTheDocument()
       expect(screen.getByText('@mateos')).toBeInTheDocument()
     })
+  })
+
+  it('permite promover a un usuario a administrador desde el selector de rol', async () => {
+    const user = userEvent.setup()
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 'admin1', username: 'adminaxora', role: 'admin' }),
+    )
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+    mockGetAdminUsersApi.mockResolvedValueOnce([
+      {
+        id: 'admin1',
+        first_name: 'Admin',
+        last_name: 'Axora',
+        username: 'adminaxora',
+        email: 'admin@axora.test',
+        role: 'admin',
+        created_at: '2026-09-04T12:00:00Z',
+      },
+      {
+        id: 'u2',
+        first_name: 'Mateo',
+        last_name: 'Silva',
+        username: 'mateos',
+        email: 'mateo@axora.test',
+        role: 'user',
+        created_at: '2026-09-04T14:00:00Z',
+      },
+    ])
+    mockGetAdminTransactionsApi.mockResolvedValueOnce([])
+    mockUpdateUserRoleApi.mockResolvedValueOnce({
+      id: 'u2',
+      first_name: 'Mateo',
+      last_name: 'Silva',
+      username: 'mateos',
+      email: 'mateo@axora.test',
+      role: 'admin',
+    })
+
+    renderAdminPage()
+
+    await screen.findByText('@mateos')
+
+    const selects = screen.getAllByRole('combobox') as HTMLSelectElement[]
+    // El primero es el del admin logueado (deshabilitado); el segundo, el de Mateo.
+    expect(selects[0]).toBeDisabled()
+    expect(selects[1]).not.toBeDisabled()
+
+    await user.selectOptions(selects[1], 'admin')
+
+    expect(window.confirm).toHaveBeenCalled()
+    await waitFor(() => {
+      expect(mockUpdateUserRoleApi).toHaveBeenCalledWith('u2', 'admin')
+    })
+    await waitFor(() => {
+      expect(selects[1]).toHaveValue('admin')
+    })
+  })
+
+  it('no llama a la API si se cancela la confirmación del cambio de rol', async () => {
+    const user = userEvent.setup()
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 'admin1', username: 'adminaxora', role: 'admin' }),
+    )
+    vi.spyOn(window, 'confirm').mockReturnValue(false)
+
+    mockGetAdminUsersApi.mockResolvedValueOnce([
+      {
+        id: 'u2',
+        first_name: 'Mateo',
+        last_name: 'Silva',
+        username: 'mateos',
+        email: 'mateo@axora.test',
+        role: 'user',
+        created_at: '2026-09-04T14:00:00Z',
+      },
+    ])
+    mockGetAdminTransactionsApi.mockResolvedValueOnce([])
+
+    renderAdminPage()
+
+    await screen.findByText('@mateos')
+    const select = screen.getByRole('combobox')
+
+    await user.selectOptions(select, 'admin')
+
+    expect(window.confirm).toHaveBeenCalled()
+    expect(mockUpdateUserRoleApi).not.toHaveBeenCalled()
   })
 })

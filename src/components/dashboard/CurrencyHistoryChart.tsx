@@ -3,6 +3,7 @@ import ReactApexChart from 'react-apexcharts'
 import type { ApexAxisChartSeries, ApexOptions } from 'apexcharts'
 import { getRateHistoryApi } from '../../api/rates.api.ts'
 import type { RateHistoryRange, RateHistoryResponse } from '../../types/rates.ts'
+import { useTheme } from '../../context/ThemeContext.tsx'
 import './CurrencyHistoryChart.css'
 
 const BASE_CURRENCY = 'USD'
@@ -17,6 +18,8 @@ function formatRate(rate: number): string {
 }
 
 export function CurrencyHistoryChart() {
+  const { theme } = useTheme()
+  const isLight = theme === 'light'
   const [quote, setQuote] = useState('MXN')
   const [range, setRange] = useState<RateHistoryRange>('30d')
   const [history, setHistory] = useState<RateHistoryResponse | null>(null)
@@ -75,33 +78,46 @@ export function CurrencyHistoryChart() {
         zoom: { enabled: false },
         background: 'transparent',
       },
-      colors: ['#f4a261'],
+      colors: ['#E8821E'],
       dataLabels: { enabled: false },
       stroke: { curve: 'smooth', width: 3 },
       fill: {
         type: 'gradient',
         gradient: { opacityFrom: 0.45, opacityTo: 0.04 },
       },
-      grid: { borderColor: 'rgba(255, 255, 255, 0.13)', strokeDashArray: 4 },
+      grid: {
+        borderColor: isLight ? 'rgba(110, 101, 91, 0.2)' : 'rgba(255, 255, 255, 0.13)',
+        strokeDashArray: 4,
+      },
       xaxis: {
         type: 'datetime',
-        labels: { style: { colors: 'rgba(255, 255, 255, 0.62)' } },
-        axisBorder: { color: 'rgba(255, 255, 255, 0.2)' },
-        axisTicks: { color: 'rgba(255, 255, 255, 0.2)' },
+        labels: {
+          style: {
+            colors: isLight ? '#6E655B' : 'rgba(255, 255, 255, 0.62)',
+          },
+        },
+        axisBorder: {
+          color: isLight ? 'rgba(110, 101, 91, 0.25)' : 'rgba(255, 255, 255, 0.2)',
+        },
+        axisTicks: {
+          color: isLight ? 'rgba(110, 101, 91, 0.25)' : 'rgba(255, 255, 255, 0.2)',
+        },
       },
       yaxis: {
         labels: {
-          style: { colors: 'rgba(255, 255, 255, 0.62)' },
+          style: {
+            colors: isLight ? '#6E655B' : 'rgba(255, 255, 255, 0.62)',
+          },
           formatter: (value) => formatRate(value),
         },
       },
       tooltip: {
-        theme: 'dark',
+        theme: isLight ? 'light' : 'dark',
         x: { format: 'dd MMM yyyy' },
         y: { formatter: (value) => `${formatRate(value)} ${quote}` },
       },
     }),
-    [quote],
+    [quote, isLight],
   )
 
   return (
