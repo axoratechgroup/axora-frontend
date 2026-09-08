@@ -487,6 +487,14 @@
   white-space: nowrap;
 }
 
+.transaction-memo {
+  color: var(--ink-dim);
+  font-size: 0.74rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .transaction-value {
   text-align: right;
   display: flex;

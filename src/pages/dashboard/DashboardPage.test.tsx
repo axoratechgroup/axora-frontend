@@ -187,6 +187,36 @@ describe('DashboardPage', () => {
     expect(balanceEl).toHaveTextContent('USD')
   })
 
+  it('muestra la nota de una transferencia en la actividad', async () => {
+    globalThis.fetch = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify(mockWalletData), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            transactions: [{
+              id: 'tx-transfer-1',
+              type: 'TRANSFER',
+              status: 'COMPLETED',
+              direction: 'sent',
+              counterparty_username: 'camilo',
+              from_currency: 'USD',
+              from_amount: '50',
+              to_currency: 'USD',
+              to_amount: '50',
+              applied_exchange_rate: null,
+              description: 'Cena del viaje',
+              created_at: '2026-09-04T14:00:00Z',
+            }],
+          }),
+          { status: 200 },
+        ),
+      )
+
+    renderDashboard()
+
+    expect(await screen.findByText('Cena del viaje')).toBeInTheDocument()
+  })
+
   it('navega a configuracion al presionar el boton de configuracion de la cabecera', async () => {
     const user = userEvent.setup()
     renderDashboard()
