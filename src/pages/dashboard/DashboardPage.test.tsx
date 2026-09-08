@@ -217,6 +217,37 @@ describe('DashboardPage', () => {
     expect(await screen.findByText('Cena del viaje')).toBeInTheDocument()
   })
 
+  it('muestra la tasa de cambio y el estado traducido en transacciones SWAP de la actividad', async () => {
+    globalThis.fetch = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify(mockWalletData), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            transactions: [{
+              id: 'tx-swap-1',
+              type: 'SWAP',
+              status: 'COMPLETED',
+              direction: 'sent',
+              counterparty_username: null,
+              from_currency: 'USD',
+              from_amount: '100',
+              to_currency: 'EUR',
+              to_amount: '92',
+              applied_exchange_rate: '0.9200',
+              description: null,
+              created_at: '2026-09-04T15:00:00Z',
+            }],
+          }),
+          { status: 200 },
+        ),
+      )
+
+    renderDashboard()
+
+    expect(await screen.findByText(/USD → EUR • Tasa: 0,92/)).toBeInTheDocument()
+    expect(screen.getByText('Completada')).toBeInTheDocument()
+  })
+
   it('navega a configuracion al presionar el boton de configuracion de la cabecera', async () => {
     const user = userEvent.setup()
     renderDashboard()
