@@ -1,5 +1,6 @@
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import './ThemedToastContainer.css'
 import { useTheme } from '../../hooks/useTheme.ts'
 
 export function ThemedToastContainer() {
