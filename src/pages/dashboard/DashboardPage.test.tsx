@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '../../context/AuthContext.tsx'
+import { ThemeProvider } from '../../context/ThemeContext.tsx'
 import DashboardPage from './DashboardPage.tsx'
 
 vi.mock('../../components/dashboard/CurrencyHistoryChart.tsx', () => ({
@@ -45,14 +46,17 @@ function renderDashboard() {
   )
 
   return render(
-    <MemoryRouter initialEntries={['/dashboard']}>
-      <AuthProvider>
-        <Routes>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/login" element={<p>Inicio de sesión</p>} />
-        </Routes>
-      </AuthProvider>
-    </MemoryRouter>,
+    <ThemeProvider>
+      <MemoryRouter initialEntries={['/dashboard']}>
+        <AuthProvider>
+          <Routes>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/login" element={<p>Inicio de sesión</p>} />
+            <Route path="/configuracion" element={<p>Página de Configuración Mock</p>} />
+          </Routes>
+        </AuthProvider>
+      </MemoryRouter>
+    </ThemeProvider>,
   )
 }
 
@@ -181,5 +185,22 @@ describe('DashboardPage', () => {
     const balanceEl = await screen.findByTestId('account-balance')
     expect(balanceEl).toHaveTextContent('150,00')
     expect(balanceEl).toHaveTextContent('USD')
+  })
+
+  it('navega a configuracion al presionar el boton de configuracion de la cabecera', async () => {
+    const user = userEvent.setup()
+    renderDashboard()
+
+    const configBtn = screen.getByRole('link', { name: 'Configuración de la cuenta' })
+    expect(configBtn).toBeInTheDocument()
+    await user.click(configBtn)
+    expect(await screen.findByText('Página de Configuración Mock')).toBeInTheDocument()
+  })
+
+  it('aplica el modo claro en documentElement cuando el tema guardado es light', async () => {
+    localStorage.setItem('theme', 'light')
+    renderDashboard()
+
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light')
   })
 })

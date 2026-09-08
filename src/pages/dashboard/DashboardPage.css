@@ -586,7 +586,7 @@
   font-size: 0.82rem;
   padding: 9px 0;
   font-family: inherit;
-  color-scheme: dark;
+  color-scheme: var(--color-scheme, dark);
 }
 
 .activity-table-header {
