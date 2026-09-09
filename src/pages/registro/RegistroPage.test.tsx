@@ -76,7 +76,10 @@ describe('RegistroPage', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(
       'La contraseña no cumple con todos los requisitos de seguridad.',
     )
-    expect(fetchMock).not.toHaveBeenCalled()
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      expect.stringContaining('/auth/register'),
+      expect.anything(),
+    )
   })
 
   it('alterna la visibilidad de los campos contraseña y confirmar contraseña', async () => {
@@ -125,7 +128,10 @@ describe('RegistroPage', () => {
     await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
 
     expect(screen.getByRole('alert')).toHaveTextContent('Las contraseñas no coinciden.')
-    expect(fetchMock).not.toHaveBeenCalled()
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      expect.stringContaining('/auth/register'),
+      expect.anything(),
+    )
   })
 
   it('envía los datos correctos sin confirmPassword y navega al dashboard al registrarse con contraseñas coincidentes', async () => {
@@ -170,5 +176,45 @@ describe('RegistroPage', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('El correo ya está registrado.')
     expect(localStorage.getItem('token')).toBeNull()
+  })
+
+  it('notifica en tiempo real cuando el nombre de usuario ya existe', async () => {
+    const user = userEvent.setup()
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.includes('/auth/check-availability')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            username: { available: false, message: 'Este nombre de usuario ya está registrado.' },
+          }),
+        })
+      }
+      return Promise.resolve({ ok: true, json: async () => ({}) })
+    }))
+    renderRegistro()
+
+    await user.type(screen.getByLabelText('Usuario'), 'usuariorepetido')
+
+    expect(await screen.findByText('Este nombre de usuario ya está registrado.')).toBeInTheDocument()
+  })
+
+  it('muestra confirmación en tiempo real cuando el nombre de usuario está disponible', async () => {
+    const user = userEvent.setup()
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.includes('/auth/check-availability')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            username: { available: true, message: 'Usuario disponible' },
+          }),
+        })
+      }
+      return Promise.resolve({ ok: true, json: async () => ({}) })
+    }))
+    renderRegistro()
+
+    await user.type(screen.getByLabelText('Usuario'), 'nuevousuario')
+
+    expect(await screen.findByText('Usuario disponible')).toBeInTheDocument()
   })
 })

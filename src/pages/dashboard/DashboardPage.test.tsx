@@ -94,12 +94,15 @@ describe('DashboardPage', () => {
     expect(screen.getByTestId('account-balance')).toHaveTextContent('1.504,00')
   })
 
-  it('elimina la sesión y navega al login al cerrar sesión', async () => {
+  it('elimina la sesión y navega al login al cerrar sesión tras confirmar', async () => {
     const user = userEvent.setup()
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
     renderDashboard()
 
     await user.click(screen.getByRole('button', { name: 'Cerrar sesión' }))
+
+    // Verifica que se abra el ConfirmDialog in-app
+    expect(screen.getByText(/Tendrás que volver a ingresar tus credenciales/i)).toBeInTheDocument()
+    await user.click(screen.getByTestId('confirm-dialog-confirm'))
 
     expect(await screen.findByText('Inicio de sesión')).toBeInTheDocument()
     expect(localStorage.getItem('token')).toBeNull()

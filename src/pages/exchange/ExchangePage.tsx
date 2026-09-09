@@ -112,6 +112,18 @@ export default function ExchangePage() {
     setToCurrency(fromCurrency);
   };
 
+  const amountTooHigh = Boolean(wallet && numericAmount > availableAmount);
+  const amountInvalid = Boolean(amount && (numericAmount <= 0 || isNaN(numericAmount)));
+  const sameCurrency = fromCurrency === toCurrency;
+
+  const inlineAmountError = sameCurrency
+    ? "Elige dos monedas distintas."
+    : amountTooHigh
+    ? `Saldo insuficiente. Tu saldo disponible es de ${formatAmount(availableAmount)} ${fromCurrency}.`
+    : amountInvalid
+    ? "Ingresa un monto válido, mayor a 0."
+    : "";
+
   const handleOpenConfirm = (e: FormEvent) => {
     e.preventDefault();
     setError("");
@@ -269,9 +281,14 @@ export default function ExchangePage() {
               value={amount}
               onChange={setAmount}
               disabled={loading}
-              hasError={Boolean(error)}
+              hasError={Boolean(error || inlineAmountError)}
               ariaLabel={`Monto a cambiar en ${fromCurrency}`}
             />
+            {inlineAmountError && (
+              <span className="form-field-error" style={{ color: "#ef4444", fontSize: "0.82rem", fontWeight: 600, marginTop: "4px", display: "block" }}>
+                {inlineAmountError}
+              </span>
+            )}
           </div>
 
           {numericAmount > 0 && (

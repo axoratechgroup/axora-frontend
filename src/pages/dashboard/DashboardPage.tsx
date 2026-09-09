@@ -11,6 +11,7 @@ import { useWallet } from '../../hooks/useWallet.ts'
 import { CurrencyHistoryChart } from '../../components/dashboard/CurrencyHistoryChart.tsx'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
 import { StatusBadge } from '../../components/common/StatusBadge.tsx'
+import { ConfirmDialog } from '../../components/common/ConfirmDialog.tsx'
 import { formatAmount, formatTransactionType, formatExchangeRate } from '../../utils/formatters.ts'
 import type { StoredUser } from '../../types/auth.ts'
 import { ChatWidget } from '../../components/chat/ChatWidget.tsx'
@@ -147,9 +148,10 @@ export default function DashboardPage() {
   }
 
   const firstName = user?.first_name ?? 'usuario'
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
 
-  const handleLogout = () => {
-    if (!window.confirm('¿Seguro que quieres cerrar sesión?')) return
+  const handleConfirmLogout = () => {
+    setIsLogoutModalOpen(false)
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     setAuthenticated(false)
@@ -212,7 +214,7 @@ export default function DashboardPage() {
           <Link className="icon-btn" to="/soporte" aria-label="Soporte" title="Soporte">
             <HelpCircle size={18} aria-hidden="true" />
           </Link>
-          <button className="icon-btn" aria-label="Cerrar sesión" title="Cerrar sesión" onClick={handleLogout}>
+          <button className="icon-btn" aria-label="Cerrar sesión" title="Cerrar sesión" onClick={() => setIsLogoutModalOpen(true)}>
             <LogOut size={18} aria-hidden="true" />
           </button>
         </div>
@@ -597,6 +599,17 @@ export default function DashboardPage() {
           reloadWallet()
           reloadTransactions()
         }}
+      />
+
+      <ConfirmDialog
+        isOpen={isLogoutModalOpen}
+        title="Cerrar sesión"
+        message="¿Seguro que quieres cerrar sesión? Tendrás que volver a ingresar tus credenciales."
+        confirmText="Cerrar sesión"
+        cancelText="Cancelar"
+        variant="warning"
+        onConfirm={handleConfirmLogout}
+        onCancel={() => setIsLogoutModalOpen(false)}
       />
     </div>
   )

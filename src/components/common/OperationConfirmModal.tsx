@@ -1,4 +1,5 @@
-import type { MouseEvent, ReactNode } from 'react'
+import { useState, type MouseEvent, type ReactNode } from 'react'
+import { ConfirmDialog } from './ConfirmDialog.tsx'
 import './OperationConfirmModal.css'
 
 export interface SummaryItem {
@@ -31,14 +32,13 @@ export function OperationConfirmModal({
   onConfirm,
   onClose,
 }: OperationConfirmModalProps) {
+  const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false)
+
   if (!isOpen) return null
 
   const handleBackdropClick = (e: MouseEvent<HTMLDivElement>) => {
     if (e.target !== e.currentTarget || loading) return
-    const confirmed = window.confirm('¿Deseas cancelar la operación y cerrar?')
-    if (confirmed) {
-      onClose()
-    }
+    setIsCancelConfirmOpen(true)
   }
 
   return (
@@ -100,6 +100,20 @@ export function OperationConfirmModal({
           </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={isCancelConfirmOpen}
+        title="Cancelar operación"
+        message="¿Deseas cancelar la operación y cerrar la ventana?"
+        confirmText="Sí, cancelar"
+        cancelText="Continuar operación"
+        variant="warning"
+        onConfirm={() => {
+          setIsCancelConfirmOpen(false)
+          onClose()
+        }}
+        onCancel={() => setIsCancelConfirmOpen(false)}
+      />
     </div>
   )
 }

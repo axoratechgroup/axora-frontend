@@ -10,6 +10,7 @@ import { AmountInput } from "../../components/common/AmountInput.tsx";
 import { OperationConfirmModal } from "../../components/common/OperationConfirmModal.tsx";
 import { OperationReceipt } from "../../components/common/OperationReceipt.tsx";
 import { notifyWalletUpdate } from "../../utils/syncEvents.ts";
+import { useWalletBalances } from "../../hooks/useWalletBalances.ts";
 import "./TransferPage.css";
 
 interface TransferReceiptData {
@@ -39,9 +40,21 @@ export default function TransferPage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [receipt, setReceipt] = useState<TransferReceiptData | null>(null);
 
+  const { wallet, walletLoading } = useWalletBalances();
+  const currentBalance = wallet?.balances.find((b) => b.currency === currency);
+  const availableAmount = Number(currentBalance?.amount || 0);
+
   const numericAmount = Number(amount);
   const normalizedRecipient = recipientUsername.trim().replace(/^@/, "");
   const normalizedMemo = memo.trim();
+
+  const amountTooHigh = Boolean(wallet && numericAmount > availableAmount);
+  const amountInvalid = Boolean(amount && (numericAmount <= 0 || isNaN(numericAmount)));
+  const inlineAmountError = amountTooHigh
+    ? `Saldo insuficiente. Tu saldo disponible es de ${formatAmount(availableAmount)} ${currency}.`
+    : amountInvalid
+    ? "Ingresa un monto válido, mayor a 0."
+    : "";
 
   const handleOpenConfirm = (e: FormEvent) => {
     e.preventDefault();
@@ -54,6 +67,11 @@ export default function TransferPage() {
 
     if (!numericAmount || numericAmount <= 0) {
       setError("Ingresa un monto válido, mayor a 0.");
+      return;
+    }
+
+    if (wallet && numericAmount > availableAmount) {
+      setError(`Saldo insuficiente. Tu saldo disponible es de ${formatAmount(availableAmount)} ${currency}.`);
       return;
     }
 
@@ -179,9 +197,20 @@ export default function TransferPage() {
               value={amount}
               onChange={setAmount}
               disabled={loading}
-              hasError={Boolean(error && (!numericAmount || numericAmount <= 0))}
+              hasError={Boolean((error && (!numericAmount || numericAmount <= 0)) || inlineAmountError)}
               ariaLabel="Monto"
             />
+            <span className="exchange-balance-hint">
+              Saldo disponible:{" "}
+              <strong>
+                {walletLoading ? "cargando…" : `${formatAmount(availableAmount)} ${currency}`}
+              </strong>
+            </span>
+            {inlineAmountError && (
+              <span className="form-field-error" style={{ color: "#ef4444", fontSize: "0.82rem", fontWeight: 600, marginTop: "4px", display: "block" }}>
+                {inlineAmountError}
+              </span>
+            )}
           </div>
 
           <div className="form-field">
