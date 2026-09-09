@@ -67,6 +67,7 @@ describe("ExchangePage", () => {
     // Set to_currency to USD as well
     const toSelect = screen.getByLabelText("Moneda de destino");
     await user.selectOptions(toSelect, "USD");
+    expect(screen.getByText("Elige dos monedas distintas.")).toBeInTheDocument();
 
     await user.type(screen.getByLabelText(/Monto a cambiar/i), "100");
     await user.click(screen.getByRole("button", { name: "Cambiar" }));

@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { transferApi } from "../../api/wallet.api.ts";
+import { checkUsernameApi } from "../../api/auth.api.ts";
+import { getStoredUser } from "../../utils/user.ts";
 import { formatAmount } from "../../utils/formatters.ts";
 import { CURRENCY_NAMES, CURRENCY_TO_COUNTRY } from "../../utils/currency.ts";
 import { OperationLayout } from "../../components/common/OperationLayout.tsx";
@@ -24,7 +26,12 @@ interface TransferReceiptData {
 export default function TransferPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const currentUser = getStoredUser();
   const [recipientUsername, setRecipientUsername] = useState("");
+  const [recipientStatus, setRecipientStatus] = useState<"idle" | "checking" | "valid" | "invalid">("idle");
+  const [recipientError, setRecipientError] = useState("");
+  const checkTimeoutRef = useRef<number | null>(null);
+
   const [currency, setCurrency] = useState(() => {
     const paramCurrency = searchParams.get("currency")?.trim().toUpperCase();
     if (paramCurrency && paramCurrency in CURRENCY_TO_COUNTRY) {
@@ -48,6 +55,54 @@ export default function TransferPage() {
   const normalizedRecipient = recipientUsername.trim().replace(/^@/, "");
   const normalizedMemo = memo.trim();
 
+  useEffect(() => {
+    if (checkTimeoutRef.current) {
+      window.clearTimeout(checkTimeoutRef.current);
+    }
+
+    if (!normalizedRecipient) {
+      setRecipientStatus("idle");
+      setRecipientError("");
+      return;
+    }
+
+    if (currentUser?.username && normalizedRecipient.toLowerCase() === currentUser.username.toLowerCase()) {
+      setRecipientStatus("invalid");
+      setRecipientError("No puedes transferirte dinero a tu propia cuenta.");
+      return;
+    }
+
+    if (normalizedRecipient.length < 3) {
+      setRecipientStatus("invalid");
+      setRecipientError("El usuario debe tener al menos 3 caracteres.");
+      return;
+    }
+
+    setRecipientStatus("checking");
+    setRecipientError("");
+
+    checkTimeoutRef.current = window.setTimeout(async () => {
+      try {
+        const res = await checkUsernameApi(normalizedRecipient);
+        if (res.available) {
+          setRecipientStatus("invalid");
+          setRecipientError("El usuario destinatario no existe en AXORA.");
+        } else {
+          setRecipientStatus("valid");
+          setRecipientError("");
+        }
+      } catch {
+        setRecipientStatus("idle");
+      }
+    }, 350);
+
+    return () => {
+      if (checkTimeoutRef.current) {
+        window.clearTimeout(checkTimeoutRef.current);
+      }
+    };
+  }, [normalizedRecipient, currentUser?.username]);
+
   const amountTooHigh = Boolean(wallet && numericAmount > availableAmount);
   const amountInvalid = Boolean(amount && (numericAmount <= 0 || isNaN(numericAmount)));
   const inlineAmountError = amountTooHigh
@@ -62,6 +117,11 @@ export default function TransferPage() {
 
     if (!normalizedRecipient) {
       setError("Ingresa el nombre de usuario del destinatario.");
+      return;
+    }
+
+    if (recipientError) {
+      setError(recipientError);
       return;
     }
 
@@ -163,16 +223,35 @@ export default function TransferPage() {
             </label>
             <input
               id="recipient_username"
-              className={`form-input${error && !normalizedRecipient ? " has-error" : ""}`}
+              className={`form-input${(error && !normalizedRecipient) || recipientError ? " has-error" : ""}`}
               type="text"
               autoCapitalize="none"
               autoCorrect="off"
               spellCheck={false}
               placeholder="usuario123"
               value={recipientUsername}
-              onChange={(e) => setRecipientUsername(e.target.value)}
+              onChange={(e) => {
+                setRecipientUsername(e.target.value);
+                if (error) setError("");
+              }}
               disabled={loading}
+              aria-label="Nombre de usuario del destinatario"
             />
+            {recipientStatus === "checking" && (
+              <span className="transfer-checking-hint" aria-live="polite">
+                Verificando usuario…
+              </span>
+            )}
+            {recipientError && (
+              <span className="form-field-error">
+                {recipientError}
+              </span>
+            )}
+            {recipientStatus === "valid" && !recipientError && (
+              <span className="transfer-valid-hint" aria-live="polite">
+                ✓ Usuario verificado
+              </span>
+            )}
           </div>
 
           <div className="form-field">
