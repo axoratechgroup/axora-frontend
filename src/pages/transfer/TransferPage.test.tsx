@@ -3,6 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("../../api/auth.api.ts", () => ({
+  checkUsernameApi: vi.fn().mockResolvedValue({ available: false }),
+}));
+
 vi.mock("../../api/wallet.api.ts", () => ({
   transferApi: vi.fn(),
   getWalletApi: vi.fn().mockResolvedValue({
@@ -14,10 +18,12 @@ vi.mock("../../api/wallet.api.ts", () => ({
   }),
 }));
 
+import { checkUsernameApi } from "../../api/auth.api.ts";
 import { transferApi } from "../../api/wallet.api.ts";
 import TransferPage from "./TransferPage.tsx";
 
 const transferApiMock = vi.mocked(transferApi);
+const checkUsernameApiMock = vi.mocked(checkUsernameApi);
 
 function renderTransfer() {
   return render(
@@ -134,5 +140,40 @@ describe("TransferPage", () => {
 
     const select = screen.getByLabelText("Moneda") as HTMLSelectElement;
     expect(select.value).toBe("EUR");
+  });
+
+  it("muestra error si el usuario intenta transferirse a sí mismo", async () => {
+    localStorage.setItem("user", JSON.stringify({ username: "camilo" }));
+    const user = userEvent.setup();
+    renderTransfer();
+
+    await user.type(screen.getByLabelText("Nombre de usuario del destinatario"), "camilo");
+
+    expect(
+      await screen.findByText("No puedes transferirte dinero a tu propia cuenta."),
+    ).toBeInTheDocument();
+    localStorage.removeItem("user");
+  });
+
+  it("muestra error si el destinatario no existe en la plataforma", async () => {
+    checkUsernameApiMock.mockResolvedValueOnce({ available: true, message: "Usuario no existe" });
+    const user = userEvent.setup();
+    renderTransfer();
+
+    await user.type(screen.getByLabelText("Nombre de usuario del destinatario"), "desconocido");
+
+    expect(
+      await screen.findByText("El usuario destinatario no existe en AXORA."),
+    ).toBeInTheDocument();
+  });
+
+  it("muestra confirmación visual cuando el destinatario existe", async () => {
+    checkUsernameApiMock.mockResolvedValueOnce({ available: false, message: "Usuario registrado" });
+    const user = userEvent.setup();
+    renderTransfer();
+
+    await user.type(screen.getByLabelText("Nombre de usuario del destinatario"), "valido");
+
+    expect(await screen.findByText("✓ Usuario verificado")).toBeInTheDocument();
   });
 });

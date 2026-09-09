@@ -235,6 +235,21 @@
   display: block;
 }
 
+.transfer-checking-hint {
+  font-size: 0.82rem;
+  color: var(--muted, #8E8377);
+  margin-top: 4px;
+  display: block;
+}
+
+.transfer-valid-hint {
+  font-size: 0.82rem;
+  color: var(--color-success-text, #4ade80);
+  font-weight: 600;
+  margin-top: 4px;
+  display: block;
+}
+
 /* ─── Light Mode High Contrast Overrides ────────────────────────────── */
 [data-theme="light"] .transfer-error {
   background: rgba(185, 28, 28, 0.08);

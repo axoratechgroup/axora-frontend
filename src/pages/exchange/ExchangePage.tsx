@@ -116,9 +116,7 @@ export default function ExchangePage() {
   const amountInvalid = Boolean(amount && (numericAmount <= 0 || isNaN(numericAmount)));
   const sameCurrency = fromCurrency === toCurrency;
 
-  const inlineAmountError = sameCurrency
-    ? "Elige dos monedas distintas."
-    : amountTooHigh
+  const inlineAmountError = amountTooHigh
     ? `Saldo insuficiente. Tu saldo disponible es de ${formatAmount(availableAmount)} ${fromCurrency}.`
     : amountInvalid
     ? "Ingresa un monto válido, mayor a 0."
@@ -255,6 +253,11 @@ export default function ExchangePage() {
               disabled={loading}
               ariaLabel="Moneda de destino"
             />
+            {sameCurrency && (
+              <span className="form-field-error">
+                Elige dos monedas distintas.
+              </span>
+            )}
           </div>
 
           <div className="exchange-rate-banner" aria-live="polite">
@@ -285,7 +288,7 @@ export default function ExchangePage() {
               ariaLabel={`Monto a cambiar en ${fromCurrency}`}
             />
             {inlineAmountError && (
-              <span className="form-field-error" style={{ color: "#ef4444", fontSize: "0.82rem", fontWeight: 600, marginTop: "4px", display: "block" }}>
+              <span className="form-field-error">
                 {inlineAmountError}
               </span>
             )}
