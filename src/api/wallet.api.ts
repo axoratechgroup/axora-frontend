@@ -4,7 +4,9 @@ import type { WalletResponse, TransactionsResponse, Transaction } from '../types
 const API_URL = import.meta.env.VITE_API_URL
 
 export async function getWalletApi(): Promise<WalletResponse> {
-  const response = await fetchWithAuth(`${API_URL}/wallet`)
+  const response = await fetchWithAuth(`${API_URL}/wallet`, {
+    cache: 'no-store',
+  })
   const data = await response.json().catch(() => ({}))
 
   if (!response.ok) {
@@ -15,7 +17,9 @@ export async function getWalletApi(): Promise<WalletResponse> {
 }
 
 export async function getWalletTransactionsApi(): Promise<Transaction[]> {
-  const response = await fetchWithAuth(`${API_URL}/wallet/transactions`)
+  const response = await fetchWithAuth(`${API_URL}/wallet/transactions`, {
+    cache: 'no-store',
+  })
   const data = (await response.json().catch(() => ({}))) as TransactionsResponse & { error?: string }
 
   if (!response.ok) {

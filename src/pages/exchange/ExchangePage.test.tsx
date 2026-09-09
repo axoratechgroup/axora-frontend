@@ -24,10 +24,11 @@ vi.mock("../../api/rates.api.ts", () => ({
   }),
 }));
 
-import { exchangeApi } from "../../api/wallet.api.ts";
+import { exchangeApi, getWalletApi } from "../../api/wallet.api.ts";
 import ExchangePage from "./ExchangePage.tsx";
 
 const exchangeApiMock = vi.mocked(exchangeApi);
+const getWalletApiMock = vi.mocked(getWalletApi);
 
 function renderExchange() {
   return render(
@@ -43,6 +44,14 @@ function renderExchange() {
 describe("ExchangePage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    getWalletApiMock.mockResolvedValue({
+      wallet_id: "w-1",
+      total_in_usd: 1000,
+      balances: [
+        { currency: "USD", currency_name: "Dólar", symbol: "$", amount: "1000.00" },
+        { currency: "ARS", currency_name: "Peso", symbol: "$", amount: "50000.00" },
+      ],
+    });
   });
 
   afterEach(() => {
@@ -162,5 +171,83 @@ describe("ExchangePage", () => {
 
     const fromSelect = screen.getByLabelText("Moneda de origen") as HTMLSelectElement;
     expect(fromSelect.value).toBe("EUR");
+  });
+
+  it("bloquea en el frontend si el monto a cambiar supera el saldo disponible", async () => {
+    const user = userEvent.setup();
+    renderExchange();
+
+    await screen.findByText(/1\.000,00 USD/);
+
+    await user.type(screen.getByLabelText(/Monto a cambiar/i), "1500");
+    await user.click(screen.getByRole("button", { name: "Cambiar" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Saldo insuficiente. Tu saldo disponible es de 1.000,00 USD.",
+    );
+    expect(exchangeApiMock).not.toHaveBeenCalled();
+    expect(screen.queryByText("Confirmar cambio de moneda")).not.toBeInTheDocument();
+  });
+
+  it("actualiza el saldo disponible tras convertir divisas y muestra 0,00 al hacer otro cambio", async () => {
+    const user = userEvent.setup();
+
+    // Mock initial load (1000 USD), and next load after exchange (0 USD)
+    getWalletApiMock
+      .mockResolvedValueOnce({
+        wallet_id: "w-1",
+        total_in_usd: 1000,
+        balances: [
+          { currency: "USD", currency_name: "Dólar", symbol: "$", amount: "1000.00" },
+          { currency: "ARS", currency_name: "Peso", symbol: "$", amount: "50000.00" },
+        ],
+      })
+      .mockResolvedValueOnce({
+        wallet_id: "w-1",
+        total_in_usd: 1000,
+        balances: [
+          { currency: "USD", currency_name: "Dólar", symbol: "$", amount: "0.00" },
+          { currency: "ARS", currency_name: "Peso", symbol: "$", amount: "1098500.00" },
+        ],
+      });
+
+    exchangeApiMock.mockResolvedValueOnce({
+      id: "tx-all-dollars",
+      type: "SWAP",
+      to_amount: "1048500",
+      to_currency: "ARS",
+      applied_exchange_rate: "1050",
+    } as unknown as Awaited<ReturnType<typeof exchangeApi>>);
+
+    renderExchange();
+
+    // Initial available balance is 1.000,00 USD
+    expect(await screen.findByText(/1\.000,00 USD/)).toBeInTheDocument();
+
+    // User exchanges all 1000 USD
+    await user.type(screen.getByLabelText(/Monto a cambiar/i), "1000");
+    await user.click(screen.getByRole("button", { name: "Cambiar" }));
+
+    expect(screen.getByText("Confirmar cambio de moneda")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Confirmar cambio" }));
+
+    // Receipt is displayed
+    expect(await screen.findByText(/¡Cambio realizado con éxito!/i)).toBeInTheDocument();
+    expect(screen.getByText("tx-all-dollars")).toBeInTheDocument();
+
+    // User clicks "Hacer otro cambio"
+    await user.click(screen.getByRole("button", { name: "Hacer otro cambio" }));
+
+    // Now available balance must show 0,00 USD (not the old 1.000,00 USD)
+    expect(await screen.findByText(/0,00 USD/)).toBeInTheDocument();
+
+    // If user tries to operate again with USD, frontend immediately rejects
+    await user.type(screen.getByLabelText(/Monto a cambiar/i), "100");
+    await user.click(screen.getByRole("button", { name: "Cambiar" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Saldo insuficiente. Tu saldo disponible es de 0,00 USD.",
+    );
+    expect(exchangeApiMock).toHaveBeenCalledTimes(1); // not called again
   });
 });
