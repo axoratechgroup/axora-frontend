@@ -19,7 +19,9 @@ export default function ForgotPasswordPage() {
   const [sent, setSent]                         = useState(false)
 
   const emailRef = useRef(email)
-  emailRef.current = email
+  useEffect(() => {
+    emailRef.current = email
+  }, [email])
   const checkingEmailRef = useRef(false)
 
   const handleEmailChange = (val: string) => {
