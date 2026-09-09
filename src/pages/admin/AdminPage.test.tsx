@@ -363,4 +363,112 @@ describe('AdminPage', () => {
 
     expect(await screen.findByText('Configuracion Mock')).toBeInTheDocument()
   })
+
+  it('pagína la tabla de usuarios cuando hay más registros que el tamaño de página', async () => {
+    const user = userEvent.setup()
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 'admin1', username: 'adminaxora', role: 'admin' }),
+    )
+
+    const manyUsers = Array.from({ length: 12 }, (_, i) => ({
+      id: `usr-${i + 1}`,
+      first_name: `Usuario`,
+      last_name: `${i + 1}`,
+      username: `user_${i + 1}`,
+      email: `user_${i + 1}@axora.test`,
+      role: 'user',
+      created_at: '2026-09-04T12:00:00Z',
+    }))
+
+    mockGetAdminUsersApi.mockResolvedValueOnce(manyUsers)
+    mockGetAdminTransactionsApi.mockResolvedValueOnce([])
+
+    renderAdminPage()
+
+    expect(await screen.findByText('@user_1')).toBeInTheDocument()
+    expect(screen.getByText('@user_8')).toBeInTheDocument()
+    expect(screen.queryByText('@user_9')).not.toBeInTheDocument()
+
+    expect(screen.getByText(/Mostrando 1 a 8 de 12 usuarios/i)).toBeInTheDocument()
+
+    // Ir a página siguiente
+    const nextBtn = screen.getByRole('button', { name: 'Página siguiente' })
+    await user.click(nextBtn)
+
+    expect(await screen.findByText('@user_9')).toBeInTheDocument()
+    expect(screen.getByText('@user_12')).toBeInTheDocument()
+    expect(screen.queryByText('@user_1')).not.toBeInTheDocument()
+    expect(screen.getByText(/Mostrando 9 a 12 de 12 usuarios/i)).toBeInTheDocument()
+  })
+
+  it('permite filtrar transacciones por tipo y estado', async () => {
+    const user = userEvent.setup()
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 'admin1', username: 'adminaxora', role: 'admin' }),
+    )
+
+    mockGetAdminUsersApi.mockResolvedValueOnce([])
+    mockGetAdminTransactionsApi.mockResolvedValueOnce([
+      {
+        id: 'tx-swap-1',
+        type: 'SWAP',
+        status: 'COMPLETED',
+        username: 'ana',
+        email: 'ana@axora.test',
+        from_currency: 'USD',
+        from_amount: '100',
+        to_currency: 'EUR',
+        to_amount: '92',
+        applied_exchange_rate: '0.92',
+        description: 'Swap 1',
+        created_at: '2026-09-04T12:00:00Z',
+      },
+      {
+        id: 'tx-transfer-1',
+        type: 'TRANSFER',
+        status: 'PENDING',
+        username: 'camilo',
+        email: 'camilo@axora.test',
+        from_currency: 'USD',
+        from_amount: '50',
+        to_currency: 'USD',
+        to_amount: '50',
+        applied_exchange_rate: null,
+        recipient_username: 'ana',
+        description: 'Transfer 1',
+        created_at: '2026-09-04T13:00:00Z',
+      },
+    ])
+
+    renderAdminPage()
+
+    // Cambiar a transacciones
+    await user.click(screen.getByRole('button', { name: /Transacciones/i }))
+
+    expect(await screen.findByText('USD → EUR')).toBeInTheDocument()
+    expect(screen.getByText('Transfer 1')).toBeInTheDocument()
+
+    // Filtrar por Tipo: SWAP
+    const typeSelect = screen.getByLabelText('Filtrar por tipo de transacción')
+    await user.selectOptions(typeSelect, 'SWAP')
+
+    expect(screen.getByText('USD → EUR')).toBeInTheDocument()
+    expect(screen.queryByText('Transfer 1')).not.toBeInTheDocument()
+
+    // Filtrar por Estado: PENDING (debe quedar vacío porque el SWAP es COMPLETED)
+    const statusSelect = screen.getByLabelText('Filtrar por estado de transacción')
+    await user.selectOptions(statusSelect, 'PENDING')
+
+    expect(screen.queryByText('USD → EUR')).not.toBeInTheDocument()
+    expect(screen.getByText('No se encontraron transacciones')).toBeInTheDocument()
+
+    // Restablecer filtros con el botón
+    const resetBtn = screen.getByRole('button', { name: /Restablecer filtros/i })
+    await user.click(resetBtn)
+
+    expect(await screen.findByText('USD → EUR')).toBeInTheDocument()
+    expect(screen.getByText('Transfer 1')).toBeInTheDocument()
+  })
 })
