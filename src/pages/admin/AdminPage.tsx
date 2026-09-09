@@ -26,6 +26,7 @@ import {
 } from '../../api/admin.api.ts'
 import { formatAmount, formatTransactionType, formatTransactionStatus } from '../../utils/formatters.ts'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
+import { ConfirmDialog } from '../../components/common/ConfirmDialog.tsx'
 import { useAuth } from '../../hooks/useAuth.ts'
 import { getStoredUser } from '../../utils/user.ts'
 import './AdminPage.css'
@@ -39,8 +40,11 @@ export default function AdminPage() {
 
   const isAdmin = currentUser?.role === 'admin'
 
-  const handleLogout = () => {
-    if (!window.confirm('¿Seguro que quieres cerrar sesión?')) return
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
+  const [pendingRoleChange, setPendingRoleChange] = useState<{ user: AdminUser; nextRole: UserRole } | null>(null)
+
+  const handleConfirmLogout = () => {
+    setIsLogoutModalOpen(false)
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     setAuthenticated(false)
@@ -100,20 +104,22 @@ export default function AdminPage() {
     }
   }, [isAdmin])
 
-  const handleRoleChange = async (user: AdminUser, nextRole: UserRole) => {
+  const handleRoleSelect = (user: AdminUser, nextRole: UserRole) => {
     if (nextRole === user.role) return
+    setPendingRoleChange({ user, nextRole })
+  }
 
-    const accionLabel = nextRole === 'admin' ? 'promover a administrador' : 'quitar el rol de administrador a'
-    const confirmado = window.confirm(
-      `¿Seguro que quieres ${accionLabel} a @${user.username}?`,
-    )
-    if (!confirmado) return
+  const handleConfirmRoleChange = async () => {
+    if (!pendingRoleChange) return
+    const { user, nextRole } = pendingRoleChange
+    setPendingRoleChange(null)
 
     setRoleError(null)
     setUpdatingUserId(user.id)
     try {
       const updated = await updateUserRoleApi(user.id, nextRole)
       setUsers((prev) => prev.map((u) => (u.id === updated.id ? { ...u, role: updated.role } : u)))
+      toast.success(`Rol de @${user.username} actualizado a ${nextRole === 'admin' ? 'Administrador' : 'Usuario'}.`)
     } catch (err) {
       setRoleError(err instanceof Error ? err.message : 'No se pudo actualizar el rol del usuario.')
     } finally {
@@ -205,7 +211,7 @@ export default function AdminPage() {
             <button className="admin-btn admin-btn-secondary" onClick={() => navigate('/configuracion')} title="Configuración de la cuenta">
               <Settings size={15} /> Configuración
             </button>
-            <button className="admin-btn admin-btn-danger" onClick={handleLogout} title="Cerrar sesión">
+            <button className="admin-btn admin-btn-danger" onClick={() => setIsLogoutModalOpen(true)} title="Cerrar sesión">
               <LogOut size={15} /> Cerrar Sesión
             </button>
           </div>
@@ -360,7 +366,7 @@ export default function AdminPage() {
                               value={u.role}
                               disabled={isSelf || isUpdating}
                               title={isSelf ? 'No puedes cambiar tu propio rol' : undefined}
-                              onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
+                              onChange={(e) => handleRoleSelect(u, e.target.value as UserRole)}
                             >
                               <option value="user">Usuario</option>
                               <option value="admin">Administrador</option>
@@ -438,6 +444,36 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={isLogoutModalOpen}
+        title="Cerrar sesión"
+        message="¿Seguro que quieres cerrar sesión? Tendrás que volver a ingresar tus credenciales."
+        confirmText="Cerrar sesión"
+        cancelText="Cancelar"
+        variant="warning"
+        onConfirm={handleConfirmLogout}
+        onCancel={() => setIsLogoutModalOpen(false)}
+      />
+
+      <ConfirmDialog
+        isOpen={Boolean(pendingRoleChange)}
+        title={pendingRoleChange?.nextRole === 'admin' ? 'Promover a Administrador' : 'Quitar rol de Administrador'}
+        message={
+          pendingRoleChange
+            ? `¿Seguro que quieres ${
+                pendingRoleChange.nextRole === 'admin'
+                  ? 'promover a administrador a'
+                  : 'quitar el rol de administrador a'
+              } @${pendingRoleChange.user.username}?`
+            : ''
+        }
+        confirmText="Confirmar"
+        cancelText="Cancelar"
+        variant={pendingRoleChange?.nextRole === 'admin' ? 'warning' : 'danger'}
+        onConfirm={handleConfirmRoleChange}
+        onCancel={() => setPendingRoleChange(null)}
+      />
     </div>
   )
 }

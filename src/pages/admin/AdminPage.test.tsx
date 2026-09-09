@@ -282,7 +282,8 @@ describe('AdminPage', () => {
 
     await user.selectOptions(selects[1], 'admin')
 
-    expect(window.confirm).toHaveBeenCalled()
+    expect(screen.getByText('¿Seguro que quieres promover a administrador a @mateos?')).toBeInTheDocument()
+    await user.click(screen.getByTestId('confirm-dialog-confirm'))
     await waitFor(() => {
       expect(mockUpdateUserRoleApi).toHaveBeenCalledWith('u2', 'admin')
     })
@@ -297,7 +298,6 @@ describe('AdminPage', () => {
       'user',
       JSON.stringify({ id: 'admin1', username: 'adminaxora', role: 'admin' }),
     )
-    vi.spyOn(window, 'confirm').mockReturnValue(false)
 
     mockGetAdminUsersApi.mockResolvedValueOnce([
       {
@@ -319,18 +319,18 @@ describe('AdminPage', () => {
 
     await user.selectOptions(select, 'admin')
 
-    expect(window.confirm).toHaveBeenCalled()
+    expect(screen.getByText('¿Seguro que quieres promover a administrador a @mateos?')).toBeInTheDocument()
+    await user.click(screen.getByTestId('confirm-dialog-cancel'))
     expect(mockUpdateUserRoleApi).not.toHaveBeenCalled()
   })
 
-  it('permite cerrar sesión desde el encabezado administrativo', async () => {
+  it('permite cerrar sesión desde el encabezado administrativo tras confirmar', async () => {
     const user = userEvent.setup()
     localStorage.setItem('token', 'fake-admin-token')
     localStorage.setItem(
       'user',
       JSON.stringify({ id: 'admin1', username: 'adminaxora', role: 'admin' }),
     )
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
     mockGetAdminUsersApi.mockResolvedValueOnce([])
     mockGetAdminTransactionsApi.mockResolvedValueOnce([])
 
@@ -339,7 +339,9 @@ describe('AdminPage', () => {
     const logoutBtn = await screen.findByRole('button', { name: /Cerrar Sesión/i })
     await user.click(logoutBtn)
 
-    expect(window.confirm).toHaveBeenCalledWith('¿Seguro que quieres cerrar sesión?')
+    expect(screen.getByText(/Tendrás que volver a ingresar tus credenciales/i)).toBeInTheDocument()
+    await user.click(screen.getByTestId('confirm-dialog-confirm'))
+
     expect(localStorage.getItem('token')).toBeNull()
     expect(localStorage.getItem('user')).toBeNull()
     expect(await screen.findByText('Login Mock')).toBeInTheDocument()

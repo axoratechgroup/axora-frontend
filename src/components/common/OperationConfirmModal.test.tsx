@@ -54,7 +54,6 @@ describe('OperationConfirmModal', () => {
   it('solicita confirmación al hacer clic fuera del modal y cierra si se acepta', async () => {
     const user = userEvent.setup()
     const handleClose = vi.fn()
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
 
     render(
       <OperationConfirmModal
@@ -70,14 +69,14 @@ describe('OperationConfirmModal', () => {
     const backdrop = screen.getByRole('presentation')
     await user.click(backdrop)
 
-    expect(window.confirm).toHaveBeenCalledWith('¿Deseas cancelar la operación y cerrar?')
+    expect(screen.getByText('¿Deseas cancelar la operación y cerrar la ventana?')).toBeInTheDocument()
+    await user.click(screen.getByTestId('confirm-dialog-confirm'))
     expect(handleClose).toHaveBeenCalledTimes(1)
   })
 
   it('no cierra el modal al hacer clic fuera si se cancela la confirmación', async () => {
     const user = userEvent.setup()
     const handleClose = vi.fn()
-    vi.spyOn(window, 'confirm').mockReturnValue(false)
 
     render(
       <OperationConfirmModal
@@ -92,7 +91,8 @@ describe('OperationConfirmModal', () => {
     const backdrop = screen.getByRole('presentation')
     await user.click(backdrop)
 
-    expect(window.confirm).toHaveBeenCalledWith('¿Deseas cancelar la operación y cerrar?')
+    expect(screen.getByText('¿Deseas cancelar la operación y cerrar la ventana?')).toBeInTheDocument()
+    await user.click(screen.getByTestId('confirm-dialog-cancel'))
     expect(handleClose).not.toHaveBeenCalled()
   })
 })
