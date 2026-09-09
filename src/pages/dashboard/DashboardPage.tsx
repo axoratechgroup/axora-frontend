@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { lazy, Suspense, useState, useMemo } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, Globe, Compass, Search, ChevronLeft, ChevronRight, ArrowDownLeft, ArrowUpRight, RotateCcw, type LucideIcon } from 'lucide-react'
@@ -8,7 +8,6 @@ import { useAuth } from '../../hooks/useAuth.ts'
 import { useWallet } from '../../hooks/useWallet.ts'
 
 
-import { CurrencyHistoryChart } from '../../components/dashboard/CurrencyHistoryChart.tsx'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
 import { StatusBadge } from '../../components/common/StatusBadge.tsx'
 import { ConfirmDialog } from '../../components/common/ConfirmDialog.tsx'
@@ -16,6 +15,12 @@ import { formatAmount, formatTransactionType, formatExchangeRate } from '../../u
 import type { StoredUser } from '../../types/auth.ts'
 import { ChatWidget } from '../../components/chat/ChatWidget.tsx'
 import './DashboardPage.css'
+
+const CurrencyHistoryChart = lazy(() =>
+  import('../../components/dashboard/CurrencyHistoryChart.tsx').then((module) => ({
+    default: module.CurrencyHistoryChart,
+  })),
+)
 
 function formatActivityDate(dateString: string): string {
   const date = new Date(dateString)
@@ -370,7 +375,9 @@ export default function DashboardPage() {
 
           {/* HISTORICO DE DIVISA */}
           <section className="dashboard-card history-section">
-            <CurrencyHistoryChart />
+            <Suspense fallback={<p className="currency-history-loading">Cargando histórico…</p>}>
+              <CurrencyHistoryChart />
+            </Suspense>
           </section>
         </div>
 
