@@ -262,6 +262,27 @@
   border-color: var(--color-primary, #E8821E);
 }
 
+.admin-search-clear {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--muted, #8E8377);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.15s ease;
+}
+
+.admin-search-clear:hover {
+  color: var(--ink, #FDF3E4);
+}
+
 /* Tables */
 .admin-table-wrapper {
   background: var(--canvas-2, #1E1C1A);

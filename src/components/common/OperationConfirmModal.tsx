@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { MouseEvent, ReactNode } from 'react'
 import './OperationConfirmModal.css'
 
 export interface SummaryItem {
@@ -33,8 +33,16 @@ export function OperationConfirmModal({
 }: OperationConfirmModalProps) {
   if (!isOpen) return null
 
+  const handleBackdropClick = (e: MouseEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget || loading) return
+    const confirmed = window.confirm('¿Deseas cancelar la operación y cerrar?')
+    if (confirmed) {
+      onClose()
+    }
+  }
+
   return (
-    <div className="op-modal-backdrop" onClick={onClose} role="presentation">
+    <div className="op-modal-backdrop" onClick={handleBackdropClick} role="presentation">
       <div
         className="op-modal-dialog"
         role="dialog"

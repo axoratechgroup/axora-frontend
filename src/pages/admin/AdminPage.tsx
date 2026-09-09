@@ -14,6 +14,7 @@ import {
   PlusCircle,
   LogOut,
   Settings,
+  X,
 } from 'lucide-react'
 import {
   getAdminUsersApi,
@@ -285,6 +286,17 @@ export default function AdminPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {searchTerm && (
+              <button
+                type="button"
+                className="admin-search-clear"
+                onClick={() => setSearchTerm('')}
+                title="Limpiar búsqueda"
+                aria-label="Limpiar búsqueda"
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
         </div>
 

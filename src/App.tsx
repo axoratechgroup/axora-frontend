@@ -373,6 +373,7 @@ function App() {
             <a href="#contacto">Contacto</a>
             <a href="#faq">FAQ</a>
             <Link to="/soporte">Soporte</Link>
+            <Link to="/forgot-password">Recuperar contraseña</Link>
           </div>
         </div>
         <p>2026 · AXORA. Todos los derechos reservados.</p>

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, Globe, Compass, Search, ChevronLeft, ChevronRight, ArrowDownLeft, ArrowUpRight, type LucideIcon } from 'lucide-react'
+import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, Globe, Compass, Search, ChevronLeft, ChevronRight, ArrowDownLeft, ArrowUpRight, RotateCcw, type LucideIcon } from 'lucide-react'
 import ReactCountryFlag from 'react-country-flag'
 import { getCountryCode } from '../../utils/currency.ts'
 import { useAuth } from '../../hooks/useAuth.ts'
@@ -77,6 +77,21 @@ export default function DashboardPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const ACTIVITY_PAGE_SIZE = 8
 
+  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], [])
+
+  const hasActiveFilters = Boolean(
+    searchQuery.trim() || typeFilter || currencyFilter || dateFrom || dateTo
+  )
+
+  const handleClearFilters = () => {
+    setSearchQuery('')
+    setTypeFilter('')
+    setCurrencyFilter('')
+    setDateFrom('')
+    setDateTo('')
+    setCurrentPage(1)
+  }
+
   const availableCurrencies = useMemo(() => {
     const set = new Set<string>()
     transactions.forEach((tx) => {
@@ -88,6 +103,7 @@ export default function DashboardPage() {
 
   const filteredTransactions = useMemo(() => {
     const query = searchQuery.trim().toLowerCase().replace(/^@/, '')
+    const now = new Date()
     return transactions.filter((tx) => {
       if (typeFilter && tx.type !== typeFilter) return false
       if (currencyFilter && tx.to_currency !== currencyFilter && tx.from_currency !== currencyFilter) return false
@@ -100,6 +116,7 @@ export default function DashboardPage() {
       }
 
       const txDate = new Date(tx.created_at)
+      if (txDate > now) return false
       if (dateFrom && txDate < new Date(`${dateFrom}T00:00:00`)) return false
       if (dateTo && txDate > new Date(`${dateTo}T23:59:59`)) return false
 
@@ -407,8 +424,10 @@ export default function DashboardPage() {
               <input
                 type="date"
                 value={dateFrom}
+                max={dateTo && dateTo < todayStr ? dateTo : todayStr}
                 onChange={(e) => {
-                  setDateFrom(e.target.value)
+                  const val = e.target.value
+                  setDateFrom(val > todayStr ? todayStr : val)
                   setCurrentPage(1)
                 }}
                 aria-label="Desde"
@@ -417,13 +436,28 @@ export default function DashboardPage() {
               <input
                 type="date"
                 value={dateTo}
+                min={dateFrom || undefined}
+                max={todayStr}
                 onChange={(e) => {
-                  setDateTo(e.target.value)
+                  const val = e.target.value
+                  setDateTo(val > todayStr ? todayStr : val)
                   setCurrentPage(1)
                 }}
                 aria-label="Hasta"
               />
             </div>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                className="activity-clear-filters-btn"
+                onClick={handleClearFilters}
+                title="Limpiar todos los filtros"
+              >
+                <RotateCcw size={14} aria-hidden="true" />
+                <span>Limpiar filtros</span>
+              </button>
+            )}
           </div>
 
           <div className="activity-table-header">

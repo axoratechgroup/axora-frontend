@@ -35,6 +35,22 @@ export async function registerApi(userData: RegisterData): Promise<AuthResponse>
 }
 
 
+export async function checkEmailApi(email: string): Promise<{ exists: boolean; first_name?: string; message?: string }> {
+  const response = await fetch(`${API_URL}/auth/check-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  })
+
+  const data = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(data.error || 'El correo electrónico no se encuentra registrado.')
+  }
+
+  return data
+}
+
 export async function forgotPasswordApi(email: string): Promise<{ message: string }> {
   const response = await fetch(`${API_URL}/auth/forgot-password`, {
     method: 'POST',

@@ -343,5 +343,81 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Admin Page Mock')).toBeInTheDocument()
     expect(screen.queryByText('Hola,')).not.toBeInTheDocument()
   })
+
+  it('muestra botón de limpiar filtros y resetea los filtros al hacer clic', async () => {
+    const user = userEvent.setup()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            wallet_id: 'w-1',
+            total_in_usd: 100,
+            balances: [{ currency: 'USD', amount: '100' }],
+            transactions: [
+              {
+                id: 'tx-1',
+                type: 'TOP_UP',
+                status: 'COMPLETED',
+                direction: 'received',
+                from_currency: null,
+                from_amount: null,
+                to_currency: 'USD',
+                to_amount: '100',
+                applied_exchange_rate: null,
+                description: 'Recarga inicial',
+                created_at: '2026-09-01T10:00:00Z',
+              },
+            ],
+          }),
+          { status: 200 },
+        ),
+      ),
+    )
+
+    renderDashboard()
+
+    // Initially no clear filters button
+    expect(screen.queryByRole('button', { name: /Limpiar filtros/i })).not.toBeInTheDocument()
+
+    const searchInput = screen.getByPlaceholderText(/Buscar por usuario o descripción/i)
+    await user.type(searchInput, 'Recarga')
+
+    // Button should now be visible
+    const clearBtn = await screen.findByRole('button', { name: /Limpiar filtros/i })
+    expect(clearBtn).toBeInTheDocument()
+
+    // Clicking clear button
+    await user.click(clearBtn)
+
+    expect(searchInput).toHaveValue('')
+    expect(screen.queryByRole('button', { name: /Limpiar filtros/i })).not.toBeInTheDocument()
+  })
+
+  it('establece max con la fecha de hoy en los selectores de fecha para evitar fechas futuras', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            wallet_id: 'w-1',
+            total_in_usd: 100,
+            balances: [{ currency: 'USD', amount: '100' }],
+            transactions: [],
+          }),
+          { status: 200 },
+        ),
+      ),
+    )
+
+    renderDashboard()
+
+    const todayStr = new Date().toISOString().split('T')[0]
+    const dateFrom = screen.getByLabelText('Desde')
+    const dateTo = screen.getByLabelText('Hasta')
+
+    expect(dateFrom).toHaveAttribute('max', todayStr)
+    expect(dateTo).toHaveAttribute('max', todayStr)
+  })
 })
 

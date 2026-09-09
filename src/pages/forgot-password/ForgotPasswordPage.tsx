@@ -1,15 +1,50 @@
 import { useState } from 'react'
 import type { SyntheticEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { forgotPasswordApi } from '../../api/auth.api.ts'
+import { CheckCircle2, Search } from 'lucide-react'
+import { checkEmailApi, forgotPasswordApi } from '../../api/auth.api.ts'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
 import '../login/LoginPage.css'
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail]     = useState('')
-  const [error, setError]     = useState('')
-  const [loading, setLoading] = useState(false)
-  const [sent, setSent]       = useState(false)
+  const [email, setEmail]                 = useState('')
+  const [error, setError]                 = useState('')
+  const [loading, setLoading]             = useState(false)
+  const [checkingEmail, setCheckingEmail] = useState(false)
+  const [emailVerified, setEmailVerified] = useState<boolean | null>(null)
+  const [verifiedName, setVerifiedName]   = useState('')
+  const [sent, setSent]                   = useState(false)
+
+  const handleEmailChange = (val: string) => {
+    setEmail(val)
+    if (error) setError('')
+    if (emailVerified !== null) {
+      setEmailVerified(null)
+      setVerifiedName('')
+    }
+  }
+
+  const handleVerifyEmail = async () => {
+    setError('')
+    setEmailVerified(null)
+
+    if (!email.trim()) {
+      setError('Ingresa tu correo electrónico.')
+      return
+    }
+
+    setCheckingEmail(true)
+    try {
+      const res = await checkEmailApi(email)
+      setEmailVerified(true)
+      setVerifiedName(res.first_name || '')
+    } catch (err: unknown) {
+      setEmailVerified(false)
+      setError(err instanceof Error ? err.message : 'El correo no se encuentra registrado.')
+    } finally {
+      setCheckingEmail(false)
+    }
+  }
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault()
@@ -49,7 +84,7 @@ export default function ForgotPasswordPage() {
 
         {sent ? (
           <p className="login-footer-note" style={{ fontSize: '.9rem', opacity: 1 }}>
-            Si el correo electrónico existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada o correo no deseado (spam).
+            Te hemos enviado un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada o correo no deseado (spam).
           </p>
         ) : (
           <form className="login-form" onSubmit={handleSubmit} noValidate>
@@ -67,10 +102,17 @@ export default function ForgotPasswordPage() {
                 spellCheck={false}
                 placeholder="pitty@correo.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
+                onChange={(e) => handleEmailChange(e.target.value)}
+                disabled={loading || checkingEmail}
               />
             </div>
+
+            {emailVerified === true && (
+              <div className="forgot-verified-badge" role="status">
+                <CheckCircle2 size={16} aria-hidden="true" />
+                <span>Correo registrado en Axora{verifiedName ? ` (${verifiedName})` : ''}. Listo para enviar enlace.</span>
+              </div>
+            )}
 
             {error && (
               <div className="login-error" role="alert">
@@ -80,9 +122,19 @@ export default function ForgotPasswordPage() {
             )}
 
             <button
+              type="button"
+              className="forgot-verify-btn"
+              onClick={handleVerifyEmail}
+              disabled={checkingEmail || loading || !email.trim()}
+            >
+              <Search size={15} aria-hidden="true" />
+              {checkingEmail ? 'Consultando en base de datos…' : 'Verificar si está en BD'}
+            </button>
+
+            <button
               className={`login-submit${loading ? ' is-loading' : ''}`}
               type="submit"
-              disabled={loading}
+              disabled={loading || checkingEmail}
             >
               {loading ? 'Enviando…' : 'Enviar enlace'}
             </button>
