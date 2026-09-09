@@ -138,6 +138,7 @@ export default function DashboardPage() {
     safePage * ACTIVITY_PAGE_SIZE,
   )
   const activeBalance = wallet?.balances.find((b) => b.currency === selectedCurrency)
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
 
   const user: StoredUser | null = (() => {
     try {
@@ -153,7 +154,6 @@ export default function DashboardPage() {
   }
 
   const firstName = user?.first_name ?? 'usuario'
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
 
   const handleConfirmLogout = () => {
     setIsLogoutModalOpen(false)

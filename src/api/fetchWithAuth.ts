@@ -54,6 +54,7 @@ export async function fetchWithAuth(
     if (error instanceof TypeError) {
       throw new Error(
         "No se pudo conectar con el servidor. Verifica tu conexión a internet o intenta nuevamente en unos instantes.",
+        { cause: error },
       );
     }
     throw error;

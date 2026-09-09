@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Id } from "react-toastify";
 import { toast } from "react-toastify";
 
 vi.mock("../../api/auth.api.ts", () => ({
@@ -26,8 +27,8 @@ function renderForgotPassword() {
 describe("ForgotPasswordPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(toast, "success").mockImplementation(() => "" as any);
-    vi.spyOn(toast, "error").mockImplementation(() => "" as any);
+    vi.spyOn(toast, "success").mockImplementation(() => "mock-id" as Id);
+    vi.spyOn(toast, "error").mockImplementation(() => "mock-id" as Id);
   });
 
   it("renderiza el formulario con título y campo de correo sin botón manual de BD", () => {
