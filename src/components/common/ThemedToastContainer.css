@@ -21,17 +21,28 @@
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-/* Dark Theme Toast */
+/* Dark Theme Toast (Default) */
+.Toastify__toast,
 .Toastify__toast-theme--dark {
-  background: rgba(30, 28, 26, 0.94) !important;
-  color: var(--ink, #FDF3E4) !important;
-  border: 1px solid rgba(246, 198, 139, 0.16) !important;
+  background: rgba(30, 28, 26, 0.95) !important;
+  color: #FDF3E4 !important;
+  border: 1px solid rgba(246, 198, 139, 0.2) !important;
 }
 
 /* Light Theme Toast */
 .Toastify__toast-theme--light {
   background: #ffffff !important;
-  color: var(--ink, #1C1917) !important;
+  color: #1C1917 !important;
+  border: 1px solid rgba(92, 83, 74, 0.25) !important;
+  box-shadow: 0 10px 26px rgba(92, 83, 74, 0.16) !important;
+}
+
+/* ─── Light Mode Overrides (When document is [data-theme="light"]) ─── */
+[data-theme="light"] .Toastify__toast,
+[data-theme="light"] .Toastify__toast-theme--dark,
+[data-theme="light"] .Toastify__toast-theme--light {
+  background: #ffffff !important;
+  color: #1C1917 !important;
   border: 1px solid rgba(92, 83, 74, 0.25) !important;
   box-shadow: 0 10px 26px rgba(92, 83, 74, 0.16) !important;
 }
@@ -43,11 +54,12 @@
   display: flex !important;
   align-items: center !important;
   gap: 10px !important;
+  color: inherit !important;
 }
 
 /* Close Button */
 .Toastify__close-button {
-  color: var(--muted) !important;
+  color: var(--muted, #8E8377) !important;
   opacity: 0.75 !important;
   align-self: center !important;
   transition: opacity 0.2s ease, color 0.2s ease !important;
@@ -55,14 +67,16 @@
 
 .Toastify__close-button:hover {
   opacity: 1 !important;
-  color: var(--ink) !important;
+  color: #FDF3E4 !important;
 }
 
+[data-theme="light"] .Toastify__close-button,
 .Toastify__toast-theme--light .Toastify__close-button {
   color: #2A2623 !important;
   opacity: 0.8 !important;
 }
 
+[data-theme="light"] .Toastify__close-button:hover,
 .Toastify__toast-theme--light .Toastify__close-button:hover {
   opacity: 1 !important;
   color: #000000 !important;
@@ -74,15 +88,9 @@
   border-radius: 0 0 14px 14px !important;
 }
 
-/* Status variants */
-/* Success */
-.Toastify__toast--success.Toastify__toast-theme--dark {
+/* ─── Status variants: Success ────────────────────────────────────────── */
+.Toastify__toast--success {
   border-left: 4px solid #22c55e !important;
-}
-.Toastify__toast--success.Toastify__toast-theme--light {
-  border-left: 4px solid #15803d !important;
-  background: #f0fdf4 !important;
-  color: #14532d !important;
 }
 .Toastify__progress-bar--success {
   background: linear-gradient(90deg, #15803d, #22c55e) !important;
@@ -90,18 +98,21 @@
 .Toastify__toast-icon--success svg {
   fill: #22c55e !important;
 }
+
+[data-theme="light"] .Toastify__toast--success,
+.Toastify__toast--success.Toastify__toast-theme--light {
+  border-left: 4px solid #15803d !important;
+  background: #f0fdf4 !important;
+  color: #14532d !important;
+}
+[data-theme="light"] .Toastify__toast-icon--success svg,
 .Toastify__toast-theme--light .Toastify__toast-icon--success svg {
   fill: #15803d !important;
 }
 
-/* Error */
-.Toastify__toast--error.Toastify__toast-theme--dark {
+/* ─── Status variants: Error ──────────────────────────────────────────── */
+.Toastify__toast--error {
   border-left: 4px solid #ef4444 !important;
-}
-.Toastify__toast--error.Toastify__toast-theme--light {
-  border-left: 4px solid #b91c1c !important;
-  background: #fef2f2 !important;
-  color: #7f1d1d !important;
 }
 .Toastify__progress-bar--error {
   background: linear-gradient(90deg, #b91c1c, #ef4444) !important;
@@ -109,18 +120,21 @@
 .Toastify__toast-icon--error svg {
   fill: #ef4444 !important;
 }
+
+[data-theme="light"] .Toastify__toast--error,
+.Toastify__toast--error.Toastify__toast-theme--light {
+  border-left: 4px solid #b91c1c !important;
+  background: #fef2f2 !important;
+  color: #7f1d1d !important;
+}
+[data-theme="light"] .Toastify__toast-icon--error svg,
 .Toastify__toast-theme--light .Toastify__toast-icon--error svg {
   fill: #b91c1c !important;
 }
 
-/* Info (AXORA Brand Orange) */
-.Toastify__toast--info.Toastify__toast-theme--dark {
+/* ─── Status variants: Info (AXORA Brand Amber) ────────────────────────── */
+.Toastify__toast--info {
   border-left: 4px solid var(--color-primary, #E8821E) !important;
-}
-.Toastify__toast--info.Toastify__toast-theme--light {
-  border-left: 4px solid #a35308 !important;
-  background: #fffbeb !important;
-  color: #78350f !important;
 }
 .Toastify__progress-bar--info {
   background: linear-gradient(90deg, #a35308, #e8821e) !important;
@@ -128,18 +142,23 @@
 .Toastify__toast-icon--info svg {
   fill: var(--color-primary, #E8821E) !important;
 }
-.Toastify__toast-theme--light .Toastify__toast-icon--info svg {
+
+[data-theme="light"] .Toastify__toast--info,
+.Toastify__toast--info.Toastify__toast-theme--light,
+[data-theme="light"] .Toastify__toast--info.Toastify__toast-theme--dark {
+  border-left: 4px solid #a35308 !important;
+  background: #fffbeb !important;
+  color: #78350f !important;
+}
+[data-theme="light"] .Toastify__toast-icon--info svg,
+.Toastify__toast-theme--light .Toastify__toast-icon--info svg,
+[data-theme="light"] .Toastify__toast-icon--info.Toastify__toast-theme--dark svg {
   fill: #a35308 !important;
 }
 
-/* Warning */
-.Toastify__toast--warning.Toastify__toast-theme--dark {
+/* ─── Status variants: Warning ────────────────────────────────────────── */
+.Toastify__toast--warning {
   border-left: 4px solid #f59e0b !important;
-}
-.Toastify__toast--warning.Toastify__toast-theme--light {
-  border-left: 4px solid #b45309 !important;
-  background: #fffbeb !important;
-  color: #78350f !important;
 }
 .Toastify__progress-bar--warning {
   background: linear-gradient(90deg, #b45309, #f59e0b) !important;
@@ -147,6 +166,16 @@
 .Toastify__toast-icon--warning svg {
   fill: #f59e0b !important;
 }
-.Toastify__toast-theme--light .Toastify__toast-icon--warning svg {
+
+[data-theme="light"] .Toastify__toast--warning,
+.Toastify__toast--warning.Toastify__toast-theme--light,
+[data-theme="light"] .Toastify__toast--warning.Toastify__toast-theme--dark {
+  border-left: 4px solid #b45309 !important;
+  background: #fffbeb !important;
+  color: #78350f !important;
+}
+[data-theme="light"] .Toastify__toast-icon--warning svg,
+.Toastify__toast-theme--light .Toastify__toast-icon--warning svg,
+[data-theme="light"] .Toastify__toast-icon--warning.Toastify__toast-theme--dark svg {
   fill: #b45309 !important;
 }
