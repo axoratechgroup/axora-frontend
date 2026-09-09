@@ -117,4 +117,14 @@ describe('fetchWithAuth', () => {
     expect(localStorage.getItem('user')).not.toBeNull()
     expect(window.location.assign).not.toHaveBeenCalled()
   })
+
+  it('traduce fallos de red o de CORS (TypeError) en un mensaje amigable al usuario', async () => {
+    localStorage.setItem('token', 'token-ok')
+    globalThis.fetch = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'))
+
+    await expect(fetchWithAuth('https://api.axora.test/wallet')).rejects.toThrow(
+      'No se pudo conectar con el servidor. Verifica tu conexión a internet o intenta nuevamente en unos instantes.',
+    )
+  })
 })
+

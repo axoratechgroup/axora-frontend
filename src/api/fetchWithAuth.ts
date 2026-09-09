@@ -39,14 +39,23 @@ export async function fetchWithAuth(
   const headers = new Headers(init?.headers);
   headers.set("Authorization", `Bearer ${token}`);
 
-  const response = await fetch(input, {
-    ...init,
-    headers,
-  });
+  try {
+    const response = await fetch(input, {
+      ...init,
+      headers,
+    });
 
-  if (response.status === 401) {
-    handleUnauthorized();
+    if (response.status === 401) {
+      handleUnauthorized();
+    }
+
+    return response;
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error(
+        "No se pudo conectar con el servidor. Verifica tu conexión a internet o intenta nuevamente en unos instantes.",
+      );
+    }
+    throw error;
   }
-
-  return response;
 }
