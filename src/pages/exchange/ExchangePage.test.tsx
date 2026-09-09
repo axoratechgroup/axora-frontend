@@ -7,10 +7,11 @@ vi.mock("../../api/wallet.api.ts", () => ({
   exchangeApi: vi.fn(),
   getWalletApi: vi.fn().mockResolvedValue({
     wallet_id: "w-1",
+    created_at: "",
     total_in_usd: 1000,
     balances: [
-      { currency: "USD", currency_name: "Dólar", symbol: "$", amount: "1000.00" },
-      { currency: "ARS", currency_name: "Peso", symbol: "$", amount: "50000.00" },
+      { currency: "USD", currency_name: "Dólar", symbol: "$", amount: "1000.00", updated_at: "" },
+      { currency: "ARS", currency_name: "Peso", symbol: "$", amount: "50000.00", updated_at: "" },
     ],
   }),
   getWalletTransactionsApi: vi.fn().mockResolvedValue([]),
@@ -46,10 +47,11 @@ describe("ExchangePage", () => {
     vi.clearAllMocks();
     getWalletApiMock.mockResolvedValue({
       wallet_id: "w-1",
+      created_at: "",
       total_in_usd: 1000,
       balances: [
-        { currency: "USD", currency_name: "Dólar", symbol: "$", amount: "1000.00" },
-        { currency: "ARS", currency_name: "Peso", symbol: "$", amount: "50000.00" },
+        { currency: "USD", currency_name: "Dólar", symbol: "$", amount: "1000.00", updated_at: "" },
+        { currency: "ARS", currency_name: "Peso", symbol: "$", amount: "50000.00", updated_at: "" },
       ],
     });
   });
@@ -196,18 +198,20 @@ describe("ExchangePage", () => {
     getWalletApiMock
       .mockResolvedValueOnce({
         wallet_id: "w-1",
+        created_at: "",
         total_in_usd: 1000,
         balances: [
-          { currency: "USD", currency_name: "Dólar", symbol: "$", amount: "1000.00" },
-          { currency: "ARS", currency_name: "Peso", symbol: "$", amount: "50000.00" },
+          { currency: "USD", currency_name: "Dólar", symbol: "$", amount: "1000.00", updated_at: "" },
+          { currency: "ARS", currency_name: "Peso", symbol: "$", amount: "50000.00", updated_at: "" },
         ],
       })
       .mockResolvedValueOnce({
         wallet_id: "w-1",
+        created_at: "",
         total_in_usd: 1000,
         balances: [
-          { currency: "USD", currency_name: "Dólar", symbol: "$", amount: "0.00" },
-          { currency: "ARS", currency_name: "Peso", symbol: "$", amount: "1098500.00" },
+          { currency: "USD", currency_name: "Dólar", symbol: "$", amount: "0.00", updated_at: "" },
+          { currency: "ARS", currency_name: "Peso", symbol: "$", amount: "1098500.00", updated_at: "" },
         ],
       });
 
