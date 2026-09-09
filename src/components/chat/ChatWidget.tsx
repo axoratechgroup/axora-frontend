@@ -33,7 +33,7 @@ export function ChatWidget({ onActionConfirmed }: ChatWidgetProps) {
     {
       id: nextId(),
       role: 'assistant',
-      text: 'Hola, soy el asistente de Axora. Puedo ayudarte a transferir dinero, cargar saldo o cambiar entre monedas. ¿En qué te ayudo?',
+      text: 'Hola, soy el asistente de Axora. Puedo ayudarte a transferir dinero, cargar saldo o cambiar entre monedas. ¿En qué te puedo colaborar hoy?',
     },
   ])
   const [input, setInput] = useState('')
@@ -196,7 +196,10 @@ export function ChatWidget({ onActionConfirmed }: ChatWidgetProps) {
               ref={inputRef}
               type="text"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => {
+                setInput(e.target.value)
+                if (error) setError('')
+              }}
               onKeyDown={handleKeyDown}
               placeholder="Escribe tu mensaje…"
               disabled={isSending}
