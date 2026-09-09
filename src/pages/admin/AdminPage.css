@@ -247,7 +247,7 @@
 
 .admin-search-input {
   width: 100%;
-  padding: 0.55rem 0.85rem 0.55rem 2.4rem;
+  padding: 0.55rem 2.2rem 0.55rem 2.4rem;
   background: var(--canvas-2, #1E1C1A);
   border: 1px solid var(--border, rgba(246, 198, 139, 0.15));
   border-radius: 10px;

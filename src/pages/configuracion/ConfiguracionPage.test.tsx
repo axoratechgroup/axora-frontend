@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { ThemeProvider } from '../../context/ThemeContext.tsx'
 import ConfiguracionPage from './ConfiguracionPage.tsx'
 
-function renderConfiguracion() {
+function renderConfiguracion(role = 'user') {
   localStorage.setItem(
     'user',
     JSON.stringify({
@@ -13,7 +13,7 @@ function renderConfiguracion() {
       last_name: 'López',
       username: 'analopez',
       email: 'ana@axora.test',
-      role: 'user',
+      role,
     }),
   )
 
@@ -23,6 +23,7 @@ function renderConfiguracion() {
         <Routes>
           <Route path="/configuracion" element={<ConfiguracionPage />} />
           <Route path="/dashboard" element={<p>Dashboard Mock</p>} />
+          <Route path="/admin" element={<p>Admin Mock</p>} />
         </Routes>
       </MemoryRouter>
     </ThemeProvider>,
@@ -61,11 +62,23 @@ describe('ConfiguracionPage', () => {
     expect(localStorage.getItem('theme')).toBe('dark')
   })
 
-  it('navega al dashboard al presionar el botón de volver', async () => {
+  it('navega al dashboard al presionar el botón de volver para usuario estándar', async () => {
     const user = userEvent.setup()
-    renderConfiguracion()
+    renderConfiguracion('user')
 
     await user.click(screen.getByRole('button', { name: /Volver al panel principal/i }))
     expect(await screen.findByText('Dashboard Mock')).toBeInTheDocument()
+  })
+
+  it('muestra sección de administración y navega a /admin al presionar volver para administrador', async () => {
+    const user = userEvent.setup()
+    renderConfiguracion('admin')
+
+    expect(screen.getByText('Administrador')).toBeInTheDocument()
+    expect(screen.getByText('Herramientas de Administración')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Abrir panel admin/i })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Volver al panel principal/i }))
+    expect(await screen.findByText('Admin Mock')).toBeInTheDocument()
   })
 })

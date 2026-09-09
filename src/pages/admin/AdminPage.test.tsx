@@ -182,6 +182,57 @@ describe('AdminPage', () => {
     })
   })
 
+  it('permite limpiar el buscador con el botón X y restaurar la lista', async () => {
+    const user = userEvent.setup()
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 'admin1', username: 'adminaxora', role: 'admin' }),
+    )
+
+    mockGetAdminUsersApi.mockResolvedValueOnce([
+      {
+        id: 'u1',
+        first_name: 'Camila',
+        last_name: 'Gómez',
+        username: 'camilag',
+        email: 'camila@axora.test',
+        role: 'user',
+        created_at: '2026-09-04T12:00:00Z',
+      },
+      {
+        id: 'u2',
+        first_name: 'Mateo',
+        last_name: 'Silva',
+        username: 'mateos',
+        email: 'mateo@axora.test',
+        role: 'user',
+        created_at: '2026-09-04T14:00:00Z',
+      },
+    ])
+    mockGetAdminTransactionsApi.mockResolvedValueOnce([])
+
+    renderAdminPage()
+
+    expect(await screen.findByText('@camilag')).toBeInTheDocument()
+
+    const searchInput = screen.getByPlaceholderText('Buscar por usuario o email…')
+    await user.type(searchInput, 'mateo')
+
+    expect(screen.queryByText('@camilag')).not.toBeInTheDocument()
+
+    // Botón de limpiar búsqueda
+    const clearBtn = screen.getByRole('button', { name: /Limpiar búsqueda/i })
+    expect(clearBtn).toBeInTheDocument()
+
+    await user.click(clearBtn)
+
+    expect(searchInput).toHaveValue('')
+    await waitFor(() => {
+      expect(screen.getByText('@camilag')).toBeInTheDocument()
+      expect(screen.getByText('@mateos')).toBeInTheDocument()
+    })
+  })
+
   it('permite promover a un usuario a administrador desde el selector de rol', async () => {
     const user = userEvent.setup()
     localStorage.setItem(

@@ -1101,6 +1101,11 @@
     justify-content: space-between;
   }
 
+  .activity-clear-filters-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
   .activity-row {
     display: grid;
     grid-template-columns: 1fr auto;
