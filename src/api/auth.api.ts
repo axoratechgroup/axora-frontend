@@ -82,3 +82,44 @@ export async function resetPasswordApi(token: string, newPassword: string): Prom
 
   return data
 }
+
+export interface AvailabilityResult {
+  username?: { available: boolean; message: string }
+  email?: { available: boolean; message: string }
+}
+
+export async function checkAvailabilityApi(query: {
+  username?: string
+  email?: string
+}): Promise<AvailabilityResult> {
+  const response = await fetch(`${API_URL}/auth/check-availability`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(query),
+  })
+
+  const data = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Error al verificar disponibilidad.')
+  }
+
+  return data
+}
+
+export async function checkUsernameApi(username: string): Promise<{ available: boolean; message: string }> {
+  const response = await fetch(`${API_URL}/auth/check-username`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username }),
+  })
+
+  const data = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Error al verificar nombre de usuario.')
+  }
+
+  return data
+}
+

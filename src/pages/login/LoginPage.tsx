@@ -2,10 +2,12 @@ import { useState } from 'react'
 import type { SyntheticEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { Sun, Moon } from 'lucide-react'
 import { loginApi } from '../../api/auth.api.ts'
 import { PasswordInput } from '../../components/common/PasswordInput.tsx'
-import { BrandLogo } from '../../components/common/BrandLogo.tsx'
+import { AuthShowcase } from '../../components/common/AuthShowcase.tsx'
 import { useAuth } from '../../hooks/useAuth.ts'
+import { useTheme } from '../../hooks/useTheme.ts'
 import { getHomeRoute } from '../../utils/user.ts'
 import './LoginPage.css'
 
@@ -13,17 +15,27 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { setAuthenticated } = useAuth()
+  const { theme, toggleTheme } = useTheme()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  // Real-time touch & inline validation
+  const [touchedEmail, setTouchedEmail] = useState(false)
+  const [touchedPassword, setTouchedPassword] = useState(false)
+
+  const emailError = touchedEmail && !email.trim() ? 'Ingresa tu correo o usuario.' : ''
+  const passwordError = touchedPassword && !password.trim() ? 'Ingresa tu contraseña.' : ''
+
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault()
     setError('')
 
     if (!email.trim() || !password.trim()) {
+      setTouchedEmail(true)
+      setTouchedPassword(true)
       setError('Por favor completa todos los campos.')
       return
     }
@@ -53,96 +65,137 @@ export default function LoginPage() {
     }
   }
 
-
   return (
-    <div className="login-page">
-      <div className="login-nav-top">
+    <div className="login-page auth-split-page">
+      {/* Top bar */}
+      <header className="auth-top-nav">
         <Link className="login-back" to="/">
           <span aria-hidden="true">←</span>
-          Volver
+          Volver al inicio
         </Link>
-      </div>
+        <button
+          type="button"
+          className="auth-theme-btn"
+          onClick={toggleTheme}
+          aria-label={`Cambiar a modo ${theme === 'dark' ? 'claro' : 'oscuro'}`}
+          title={`Modo ${theme === 'dark' ? 'claro' : 'oscuro'}`}
+        >
+          {theme === 'dark' ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
+        </button>
+      </header>
 
-      <div className="login-brand-wrapper">
-        <BrandLogo size="lg" to="/" />
-      </div>
+      {/* Main Split Container */}
+      <div className="auth-split-container">
+        {/* Left Column: Brand & Value Showcase */}
+        <section className="auth-split-left">
+          <AuthShowcase
+            title="Mueve tu dinero por el mundo sin fronteras"
+            subtitle="Gestiona, convierte y transfiere entre 6 monedas desde una sola cuenta con total transparencia, seguridad bancaria y cotización en tiempo real."
+          />
+        </section>
 
-      {/* Card */}
-      <div className="login-card" role="main">
-        <h1 className="login-title">Iniciar sesión</h1>
-
-        <form className="login-form" onSubmit={handleSubmit} noValidate>
-
-          {/* Email */}
-          <div className="form-field">
-            <label className="form-label" htmlFor="login-email">
-              Correo o usuario
-            </label>
-            <input
-              id="login-email"
-              className={`form-input${error ? ' has-error' : ''}`}
-              type="text"
-              autoComplete="username email"
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-              placeholder="pitty@correo.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-
-          {/* Password */}
-          <div className="form-field">
-            <label className="form-label" htmlFor="login-password">
-              Contraseña
-            </label>
-            <PasswordInput
-              id="login-password"
-              hasError={Boolean(error)}
-              autoComplete="current-password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-
-          {/* Error banner */}
-          {error && (
-            <div className="login-error" role="alert">
-              <em className="login-error-icon" aria-hidden="true">✕</em>
-              {error} Revisa el correo y la contraseña.
+        {/* Right Column: Form Card */}
+        <section className="auth-split-right">
+          <div className="login-card" role="main">
+            <div className="login-card-header">
+              <span className="login-card-eyebrow">BIENVENIDO A AXORA</span>
+              <h1 className="login-title">Iniciar sesión</h1>
             </div>
-          )}
 
-          {/* Submit */}
-          <button
-            id="login-submit"
-            className={`login-submit${loading ? ' is-loading' : ''}`}
-            type="submit"
-            disabled={loading}
-          >
-            {loading ? 'Entrando…' : 'Entrar'}
-          </button>
+            <form className="login-form" onSubmit={handleSubmit} noValidate>
+              {/* Email / Username */}
+              <div className="form-field">
+                <label className="form-label" htmlFor="login-email">
+                  Correo o usuario
+                </label>
+                <input
+                  id="login-email"
+                  className={`form-input${error || emailError ? ' has-error' : ''}`}
+                  type="text"
+                  autoComplete="username email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  placeholder="usuario@correo.com"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+                    if (error) setError('')
+                  }}
+                  onBlur={() => setTouchedEmail(true)}
+                  disabled={loading}
+                />
+                {emailError && (
+                  <span className="form-field-error">
+                    {emailError}
+                  </span>
+                )}
+              </div>
 
-        </form>
+              {/* Password */}
+              <div className="form-field">
+                <div className="form-label-row">
+                  <label className="form-label" htmlFor="login-password">
+                    Contraseña
+                  </label>
+                  <Link to="/forgot-password" className="form-forgot-link">
+                    ¿La olvidaste?
+                  </Link>
+                </div>
+                <PasswordInput
+                  id="login-password"
+                  hasError={Boolean(error || passwordError)}
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                    if (error) setError('')
+                  }}
+                  onBlur={() => setTouchedPassword(true)}
+                  disabled={loading}
+                />
+                {passwordError && (
+                  <span className="form-field-error">
+                    {passwordError}
+                  </span>
+                )}
+              </div>
+
+              {/* Error banner */}
+              {error && (
+                <div className="login-error" role="alert">
+                  <em className="login-error-icon" aria-hidden="true">✕</em>
+                  <span>{error} Revisa el correo y la contraseña.</span>
+                </div>
+              )}
+
+              {/* Submit */}
+              <button
+                id="login-submit"
+                className={`login-submit${loading ? ' is-loading' : ''}`}
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? 'Entrando…' : 'Entrar'}
+              </button>
+            </form>
+
+            {/* Card Footer */}
+            <footer className="login-footer">
+              <p>
+                ¿No tienes cuenta?{' '}
+                <Link to="/registro" className="login-register-link">
+                  Crear cuenta gratis
+                </Link>
+              </p>
+              <p className="login-footer-note">
+                Al registrarte, se crea tu billetera global automáticamente.
+              </p>
+            </footer>
+          </div>
+        </section>
       </div>
-
-      {/* Footer links */}
-      <footer className="login-footer">
-        <p>
-          <Link to="/forgot-password">¿Olvidaste tu contraseña?</Link>
-        </p>
-        <p>
-          ¿No tienes cuenta?{' '}
-          <Link to="/registro">crear cuenta</Link>
-        </p>
-        <p className="login-footer-note">
-          Al registrarte, se crea tu billetera automáticamente.
-        </p>
-      </footer>
     </div>
   )
 }
