@@ -666,6 +666,24 @@
   transform: translateY(-1px);
 }
 
+[data-theme="light"] .activity-clear-filters-btn {
+  background: rgba(194, 106, 16, 0.09);
+  border-color: rgba(194, 106, 16, 0.45);
+  color: #a35308;
+}
+
+[data-theme="light"] .activity-clear-filters-btn:hover {
+  background: #a35308;
+  border-color: #843f04;
+  color: #ffffff;
+}
+
+[data-theme="light"] .activity-search,
+[data-theme="light"] .activity-select,
+[data-theme="light"] .activity-date-range {
+  border-color: rgba(92, 83, 74, 0.28);
+}
+
 .activity-table-header {
   display: grid;
   grid-template-columns: 2.2fr 1.3fr 1.3fr 1.2fr;

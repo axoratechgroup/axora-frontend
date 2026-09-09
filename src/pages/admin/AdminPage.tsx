@@ -284,11 +284,12 @@ export default function AdminPage() {
             </button>
           </div>
 
-          <div className="admin-search-wrapper">
-            <Search size={16} className="search-icon" />
+          <div className="admin-search-wrapper" role="search">
+            <Search size={16} className="search-icon" aria-hidden="true" />
             <input
               type="text"
               className="admin-search-input"
+              aria-label={activeTab === 'users' ? 'Buscar usuario por nombre o correo electrónico' : 'Buscar transacción por identificador o descripción'}
               placeholder={activeTab === 'users' ? 'Buscar por usuario o email…' : 'Buscar transacción…'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -301,7 +302,7 @@ export default function AdminPage() {
                 title="Limpiar búsqueda"
                 aria-label="Limpiar búsqueda"
               >
-                <X size={14} />
+                <X size={14} aria-hidden="true" />
               </button>
             )}
           </div>
@@ -365,6 +366,7 @@ export default function AdminPage() {
                             <select
                               className={`role-select role-select-${u.role}`}
                               value={u.role}
+                              aria-label={`Cambiar rol para ${u.email}`}
                               disabled={isSelf || isUpdating}
                               title={isSelf ? 'No puedes cambiar tu propio rol' : undefined}
                               onChange={(e) => handleRoleSelect(u, e.target.value as UserRole)}

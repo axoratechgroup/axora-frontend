@@ -422,5 +422,17 @@ describe('DashboardPage', () => {
     expect(dateFrom).toHaveAttribute('max', todayStr)
     expect(dateTo).toHaveAttribute('max', todayStr)
   })
+
+  it('garantiza accesibilidad y labels descriptivos en todos los controles de filtro de actividad', async () => {
+    renderDashboard()
+
+    expect(screen.getByRole('search', { name: /Filtros de movimientos y transacciones/i })).toBeInTheDocument()
+    expect(screen.getByLabelText(/Buscar por usuario o descripción/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Filtrar por tipo de transacción/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Filtrar por moneda/i)).toBeInTheDocument()
+    expect(screen.getByLabelText('Desde')).toBeInTheDocument()
+    expect(screen.getByLabelText('Hasta')).toBeInTheDocument()
+  })
 })
+
 

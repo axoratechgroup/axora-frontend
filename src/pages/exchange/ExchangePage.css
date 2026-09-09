@@ -308,3 +308,28 @@
   color: var(--ink-dim, #d4c9bd);
   font-weight: 600;
 }
+
+/* ─── Light Mode High Contrast Overrides ────────────────────────────── */
+[data-theme="light"] .exchange-error {
+  background: rgba(185, 28, 28, 0.08);
+  border-color: rgba(185, 28, 28, 0.35);
+  color: #991b1b;
+}
+
+[data-theme="light"] .exchange-success {
+  background: rgba(22, 163, 74, 0.1);
+  border-color: rgba(22, 163, 74, 0.35);
+  color: #15803d;
+}
+
+[data-theme="light"] .summary-receive-amount {
+  color: #15803d;
+}
+
+[data-theme="light"] .exchange-rate-value {
+  color: #a35308;
+}
+
+[data-theme="light"] .exchange-success-rate {
+  color: #2A2623;
+}

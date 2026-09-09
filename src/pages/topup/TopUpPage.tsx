@@ -241,7 +241,7 @@ export default function TopUpPage() {
               ariaLabel="Monto"
             />
             {inlineAmountError && (
-              <span className="form-field-error" style={{ color: "#ef4444", fontSize: "0.82rem", fontWeight: 600, marginTop: "4px", display: "block" }}>
+              <span className="form-field-error">
                 {inlineAmountError}
               </span>
             )}

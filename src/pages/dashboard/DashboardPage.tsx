@@ -388,13 +388,14 @@ export default function DashboardPage() {
             <span className="activity-count">{filteredTransactions.length} movimientos</span>
           </div>
 
-          <div className="activity-filters">
+          <div className="activity-filters" role="search" aria-label="Filtros de movimientos y transacciones">
             <div className="activity-search">
               <Search size={16} aria-hidden="true" />
               <input
                 type="text"
                 placeholder="Buscar por usuario o descripción..."
                 value={searchQuery}
+                aria-label="Buscar por usuario o descripción"
                 onChange={(e) => {
                   setSearchQuery(e.target.value)
                   setCurrentPage(1)
@@ -405,6 +406,7 @@ export default function DashboardPage() {
             <select
               className="activity-select"
               value={typeFilter}
+              aria-label="Filtrar por tipo de transacción"
               onChange={(e) => {
                 setTypeFilter(e.target.value)
                 setCurrentPage(1)
@@ -419,6 +421,7 @@ export default function DashboardPage() {
             <select
               className="activity-select"
               value={currencyFilter}
+              aria-label="Filtrar por moneda"
               onChange={(e) => {
                 setCurrencyFilter(e.target.value)
                 setCurrentPage(1)
@@ -430,7 +433,7 @@ export default function DashboardPage() {
               ))}
             </select>
 
-            <div className="activity-date-range">
+            <div className="activity-date-range" role="group" aria-label="Rango de fechas">
               <input
                 type="date"
                 value={dateFrom}
@@ -442,7 +445,7 @@ export default function DashboardPage() {
                 }}
                 aria-label="Desde"
               />
-              <span>—</span>
+              <span aria-hidden="true">—</span>
               <input
                 type="date"
                 value={dateTo}
@@ -462,7 +465,8 @@ export default function DashboardPage() {
                 type="button"
                 className="activity-clear-filters-btn"
                 onClick={handleClearFilters}
-                title="Limpiar todos los filtros"
+                title="Limpiar filtros"
+                aria-label="Limpiar filtros"
               >
                 <RotateCcw size={14} aria-hidden="true" />
                 <span>Limpiar filtros</span>

@@ -226,3 +226,36 @@
   color: #fff;
   font-weight: 600;
 }
+
+.form-field-error {
+  color: var(--color-error-text, #f87171);
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 4px;
+  display: block;
+}
+
+/* ─── Light Mode High Contrast Overrides ────────────────────────────── */
+[data-theme="light"] .transfer-error {
+  background: rgba(185, 28, 28, 0.08);
+  border-color: rgba(185, 28, 28, 0.35);
+  color: #991b1b;
+}
+
+[data-theme="light"] .transfer-success {
+  background: rgba(22, 163, 74, 0.1);
+  border-color: rgba(22, 163, 74, 0.35);
+  color: #15803d;
+}
+
+[data-theme="light"] .summary-free {
+  color: #15803d;
+}
+
+[data-theme="light"] .summary-highlight {
+  color: var(--ink);
+}
+
+[data-theme="light"] .form-field-error {
+  color: #991b1b !important;
+}
