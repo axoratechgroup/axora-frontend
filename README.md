@@ -280,25 +280,47 @@ npm test
 
 ## 🧪 Estrategia de Pruebas
 
-Toda la aplicación está cubierta por pruebas unitarias y de integración con **Vitest** y **React Testing Library** (17 suites de pruebas, 72 pruebas en total):
+Toda la aplicación está cubierta por pruebas unitarias y de integración con **Vitest** y **React Testing Library** (**36 suites de pruebas, 184 pruebas en total — 100% pasando**):
 
-- **Páginas y Flujos de Usuario**:
-  - `DashboardPage.test.tsx`: Resumen de saldos, ocultamiento por privacidad y cierre de sesión.
+- **Páginas y Flujos de Usuario (13 suites)**:
+  - `DashboardPage.test.tsx`: Resumen de saldos, modo privacidad y redirección por rol.
   - `TransferPage.test.tsx`: Validaciones de montos, selección de moneda y envío de transferencias.
-  - `ExchangePage.test.tsx`: Cálculo de conversión, advertencias de moneda idéntica e intercambio.
+  - `ExchangePage.test.tsx`: Cálculo de conversión, advertencias de moneda idéntica y swaps.
   - `TopUpPage.test.tsx`: Cargas de saldo y validaciones de importes mínimos.
-  - `HistorialPage.test.tsx`: Renderizado cronológico y detalle de estados.
-  - `ConfiguracionPage.test.tsx`: Renderizado del perfil y cierre de sesión.
-  - `LoginPage.test.tsx`: Validación de campos, visibilidad de clave y navegación.
-  - `RegistroPage.test.tsx`: Validación de coincidencia de contraseña y envío de formulario.
-  - `NotFoundPage.test.tsx`: Manejo de rutas inexistentes y navegación.
-- **Componentes**:
-  - `ChatWidget.test.tsx`: Apertura del chat, envío de mensajes, estados de carga y confirmación/cancelación de acciones propuestas.
-  - `CurrencyHistoryChart.test.tsx`: Renderizado de cotizaciones, alternancia de rangos y manejo de errores.
-  - `ProtectedRoute.test.tsx`: Protección contra accesos no autenticados y estados de verificación.
-- **Servicios de Red & Interceptores**:
-  - `fetchWithAuth.test.ts`: Inyección de cabeceras Bearer, captura de 401 y disparo de eventos.
-  - `wallet.api.test.ts`: Consumo tipado de endpoints de billetera.
-  - `chat.api.test.ts`: Envío de mensajes y confirmaciones de acciones.
-- **Utilidades**:
-  - `formatters.test.ts` & `currency.test.ts`: Formato decimal con coma y mapeo de banderas por país.
+  - `HistorialPage.test.tsx`: Renderizado cronológico y detalle de estados de transacciones.
+  - `ConfiguracionPage.test.tsx`: Renderizado del perfil de usuario y cierre de sesión.
+  - `LoginPage.test.tsx`: Validación de campos, visibilidad de contraseña y navegación.
+  - `RegistroPage.test.tsx`: Validación de coincidencia de contraseña y registro de cuentas.
+  - `ForgotPasswordPage.test.tsx`: Solicitud de recuperación de contraseña con control de cooldown.
+  - `ResetPasswordPage.test.tsx`: Restablecimiento seguro de clave con token.
+  - `AdminPage.test.tsx`: Panel administrativo de usuarios y transacciones con control de acceso por rol.
+  - `NotFoundPage.test.tsx`: Manejo de rutas inexistentes y navegación de retorno.
+  - `App.test.tsx`: Enrutamiento global y renderizado de la aplicación.
+- **Componentes y Accesibilidad (10 suites)**:
+  - `ChatWidget.test.tsx`: Apertura del chat, envío de mensajes, estados de carga y confirmación/cancelación de acciones.
+  - `CurrencyHistoryChart.test.tsx`: Renderizado de cotizaciones interactivas, alternancia de rangos y manejo de errores.
+  - `AmountInput.test.tsx`: Formateo e ingreso controlado de importes monetarios.
+  - `ConfirmDialog.test.tsx`: Diálogo modal accesible de confirmación de operaciones.
+  - `CurrencySelect.test.tsx`: Selector de divisas con banderas oficiales.
+  - `OperationConfirmModal.test.tsx`: Modal de resumen previo a ejecución financiera.
+  - `OperationReceipt.test.tsx`: Comprobante digital de operación realizada.
+  - `PageLoader.test.tsx`: Indicador visual y accesible de carga.
+  - `PasswordRequirements.test.tsx`: Verificación visual en vivo de requisitos de contraseña segura.
+  - `StatusBadge.test.tsx`: Etiquetas de estado de transacciones (`COMPLETED`, `PENDING`, `FAILED`).
+- **Enrutamiento y Guardas (1 suite)**:
+  - `ProtectedRoute.test.tsx`: Protección contra accesos no autenticados y estados de verificación de sesión.
+- **Lógica de Negocio y Hooks (2 suites)**:
+  - `useTransactions.test.ts`: Hook reactivo para obtención y filtrado de transacciones.
+  - `useWalletBalances.test.ts`: Hook para sincronización reactiva de saldos y cálculo patrimonial consolidado.
+- **Servicios de Red, Interceptores y Serverless (5 suites)**:
+  - `fetchWithAuth.test.ts`: Inyección de cabeceras Bearer, captura de 401 y disparo de eventos globales.
+  - `wallet.api.test.ts`: Consumo tipado de endpoints de billetera (balances, topup, transfer, exchange).
+  - `chat.api.test.ts`: Envío de mensajes y confirmaciones de acciones del asistente IA.
+  - `rates.api.test.ts`: Consulta de cotizaciones y series temporales históricas.
+  - `send-email.test.ts`: Vercel Serverless Function para transporte a AWS SES y validación de secreto compartido.
+- **Utilidades Puras y Validadores (5 suites)**:
+  - `formatters.test.ts`: Formato decimal con coma y separadores de miles estándar.
+  - `currency.test.ts`: Mapeo de divisas ISO a códigos de país para banderas.
+  - `password.test.ts`: Reglas de validación de complejidad de contraseñas.
+  - `syncEvents.test.ts`: Event bus para sincronización de balances entre ventanas y componentes.
+  - `user.test.ts`: Formateo de nombres y utilidades de perfil de usuario.
