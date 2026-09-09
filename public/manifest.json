@@ -1,0 +1,21 @@
+{
+  "name": "AXORA — Tu cuenta global multi-moneda",
+  "short_name": "AXORA",
+  "description": "Tu cuenta global multi-moneda con cálculo y liquidación de gastos compartidos cross-currency.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#141210",
+  "theme_color": "#E8821E",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/axora-email-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

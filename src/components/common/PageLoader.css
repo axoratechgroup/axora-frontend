@@ -1,0 +1,76 @@
+/* ─── AXORA Page Loader (Lazy Route Suspense Fallback) ────────────────── */
+
+.page-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  background: var(--canvas-1, #141210);
+  color: var(--ink, #FBF8F4);
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+[data-theme="light"] .page-loader {
+  background: var(--canvas-1, #FAF7F2);
+  color: var(--ink, #1E1C1A);
+}
+
+.page-loader__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  animation: pageLoaderFadeIn 0.25s ease-out;
+}
+
+@keyframes pageLoaderFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-loader__logo-wrapper {
+  animation: logoPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.85;
+  }
+}
+
+.page-loader__spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(232, 130, 30, 0.16);
+  border-top-color: var(--accent, #E8821E);
+  border-radius: 50%;
+  animation: loaderSpin 0.75s linear infinite;
+}
+
+@keyframes loaderSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.page-loader__message {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--muted, #8E8377);
+  letter-spacing: 0.02em;
+}
