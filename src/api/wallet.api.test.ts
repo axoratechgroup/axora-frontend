@@ -35,6 +35,7 @@ describe("wallet.api", () => {
       expect(result).toEqual(mockData);
       expect(fetchWithAuthMock).toHaveBeenCalledWith(
         expect.stringContaining("/wallet"),
+        { cache: "no-store" },
       );
     });
 

@@ -33,7 +33,7 @@ interface ExchangeReceiptData {
 export default function ExchangePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { wallet } = useWalletBalances();
+  const { wallet, walletLoading, reloadWallet } = useWalletBalances();
 
   const [fromCurrency, setFromCurrency] = useState(() => {
     const paramFrom = searchParams.get("from")?.trim().toUpperCase();
@@ -125,6 +125,11 @@ export default function ExchangePage() {
       return;
     }
 
+    if (wallet && numericAmount > availableAmount) {
+      setError(`Saldo insuficiente. Tu saldo disponible es de ${formatAmount(availableAmount)} ${fromCurrency}.`);
+      return;
+    }
+
     setIsConfirmOpen(true);
   };
 
@@ -133,6 +138,7 @@ export default function ExchangePage() {
     setError("");
     try {
       const transaction = await exchangeApi(fromCurrency, toCurrency, numericAmount);
+      await reloadWallet();
       setIsConfirmOpen(false);
       setReceipt({
         transactionId: transaction.id,
@@ -207,7 +213,10 @@ export default function ExchangePage() {
               ariaLabel="Moneda de origen"
             />
             <span className="exchange-balance-hint">
-              Saldo disponible: <strong>{formatAmount(availableAmount)} {fromCurrency}</strong>
+              Saldo disponible:{" "}
+              <strong>
+                {walletLoading ? "cargando…" : `${formatAmount(availableAmount)} ${fromCurrency}`}
+              </strong>
             </span>
           </div>
 
