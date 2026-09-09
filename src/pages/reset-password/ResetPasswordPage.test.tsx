@@ -73,13 +73,13 @@ describe("ResetPasswordPage", () => {
 
     renderResetPassword();
 
-    await user.type(screen.getByLabelText("Nueva contraseña"), "newSecurePassword123");
-    await user.type(screen.getByLabelText("Repetir contraseña"), "newSecurePassword123");
+    await user.type(screen.getByLabelText("Nueva contraseña"), "NewSecurePassword123!");
+    await user.type(screen.getByLabelText("Repetir contraseña"), "NewSecurePassword123!");
     await user.click(screen.getByRole("button", { name: /Guardar nueva contraseña/i }));
 
     expect(resetPasswordApiMock).toHaveBeenCalledWith(
       "valid-token",
-      "newSecurePassword123",
+      "NewSecurePassword123!",
     );
     expect(
       await screen.findByText(/Contraseña actualizada. Redirigiendo al inicio de sesión…/i),
@@ -94,12 +94,38 @@ describe("ResetPasswordPage", () => {
 
     renderResetPassword();
 
-    await user.type(screen.getByLabelText("Nueva contraseña"), "newSecurePassword123");
-    await user.type(screen.getByLabelText("Repetir contraseña"), "newSecurePassword123");
+    await user.type(screen.getByLabelText("Nueva contraseña"), "NewSecurePassword123!");
+    await user.type(screen.getByLabelText("Repetir contraseña"), "NewSecurePassword123!");
     await user.click(screen.getByRole("button", { name: /Guardar nueva contraseña/i }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "El enlace de recuperación ha expirado",
     );
+  });
+
+  it("muestra feedback en vivo con los requisitos de la contraseña", async () => {
+    const user = userEvent.setup();
+    renderResetPassword();
+
+    await user.type(screen.getByLabelText("Nueva contraseña"), "Abc1!");
+
+    expect(screen.getByText("Mínimo 8 caracteres (5/8)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Al menos una mayúscula (A-Z): cumplido")).toBeInTheDocument();
+    expect(screen.getByLabelText("Al menos un número (0-9): cumplido")).toBeInTheDocument();
+    expect(screen.getByLabelText("Al menos un carácter especial (!@#$...): cumplido")).toBeInTheDocument();
+  });
+
+  it("rechaza el envío si no cumple los requisitos de seguridad aunque tenga 8 caracteres", async () => {
+    const user = userEvent.setup();
+    renderResetPassword();
+
+    await user.type(screen.getByLabelText("Nueva contraseña"), "solominisculas");
+    await user.type(screen.getByLabelText("Repetir contraseña"), "solominisculas");
+    await user.click(screen.getByRole("button", { name: /Guardar nueva contraseña/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "La contraseña no cumple con todos los requisitos de seguridad.",
+    );
+    expect(resetPasswordApiMock).not.toHaveBeenCalled();
   });
 });
