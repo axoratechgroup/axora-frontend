@@ -207,7 +207,7 @@ export default function TransferPage() {
               </strong>
             </span>
             {inlineAmountError && (
-              <span className="form-field-error" style={{ color: "#ef4444", fontSize: "0.82rem", fontWeight: 600, marginTop: "4px", display: "block" }}>
+              <span className="form-field-error">
                 {inlineAmountError}
               </span>
             )}

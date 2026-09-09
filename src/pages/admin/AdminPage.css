@@ -481,6 +481,17 @@
   cursor: pointer;
 }
 
+[data-theme="light"] .admin-error-box {
+  background: rgba(185, 28, 28, 0.08);
+  border-color: rgba(185, 28, 28, 0.35);
+  color: #991b1b;
+}
+
+[data-theme="light"] .admin-error-box button {
+  border-color: #991b1b;
+  color: #991b1b;
+}
+
 /* Acceso Restringido */
 .admin-restricted-card {
   max-width: 480px;
