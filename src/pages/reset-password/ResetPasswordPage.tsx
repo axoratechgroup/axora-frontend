@@ -3,7 +3,9 @@ import type { SyntheticEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { resetPasswordApi } from '../../api/auth.api.ts'
 import { PasswordInput } from '../../components/common/PasswordInput.tsx'
+import { PasswordRequirements } from '../../components/common/PasswordRequirements.tsx'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
+import { validatePassword } from '../../utils/password.ts'
 import '../login/LoginPage.css'
 
 export default function ResetPasswordPage() {
@@ -17,6 +19,8 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [done, setDone]       = useState(false)
 
+  const passwordValidation = validatePassword(newPassword)
+
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault()
     setError('')
@@ -26,13 +30,17 @@ export default function ResetPasswordPage() {
       return
     }
 
-    if (newPassword.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres.')
+    if (newPassword !== confirmPassword) {
+      setError('Las contraseñas no coinciden.')
       return
     }
 
-    if (newPassword !== confirmPassword) {
-      setError('Las contraseñas no coinciden.')
+    if (!passwordValidation.isValid) {
+      if (!passwordValidation.hasMinLength) {
+        setError('La contraseña debe tener al menos 8 caracteres.')
+      } else {
+        setError('La contraseña no cumple con todos los requisitos de seguridad.')
+      }
       return
     }
 
@@ -77,13 +85,14 @@ export default function ResetPasswordPage() {
                 </label>
                 <PasswordInput
                   id="reset-password"
-                  hasError={Boolean(error)}
+                  hasError={Boolean(error || (newPassword.length > 0 && !passwordValidation.isValid))}
                   autoComplete="new-password"
                   placeholder="••••••••"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   disabled={loading}
                 />
+                <PasswordRequirements password={newPassword} />
               </div>
 
               <div className="form-field">

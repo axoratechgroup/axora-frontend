@@ -23,8 +23,8 @@ async function fillValidRegistration(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText('Apellido'), 'López')
   await user.type(screen.getByLabelText('Usuario'), 'analopez')
   await user.type(screen.getByLabelText('Correo'), 'ana@axora.test')
-  await user.type(screen.getByLabelText(/^Contraseña$/), 'contraseña-segura')
-  await user.type(screen.getByLabelText('Confirmar contraseña'), 'contraseña-segura')
+  await user.type(screen.getByLabelText(/^Contraseña$/), 'ContraseñaSegura123!')
+  await user.type(screen.getByLabelText('Confirmar contraseña'), 'ContraseñaSegura123!')
 }
 
 afterEach(() => vi.unstubAllGlobals())
@@ -37,6 +37,46 @@ describe('RegistroPage', () => {
     await user.type(screen.getByLabelText(/^Contraseña$/), '1234567')
 
     expect(screen.getByText('Mínimo 8 caracteres (7/8)')).toBeInTheDocument()
+  })
+
+  it('muestra y actualiza en vivo los 5 requisitos de contraseña segura', async () => {
+    const user = userEvent.setup()
+    renderRegistro()
+
+    const passwordInput = screen.getByLabelText(/^Contraseña$/)
+    await user.type(passwordInput, 'Axora1!')
+
+    expect(screen.getByText('Mínimo 8 caracteres (7/8)')).toBeInTheDocument()
+    expect(screen.getByLabelText('Al menos una mayúscula (A-Z): cumplido')).toBeInTheDocument()
+    expect(screen.getByLabelText('Al menos una minúscula (a-z): cumplido')).toBeInTheDocument()
+    expect(screen.getByLabelText('Al menos un número (0-9): cumplido')).toBeInTheDocument()
+    expect(screen.getByLabelText('Al menos un carácter especial (!@#$...): cumplido')).toBeInTheDocument()
+    expect(screen.getByLabelText('Mínimo 8 caracteres (7/8): pendiente')).toBeInTheDocument()
+
+    await user.type(passwordInput, '2')
+    expect(screen.getByText('Mínimo 8 caracteres (8/8)')).toBeInTheDocument()
+    expect(screen.getByLabelText('Mínimo 8 caracteres (8/8): cumplido')).toBeInTheDocument()
+  })
+
+  it('bloquea el envío si la contraseña tiene al menos 8 caracteres pero le faltan mayúsculas o números', async () => {
+    const user = userEvent.setup()
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    renderRegistro()
+
+    await user.type(screen.getByLabelText('Nombre'), 'Ana')
+    await user.type(screen.getByLabelText('Apellido'), 'López')
+    await user.type(screen.getByLabelText('Usuario'), 'analopez')
+    await user.type(screen.getByLabelText('Correo'), 'ana@axora.test')
+    await user.type(screen.getByLabelText(/^Contraseña$/), 'sololetrasminusculas')
+    await user.type(screen.getByLabelText('Confirmar contraseña'), 'sololetrasminusculas')
+
+    await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'La contraseña no cumple con todos los requisitos de seguridad.',
+    )
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('alterna la visibilidad de los campos contraseña y confirmar contraseña', async () => {
@@ -109,7 +149,7 @@ describe('RegistroPage', () => {
           last_name: 'López',
           username: 'analopez',
           email: 'ana@axora.test',
-          password: 'contraseña-segura',
+          password: 'ContraseñaSegura123!',
         }),
       }),
     )

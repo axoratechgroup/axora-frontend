@@ -3,8 +3,10 @@ import type { SyntheticEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { registerApi } from '../../api/auth.api.ts'
 import { PasswordInput } from '../../components/common/PasswordInput.tsx'
+import { PasswordRequirements } from '../../components/common/PasswordRequirements.tsx'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
 import { useAuth } from '../../hooks/useAuth.ts'
+import { validatePassword } from '../../utils/password.ts'
 import './RegistroPage.css'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -22,7 +24,8 @@ export default function RegistroPage() {
   const [error, setError]                     = useState('')
   const [loading, setLoading]                 = useState(false)
 
-  const passwordTooShort = password.length > 0 && password.length < 8
+  const passwordValidation = validatePassword(password)
+  const passwordIsInvalid = password.length > 0 && !passwordValidation.isValid
   const passwordsDoNotMatch = confirmPassword.length > 0 && password !== confirmPassword
 
   const handleSubmit = async (e: SyntheticEvent) => {
@@ -44,12 +47,16 @@ export default function RegistroPage() {
       setError('Ingresa un correo electrónico válido.')
       return
     }
-    if (password.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres.')
-      return
-    }
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden.')
+      return
+    }
+    if (!passwordValidation.isValid) {
+      if (!passwordValidation.hasMinLength) {
+        setError('La contraseña debe tener al menos 8 caracteres.')
+      } else {
+        setError('La contraseña no cumple con todos los requisitos de seguridad.')
+      }
       return
     }
 
@@ -177,18 +184,14 @@ export default function RegistroPage() {
             </label>
             <PasswordInput
               id="registro-password"
-              hasError={Boolean(error || passwordTooShort)}
+              hasError={Boolean(error || passwordIsInvalid)}
               autoComplete="new-password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
             />
-            {passwordTooShort && (
-              <span className="form-hint">
-                Mínimo 8 caracteres ({password.length}/8)
-              </span>
-            )}
+            <PasswordRequirements password={password} />
           </div>
 
           {/* Confirmar Password */}
