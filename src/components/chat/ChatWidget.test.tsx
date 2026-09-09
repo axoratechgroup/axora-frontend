@@ -121,4 +121,27 @@ describe("ChatWidget", () => {
       screen.getByText("Operación cancelada. No se ha realizado ningún cambio."),
     ).toBeInTheDocument();
   });
+
+  it("muestra mensaje de error cuando la API falla y lo limpia al escribir", async () => {
+    const user = userEvent.setup();
+    sendChatMessageApiMock.mockRejectedValueOnce(
+      new Error("No se pudo contactar al asistente."),
+    );
+
+    render(<ChatWidget />);
+    await user.click(screen.getByRole("button", { name: /CHAT IA/i }));
+
+    const input = screen.getByPlaceholderText("Escribe tu mensaje…");
+    await user.type(input, "Mensaje con fallo{enter}");
+
+    expect(
+      await screen.findByText("No se pudo contactar al asistente."),
+    ).toBeInTheDocument();
+
+    await user.type(input, "nuevo");
+    expect(
+      screen.queryByText("No se pudo contactar al asistente."),
+    ).not.toBeInTheDocument();
+  });
 });
+
