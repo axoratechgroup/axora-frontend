@@ -5,6 +5,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../api/wallet.api.ts", () => ({
   transferApi: vi.fn(),
+  getWalletApi: vi.fn().mockResolvedValue({
+    wallet_id: "wallet-test",
+    balances: [
+      { currency: "USD", amount: 1000 },
+      { currency: "EUR", amount: 500 },
+    ],
+  }),
 }));
 
 import { transferApi } from "../../api/wallet.api.ts";

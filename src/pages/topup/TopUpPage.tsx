@@ -108,6 +108,9 @@ export default function TopUpPage() {
         ? Math.round((numericAmount / effectiveQuoteRate) * 100) / 100
         : null;
 
+  const amountInvalid = Boolean(amount && (numericAmount <= 0 || isNaN(numericAmount)));
+  const inlineAmountError = amountInvalid ? "Ingresa un monto válido, mayor a 0." : "";
+
   const handleOpenConfirm = (e: FormEvent) => {
     e.preventDefault();
     setError("");
@@ -232,9 +235,14 @@ export default function TopUpPage() {
               value={amount}
               onChange={setAmount}
               disabled={loading}
-              hasError={Boolean(error)}
+              hasError={Boolean(error || inlineAmountError)}
               ariaLabel="Monto"
             />
+            {inlineAmountError && (
+              <span className="form-field-error" style={{ color: "#ef4444", fontSize: "0.82rem", fontWeight: 600, marginTop: "4px", display: "block" }}>
+                {inlineAmountError}
+              </span>
+            )}
           </div>
 
           <div className="topup-summary-box">
