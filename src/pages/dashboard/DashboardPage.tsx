@@ -10,8 +10,9 @@ import { useWallet } from '../../hooks/useWallet.ts'
 
 import { CurrencyHistoryChart } from '../../components/dashboard/CurrencyHistoryChart.tsx'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
+import { StatusBadge } from '../../components/common/StatusBadge.tsx'
 import { ConfirmDialog } from '../../components/common/ConfirmDialog.tsx'
-import { formatAmount, formatTransactionType, formatTransactionStatus, formatExchangeRate } from '../../utils/formatters.ts'
+import { formatAmount, formatTransactionType, formatExchangeRate } from '../../utils/formatters.ts'
 import type { StoredUser } from '../../types/auth.ts'
 import { ChatWidget } from '../../components/chat/ChatWidget.tsx'
 import './DashboardPage.css'
@@ -548,9 +549,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="activity-date">
                       <span className="activity-date-text">{formatActivityDate(tx.created_at)}</span>
-                      <span className={`activity-status-badge status-${tx.status.toLowerCase()}`}>
-                        {formatTransactionStatus(tx.status)}
-                      </span>
+                      <StatusBadge status={tx.status} />
                     </div>
                   </li>
                 )

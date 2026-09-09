@@ -3,6 +3,7 @@ import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, History, Plus, Send, type 
 import { useWallet } from '../../hooks/useWallet.ts'
 import { formatAmount, formatTransactionType, formatExchangeRate } from '../../utils/formatters.ts'
 import type { Transaction } from '../../types/wallet.ts'
+import { StatusBadge } from '../../components/common/StatusBadge.tsx'
 import './HistorialPage.css'
 
 const TRANSACTION_ICONS: Record<string, LucideIcon> = {
@@ -83,7 +84,10 @@ export default function HistorialPage() {
                         ))}
                       {formatAmount(tx.to_amount)} {tx.to_currency}
                     </span>
-                    <span className="historial-date">{new Date(tx.created_at).toLocaleString('es')}</span>
+                    <div className="historial-meta-row">
+                      <span className="historial-date">{new Date(tx.created_at).toLocaleString('es')}</span>
+                      <StatusBadge status={tx.status} />
+                    </div>
                   </div>
                 </li>
               )

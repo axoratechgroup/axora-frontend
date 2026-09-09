@@ -188,13 +188,22 @@ export function CurrencyHistoryChart() {
         ))}
       </div>
 
-      <div className="currency-history__content" aria-live="polite">
-        {loading && <p className="currency-history__message">Cargando histórico…</p>}
-        {error && !loading && <p className="currency-history__message is-error">{error}</p>}
+      <div className="currency-history__content" aria-live="polite" style={{ position: 'relative' }}>
+        {loading && !history && (
+          <p className="currency-history__message">Cargando histórico…</p>
+        )}
+        {loading && history && (
+          <div className="currency-history__loading-overlay" aria-hidden="true">
+            <span className="currency-history__spinner" />
+          </div>
+        )}
+        {error && !loading && !history && (
+          <p className="currency-history__message is-error">{error}</p>
+        )}
         {!loading && !error && history?.points.length === 0 && (
           <p className="currency-history__message">Todavía no hay datos disponibles para este período.</p>
         )}
-        {!loading && !error && (history?.points.length ?? 0) > 0 && (
+        {history && history.points.length > 0 && (
           <ReactApexChart
             options={options}
             series={series}
