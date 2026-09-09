@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { toast } from 'react-toastify'
 import { ThemeProvider } from '../../context/ThemeContext.tsx'
 import ConfiguracionPage from './ConfiguracionPage.tsx'
 
@@ -47,6 +48,7 @@ describe('ConfiguracionPage', () => {
   })
 
   it('permite alternar el tema visual entre oscuro y claro', async () => {
+    const toastSpy = vi.spyOn(toast, 'info')
     const user = userEvent.setup()
     renderConfiguracion()
 
@@ -56,10 +58,20 @@ describe('ConfiguracionPage', () => {
     await user.click(themeButton)
     expect(themeButton).toHaveTextContent(/Modo claro/i)
     expect(localStorage.getItem('theme')).toBe('light')
+    expect(toastSpy).toHaveBeenCalledWith(
+      'Modo claro activado',
+      expect.objectContaining({ theme: 'light' }),
+    )
 
     await user.click(themeButton)
     expect(themeButton).toHaveTextContent(/Modo oscuro/i)
     expect(localStorage.getItem('theme')).toBe('dark')
+    expect(toastSpy).toHaveBeenCalledWith(
+      'Modo oscuro activado',
+      expect.objectContaining({ theme: 'dark' }),
+    )
+
+    toastSpy.mockRestore()
   })
 
   it('navega al dashboard al presionar el botón de volver para usuario estándar', async () => {

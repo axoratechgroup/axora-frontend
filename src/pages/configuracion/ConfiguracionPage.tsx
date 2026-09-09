@@ -10,9 +10,11 @@ export default function ConfiguracionPage() {
   const { theme, toggleTheme } = useTheme()
 
   const handleToggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark'
     toggleTheme()
-    toast.info(`Modo ${theme === 'dark' ? 'claro' : 'oscuro'} activado`, {
+    toast.info(`Modo ${nextTheme === 'light' ? 'claro' : 'oscuro'} activado`, {
       autoClose: 1800,
+      theme: nextTheme,
     })
   }
 
