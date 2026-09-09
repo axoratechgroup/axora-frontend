@@ -12,6 +12,7 @@ function renderLogin() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<p>Dashboard</p>} />
+          <Route path="/admin" element={<p>Admin Page Mock</p>} />
         </Routes>
       </AuthProvider>
     </MemoryRouter>,
@@ -83,5 +84,21 @@ describe('LoginPage', () => {
     expect(passwordInput).toHaveAttribute('type', 'password')
     expect(screen.getByRole('button', { name: 'Mostrar contraseña' })).toBeInTheDocument()
   })
-})
 
+  it('guarda sesión y navega directamente a /admin cuando el usuario tiene rol admin', async () => {
+    const user = userEvent.setup()
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ token: 'admin-token', user: { first_name: 'Admin', role: 'admin' } }),
+    }))
+    renderLogin()
+
+    await user.type(screen.getByLabelText('Correo o usuario'), 'admintest@axora.com')
+    await user.type(screen.getByLabelText('Contraseña'), 'axora.test')
+    await user.click(screen.getByRole('button', { name: 'Entrar' }))
+
+    expect(await screen.findByText('Admin Page Mock')).toBeInTheDocument()
+    expect(screen.queryByText('Dashboard')).not.toBeInTheDocument()
+    expect(localStorage.getItem('token')).toBe('admin-token')
+  })
+})

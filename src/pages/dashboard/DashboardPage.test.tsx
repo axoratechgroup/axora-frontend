@@ -313,5 +313,35 @@ describe('DashboardPage', () => {
     expect(screen.getByText(/- 30,00 USD/)).toBeInTheDocument()
     expect(screen.getByText(/\+ 45,00 USD/)).toBeInTheDocument()
   })
+
+  it('redirige inmediatamente a /admin si el usuario autenticado tiene rol admin', () => {
+    localStorage.setItem('token', 'token-prueba')
+    localStorage.setItem(
+      'user',
+      JSON.stringify({
+        first_name: 'Admin',
+        last_name: 'Test',
+        username: 'admintest',
+        email: 'admintest@axora.com',
+        role: 'admin',
+      }),
+    )
+
+    render(
+      <ThemeProvider>
+        <MemoryRouter initialEntries={['/dashboard']}>
+          <AuthProvider>
+            <Routes>
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/admin" element={<p>Admin Page Mock</p>} />
+            </Routes>
+          </AuthProvider>
+        </MemoryRouter>
+      </ThemeProvider>,
+    )
+
+    expect(screen.getByText('Admin Page Mock')).toBeInTheDocument()
+    expect(screen.queryByText('Hola,')).not.toBeInTheDocument()
+  })
 })
 

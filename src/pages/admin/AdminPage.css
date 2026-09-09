@@ -100,6 +100,18 @@
   border-color: var(--border-glow, rgba(232, 130, 30, 0.35));
 }
 
+.admin-btn-danger {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.admin-btn-danger:hover {
+  background-color: rgba(239, 68, 68, 0.22);
+  border-color: rgba(239, 68, 68, 0.5);
+  transform: translateY(-1px);
+}
+
 /* Metrics Grid */
 .admin-metrics-grid {
   display: grid;

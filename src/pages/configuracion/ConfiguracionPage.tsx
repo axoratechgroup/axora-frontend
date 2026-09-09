@@ -2,15 +2,8 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, User, Shield, Moon, Sun, CheckCircle } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useTheme } from '../../hooks/useTheme.ts'
+import { getStoredUser, getHomeRoute } from '../../utils/user.ts'
 import './ConfiguracionPage.css'
-
-interface StoredUser {
-  first_name?: string
-  last_name?: string
-  username?: string
-  email?: string
-  role?: string
-}
 
 export default function ConfiguracionPage() {
   const navigate = useNavigate()
@@ -24,14 +17,7 @@ export default function ConfiguracionPage() {
   }
 
 
-  const user: StoredUser = (() => {
-    try {
-      const stored = localStorage.getItem('user')
-      return stored ? JSON.parse(stored) : {}
-    } catch {
-      return {}
-    }
-  })()
+  const user = getStoredUser() ?? {}
 
   return (
     <div className="config-page">
@@ -40,7 +26,7 @@ export default function ConfiguracionPage() {
           <button
             type="button"
             className="btn-back"
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate(getHomeRoute(user.role))}
             aria-label="Volver al panel principal"
           >
             <ArrowLeft size={18} aria-hidden="true" />

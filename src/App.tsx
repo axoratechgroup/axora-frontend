@@ -5,6 +5,7 @@ import { useAuth } from './hooks/useAuth.ts'
 import { useTheme } from './hooks/useTheme.ts'
 import { BrandLogo } from './components/common/BrandLogo.tsx'
 import { getFallbackExchangeRate } from './utils/currency.ts'
+import { getStoredUser, getHomeRoute } from './utils/user.ts'
 import './App.css'
 import { SUPPORT_EMAIL } from './constants/config.ts'
 
@@ -148,7 +149,8 @@ function App() {
 
   useEffect(() => {
     if (status !== 'checking' && isAuthenticated) {
-      navigate('/dashboard', { replace: true })
+      const user = getStoredUser()
+      navigate(getHomeRoute(user?.role), { replace: true })
     }
   }, [status, isAuthenticated, navigate])
 

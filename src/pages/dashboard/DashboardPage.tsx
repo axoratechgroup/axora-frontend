@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, Globe, ShieldCheck, Compass, Search, ChevronLeft, ChevronRight, ArrowDownLeft, ArrowUpRight, type LucideIcon } from 'lucide-react'
+import { Eye, EyeOff, HelpCircle, LogOut, Plus, ArrowLeftRight, Send, History, Settings, Globe, Compass, Search, ChevronLeft, ChevronRight, ArrowDownLeft, ArrowUpRight, type LucideIcon } from 'lucide-react'
 import ReactCountryFlag from 'react-country-flag'
 import { getCountryCode } from '../../utils/currency.ts'
 import { useAuth } from '../../hooks/useAuth.ts'
@@ -124,6 +124,10 @@ export default function DashboardPage() {
     }
   })()
 
+  if (user?.role === 'admin') {
+    return <Navigate to="/admin" replace />
+  }
+
   const firstName = user?.first_name ?? 'usuario'
 
   const handleLogout = () => {
@@ -171,17 +175,6 @@ export default function DashboardPage() {
         </div>
 
         <div className="dashboard-header-icons">
-          {user?.role === 'admin' && (
-            <Link
-              className="icon-btn"
-              to="/admin"
-              aria-label="Panel de Administración"
-              title="Panel de Administración"
-              style={{ color: '#f87171' }}
-            >
-              <ShieldCheck size={18} aria-hidden="true" />
-            </Link>
-          )}
           <button
             className="icon-btn"
             aria-label={showBalance ? 'Ocultar saldo' : 'Mostrar saldo'}

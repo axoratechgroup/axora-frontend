@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.ts'
+import { getStoredUser, getHomeRoute } from '../utils/user.ts'
 
 export default function PublicOnlyRoute({ children }: PropsWithChildren) {
   const { status, isAuthenticated } = useAuth()
@@ -22,7 +23,8 @@ export default function PublicOnlyRoute({ children }: PropsWithChildren) {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />
+    const user = getStoredUser()
+    return <Navigate to={getHomeRoute(user?.role)} replace />
   }
 
   return children
