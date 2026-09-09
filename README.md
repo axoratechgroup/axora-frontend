@@ -1,5 +1,13 @@
 # AXORA — Frontend
 
+> **🚀 Entorno y Despliegue:**  
+> - **Aplicación Web (Vercel):** Single Page Application optimizada con *Code Splitting*  
+> - **API Backend (Railway):** [`https://axora-backend-production-4e8d.up.railway.app`](https://axora-backend-production-4e8d.up.railway.app)  
+> - **Documentación Swagger:** [`https://axora-backend-production-4e8d.up.railway.app/docs`](https://axora-backend-production-4e8d.up.railway.app/docs)  
+> - **Suite de Pruebas:** 184 tests Vitest pasando (100% OK) — Cobertura integral en 36 suites  
+> - **Estándares:** React 19, TypeScript estricto, 0 errores ESLint, A11y WCAG y Clean Architecture  
+
+
 Aplicación web moderna (SPA) para **AXORA**, la billetera digital multi-moneda diseñada para viajeros, mochileros y nómadas digitales. Permite gestionar saldos en múltiples divisas (USD, EUR, ARS, COP, MXN, BRL), transferir fondos al instante entre usuarios, realizar intercambios de divisas en tiempo real, visualizar cotizaciones interactivas y operar mediante un asistente virtual con inteligencia artificial (**Google Gemini**).
 
 Construido con **React 19**, **TypeScript**, **Vite** y **React Router DOM v7**, siguiendo principios de **Clean Architecture**, separación estricta de responsabilidades, componentes accesibles y consumo seguro de la API REST (`axora-backend`).
