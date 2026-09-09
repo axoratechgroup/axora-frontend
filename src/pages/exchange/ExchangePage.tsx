@@ -18,6 +18,7 @@ import { CurrencySelect } from "../../components/common/CurrencySelect.tsx";
 import { AmountInput } from "../../components/common/AmountInput.tsx";
 import { OperationConfirmModal } from "../../components/common/OperationConfirmModal.tsx";
 import { OperationReceipt } from "../../components/common/OperationReceipt.tsx";
+import { notifyWalletUpdate } from "../../utils/syncEvents.ts";
 import "./ExchangePage.css";
 
 interface ExchangeReceiptData {
@@ -138,6 +139,7 @@ export default function ExchangePage() {
     setError("");
     try {
       const transaction = await exchangeApi(fromCurrency, toCurrency, numericAmount);
+      notifyWalletUpdate();
       await reloadWallet();
       setIsConfirmOpen(false);
       setReceipt({
@@ -243,20 +245,20 @@ export default function ExchangePage() {
             />
           </div>
 
-          {fromCurrency !== toCurrency && (
-            <div className="exchange-rate-banner" aria-live="polite">
-              <span className="exchange-rate-label">Tasa de cambio:</span>
-              <span className="exchange-rate-value">
-                {effectiveQuoteLoading ? (
-                  "Consultando cotización en vivo…"
-                ) : effectiveQuoteRate !== null ? (
-                  `1 ${fromCurrency} = ${formatExchangeRate(effectiveQuoteRate)} ${toCurrency}`
-                ) : (
-                  "Cotización no disponible"
-                )}
-              </span>
-            </div>
-          )}
+          <div className="exchange-rate-banner" aria-live="polite">
+            <span className="exchange-rate-label">Tasa de cambio:</span>
+            <span className="exchange-rate-value">
+              {fromCurrency === toCurrency ? (
+                "Selecciona dos monedas distintas"
+              ) : effectiveQuoteLoading ? (
+                "Consultando cotización en vivo…"
+              ) : effectiveQuoteRate !== null ? (
+                `1 ${fromCurrency} = ${formatExchangeRate(effectiveQuoteRate)} ${toCurrency}`
+              ) : (
+                "Cotización no disponible"
+              )}
+            </span>
+          </div>
 
           <div className="form-field">
             <label className="form-label" htmlFor="amount">

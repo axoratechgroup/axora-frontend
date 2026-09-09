@@ -9,6 +9,7 @@ import { CurrencySelect } from "../../components/common/CurrencySelect.tsx";
 import { AmountInput } from "../../components/common/AmountInput.tsx";
 import { OperationConfirmModal } from "../../components/common/OperationConfirmModal.tsx";
 import { OperationReceipt } from "../../components/common/OperationReceipt.tsx";
+import { notifyWalletUpdate } from "../../utils/syncEvents.ts";
 import "./TransferPage.css";
 
 interface TransferReceiptData {
@@ -69,6 +70,7 @@ export default function TransferPage() {
         numericAmount,
         normalizedMemo || undefined,
       );
+      notifyWalletUpdate();
       setIsConfirmOpen(false);
       setReceipt({
         transactionId: transaction?.id,

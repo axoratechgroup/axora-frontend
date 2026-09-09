@@ -24,8 +24,9 @@ import {
   type AdminTransaction,
   type UserRole,
 } from '../../api/admin.api.ts'
-import { formatAmount, formatTransactionType, formatTransactionStatus } from '../../utils/formatters.ts'
+import { formatAmount, formatTransactionType } from '../../utils/formatters.ts'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
+import { StatusBadge } from '../../components/common/StatusBadge.tsx'
 import { useAuth } from '../../hooks/useAuth.ts'
 import { getStoredUser } from '../../utils/user.ts'
 import './AdminPage.css'
@@ -426,9 +427,7 @@ export default function AdminPage() {
                           : '—'}
                       </td>
                       <td>
-                        <span className={`tx-status-badge status-${tx.status.toLowerCase()}`}>
-                          {formatTransactionStatus(tx.status)}
-                        </span>
+                        <StatusBadge status={tx.status} />
                       </td>
                     </tr>
                   ))}

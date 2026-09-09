@@ -3,6 +3,7 @@ import type { KeyboardEvent } from 'react'
 import { Send, X, MessageCircle } from 'lucide-react'
 import { sendChatMessageApi, confirmChatActionApi } from '../../api/chat.api.ts'
 import type { ChatMessage, ChatHistoryEntry } from '../../types/chat.ts'
+import { notifyWalletUpdate } from '../../utils/syncEvents.ts'
 import './ChatWidget.css'
 
 interface ChatWidgetProps {
@@ -96,6 +97,7 @@ export function ChatWidget({ onActionConfirmed }: ChatWidgetProps) {
         prev.map((m) => (m.id === messageId ? { ...m, actionStatus: 'confirmed' } : m)),
       )
       setMessages((prev) => [...prev, { id: nextId(), role: 'assistant', text: data.reply }])
+      notifyWalletUpdate()
       onActionConfirmed?.()
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'No se pudo confirmar la operación.')

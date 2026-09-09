@@ -152,6 +152,13 @@
   color: #4ade80;
 }
 
+.historial-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
 .historial-date {
   color: var(--muted);
   font-size: 0.75rem;
