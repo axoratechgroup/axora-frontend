@@ -1,7 +1,7 @@
 # AXORA — Frontend
 
 > **🚀 Entorno y Despliegue:**  
-> - **Aplicación Web (Vercel):** Single Page Application optimizada con *Code Splitting*  
+> - **Aplicación Web (Vercel):** [`https://axora-frontend-five.vercel.app`](https://axora-frontend-five.vercel.app) (SPA optimizada con *Code Splitting*)  
 > - **API Backend (Railway):** [`https://axora-backend-production-4e8d.up.railway.app`](https://axora-backend-production-4e8d.up.railway.app)  
 > - **Documentación Swagger:** [`https://axora-backend-production-4e8d.up.railway.app/docs`](https://axora-backend-production-4e8d.up.railway.app/docs)  
 > - **Suite de Pruebas:** 184 tests Vitest pasando (100% OK) — Cobertura integral en 36 suites  
