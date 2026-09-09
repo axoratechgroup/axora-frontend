@@ -521,6 +521,7 @@ h3 { font-size: 1.2rem; margin: 16px 0 8px; }
 
 .simulator-input-group input {
   flex: 1;
+  min-width: 0;
   background: var(--canvas-3);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -602,6 +603,7 @@ h3 { font-size: 1.2rem; margin: 16px 0 8px; }
 .simulator-section {
   display: grid;
   gap: 32px;
+  grid-template-columns: minmax(0, 1fr);
   padding: 72px 24px;
 }
 .simulator-copy > p:not(.section-label) {
@@ -862,7 +864,7 @@ h3 { font-size: 1.2rem; margin: 16px 0 8px; }
   .hero-section { align-items: center; grid-template-columns: 1.15fr .85fr; padding: 72px 48px; }
   .services-section, .countries-section, .simulator-section { padding: 88px 48px; }
   .services-grid { grid-template-columns: repeat(3, 1fr); }
-  .simulator-section { align-items: center; grid-template-columns: 1fr 1fr; }
+  .simulator-section { align-items: center; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .register-section { margin-left: 32px; margin-right: 32px; padding-left: 48px; padding-right: 48px; }
   .site-footer { padding-left: 48px; padding-right: 48px; }
 }
