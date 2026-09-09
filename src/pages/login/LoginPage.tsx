@@ -6,6 +6,7 @@ import { loginApi } from '../../api/auth.api.ts'
 import { PasswordInput } from '../../components/common/PasswordInput.tsx'
 import { BrandLogo } from '../../components/common/BrandLogo.tsx'
 import { useAuth } from '../../hooks/useAuth.ts'
+import { getHomeRoute } from '../../utils/user.ts'
 import './LoginPage.css'
 
 export default function LoginPage() {
@@ -37,8 +38,12 @@ export default function LoginPage() {
       setAuthenticated(true)
       toast.success('¡Bienvenido de nuevo!')
 
+      const defaultDestination = getHomeRoute(data.user?.role)
       const from = (location.state as { from?: { pathname?: string } | string } | null)?.from
-      const destination = typeof from === 'string' ? from : from?.pathname || '/dashboard'
+      let destination = typeof from === 'string' ? from : from?.pathname || defaultDestination
+      if (data.user?.role === 'admin' && destination === '/dashboard') {
+        destination = '/admin'
+      }
       navigate(destination, { replace: true })
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error inesperado. Intenta de nuevo.'

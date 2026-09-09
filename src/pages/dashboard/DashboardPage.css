@@ -640,6 +640,32 @@
   color-scheme: var(--color-scheme, dark);
 }
 
+.activity-clear-filters-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(232, 130, 30, 0.12);
+  border: 1px solid rgba(232, 130, 30, 0.35);
+  border-radius: 10px;
+  color: var(--color-primary, #E8821E);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0 14px;
+  min-height: 42px;
+  height: 42px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.activity-clear-filters-btn:hover {
+  background: rgba(232, 130, 30, 0.22);
+  border-color: var(--color-primary, #E8821E);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
 .activity-table-header {
   display: grid;
   grid-template-columns: 2.2fr 1.3fr 1.3fr 1.2fr;
@@ -1073,6 +1099,11 @@
     height: 42px;
     box-sizing: border-box;
     justify-content: space-between;
+  }
+
+  .activity-clear-filters-btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .activity-row {

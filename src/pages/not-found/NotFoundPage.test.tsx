@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '../../context/AuthContext.tsx'
 import NotFoundPage from './NotFoundPage.tsx'
 
@@ -19,6 +19,7 @@ function renderNotFound(initialEntry = '/404') {
 
 describe('NotFoundPage', () => {
   beforeEach(() => {
+    vi.unstubAllGlobals()
     localStorage.clear()
   })
 
@@ -44,5 +45,35 @@ describe('NotFoundPage', () => {
     expect(screen.getByRole('heading', { name: '404' })).toBeInTheDocument()
     expect(screen.getByText('Ups… este gatito no encontró la página.')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Volver al inicio' })).toBeInTheDocument()
+  })
+
+  it('muestra enlace "Volver al dashboard" apuntando a "/dashboard" para usuario estándar autenticado', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response(JSON.stringify({}), { status: 200 })),
+    )
+    localStorage.setItem('token', 'fake-token')
+    localStorage.setItem('user', JSON.stringify({ username: 'user1', role: 'user' }))
+
+    renderNotFound()
+
+    const link = await screen.findByRole('link', { name: 'Volver al dashboard' })
+    expect(link).toBeInTheDocument()
+    expect(link).toHaveAttribute('href', '/dashboard')
+  })
+
+  it('muestra enlace "Volver al panel" apuntando a "/admin" para administrador autenticado', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response(JSON.stringify({}), { status: 200 })),
+    )
+    localStorage.setItem('token', 'fake-admin-token')
+    localStorage.setItem('user', JSON.stringify({ username: 'admin1', role: 'admin' }))
+
+    renderNotFound()
+
+    const link = await screen.findByRole('link', { name: 'Volver al panel' })
+    expect(link).toBeInTheDocument()
+    expect(link).toHaveAttribute('href', '/admin')
   })
 })

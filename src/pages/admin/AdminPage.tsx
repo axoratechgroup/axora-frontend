@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import {
   Users,
   ArrowLeftRight,
@@ -11,6 +12,9 @@ import {
   ShieldAlert,
   Send,
   PlusCircle,
+  LogOut,
+  Settings,
+  X,
 } from 'lucide-react'
 import {
   getAdminUsersApi,
@@ -21,22 +25,28 @@ import {
   type UserRole,
 } from '../../api/admin.api.ts'
 import { formatAmount, formatTransactionType, formatTransactionStatus } from '../../utils/formatters.ts'
+import { BrandLogo } from '../../components/common/BrandLogo.tsx'
+import { useAuth } from '../../hooks/useAuth.ts'
+import { getStoredUser } from '../../utils/user.ts'
 import './AdminPage.css'
 
 export default function AdminPage() {
   const navigate = useNavigate()
+  const { setAuthenticated } = useAuth()
 
   // Control de rol
-  const currentUser = useMemo(() => {
-    try {
-      const raw = localStorage.getItem('user')
-      return raw ? JSON.parse(raw) : null
-    } catch {
-      return null
-    }
-  }, [])
+  const currentUser = useMemo(() => getStoredUser(), [])
 
   const isAdmin = currentUser?.role === 'admin'
+
+  const handleLogout = () => {
+    if (!window.confirm('¿Seguro que quieres cerrar sesión?')) return
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setAuthenticated(false)
+    toast.info('Sesión cerrada correctamente.')
+    navigate('/login')
+  }
 
   const [activeTab, setActiveTab] = useState<'users' | 'transactions'>('users')
   const [users, setUsers] = useState<AdminUser[]>([])
@@ -178,6 +188,7 @@ export default function AdminPage() {
         <header className="admin-header">
           <div className="admin-header-title">
             <div className="admin-title-row">
+              <BrandLogo size="sm" to="/admin" />
               <h1>Panel de Administración</h1>
               <span className="admin-badge">
                 <ShieldCheck size={14} /> Admin
@@ -188,11 +199,14 @@ export default function AdminPage() {
             </p>
           </div>
           <div className="admin-header-actions">
-            <button className="admin-btn admin-btn-secondary" onClick={loadData} disabled={loading}>
+            <button className="admin-btn admin-btn-secondary" onClick={loadData} disabled={loading} title="Actualizar datos">
               <RefreshCw size={15} className={loading ? 'spin' : ''} /> Actualizar
             </button>
-            <button className="admin-btn admin-btn-primary" onClick={() => navigate('/dashboard')}>
-              <ArrowLeft size={15} /> Dashboard
+            <button className="admin-btn admin-btn-secondary" onClick={() => navigate('/configuracion')} title="Configuración de la cuenta">
+              <Settings size={15} /> Configuración
+            </button>
+            <button className="admin-btn admin-btn-danger" onClick={handleLogout} title="Cerrar sesión">
+              <LogOut size={15} /> Cerrar Sesión
             </button>
           </div>
         </header>
@@ -272,6 +286,17 @@ export default function AdminPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {searchTerm && (
+              <button
+                type="button"
+                className="admin-search-clear"
+                onClick={() => setSearchTerm('')}
+                title="Limpiar búsqueda"
+                aria-label="Limpiar búsqueda"
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
         </div>
 

@@ -50,4 +50,49 @@ describe('OperationConfirmModal', () => {
     await user.click(screen.getByRole('button', { name: 'Volver' }))
     expect(handleClose).toHaveBeenCalledTimes(1)
   })
+
+  it('solicita confirmación al hacer clic fuera del modal y cierra si se acepta', async () => {
+    const user = userEvent.setup()
+    const handleClose = vi.fn()
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+    render(
+      <OperationConfirmModal
+        isOpen={true}
+        title="Confirmar operación"
+        items={[]}
+        onConfirm={vi.fn()}
+        onClose={handleClose}
+      />
+    )
+
+    // Click on presentation backdrop
+    const backdrop = screen.getByRole('presentation')
+    await user.click(backdrop)
+
+    expect(window.confirm).toHaveBeenCalledWith('¿Deseas cancelar la operación y cerrar?')
+    expect(handleClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('no cierra el modal al hacer clic fuera si se cancela la confirmación', async () => {
+    const user = userEvent.setup()
+    const handleClose = vi.fn()
+    vi.spyOn(window, 'confirm').mockReturnValue(false)
+
+    render(
+      <OperationConfirmModal
+        isOpen={true}
+        title="Confirmar operación"
+        items={[]}
+        onConfirm={vi.fn()}
+        onClose={handleClose}
+      />
+    )
+
+    const backdrop = screen.getByRole('presentation')
+    await user.click(backdrop)
+
+    expect(window.confirm).toHaveBeenCalledWith('¿Deseas cancelar la operación y cerrar?')
+    expect(handleClose).not.toHaveBeenCalled()
+  })
 })

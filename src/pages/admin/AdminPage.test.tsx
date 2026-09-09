@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { AuthProvider } from '../../context/AuthContext.tsx'
 import AdminPage from './AdminPage.tsx'
 
 const mockGetAdminUsersApi = vi.fn()
@@ -16,12 +17,16 @@ vi.mock('../../api/admin.api.ts', () => ({
 
 function renderAdminPage() {
   return render(
-    <MemoryRouter initialEntries={['/admin']}>
-      <Routes>
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/dashboard" element={<p>Dashboard Mock</p>} />
-      </Routes>
-    </MemoryRouter>,
+    <AuthProvider>
+      <MemoryRouter initialEntries={['/admin']}>
+        <Routes>
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/dashboard" element={<p>Dashboard Mock</p>} />
+          <Route path="/login" element={<p>Login Mock</p>} />
+          <Route path="/configuracion" element={<p>Configuracion Mock</p>} />
+        </Routes>
+      </MemoryRouter>
+    </AuthProvider>,
   )
 }
 
@@ -177,6 +182,57 @@ describe('AdminPage', () => {
     })
   })
 
+  it('permite limpiar el buscador con el botón X y restaurar la lista', async () => {
+    const user = userEvent.setup()
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 'admin1', username: 'adminaxora', role: 'admin' }),
+    )
+
+    mockGetAdminUsersApi.mockResolvedValueOnce([
+      {
+        id: 'u1',
+        first_name: 'Camila',
+        last_name: 'Gómez',
+        username: 'camilag',
+        email: 'camila@axora.test',
+        role: 'user',
+        created_at: '2026-09-04T12:00:00Z',
+      },
+      {
+        id: 'u2',
+        first_name: 'Mateo',
+        last_name: 'Silva',
+        username: 'mateos',
+        email: 'mateo@axora.test',
+        role: 'user',
+        created_at: '2026-09-04T14:00:00Z',
+      },
+    ])
+    mockGetAdminTransactionsApi.mockResolvedValueOnce([])
+
+    renderAdminPage()
+
+    expect(await screen.findByText('@camilag')).toBeInTheDocument()
+
+    const searchInput = screen.getByPlaceholderText('Buscar por usuario o email…')
+    await user.type(searchInput, 'mateo')
+
+    expect(screen.queryByText('@camilag')).not.toBeInTheDocument()
+
+    // Botón de limpiar búsqueda
+    const clearBtn = screen.getByRole('button', { name: /Limpiar búsqueda/i })
+    expect(clearBtn).toBeInTheDocument()
+
+    await user.click(clearBtn)
+
+    expect(searchInput).toHaveValue('')
+    await waitFor(() => {
+      expect(screen.getByText('@camilag')).toBeInTheDocument()
+      expect(screen.getByText('@mateos')).toBeInTheDocument()
+    })
+  })
+
   it('permite promover a un usuario a administrador desde el selector de rol', async () => {
     const user = userEvent.setup()
     localStorage.setItem(
@@ -265,5 +321,44 @@ describe('AdminPage', () => {
 
     expect(window.confirm).toHaveBeenCalled()
     expect(mockUpdateUserRoleApi).not.toHaveBeenCalled()
+  })
+
+  it('permite cerrar sesión desde el encabezado administrativo', async () => {
+    const user = userEvent.setup()
+    localStorage.setItem('token', 'fake-admin-token')
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 'admin1', username: 'adminaxora', role: 'admin' }),
+    )
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    mockGetAdminUsersApi.mockResolvedValueOnce([])
+    mockGetAdminTransactionsApi.mockResolvedValueOnce([])
+
+    renderAdminPage()
+
+    const logoutBtn = await screen.findByRole('button', { name: /Cerrar Sesión/i })
+    await user.click(logoutBtn)
+
+    expect(window.confirm).toHaveBeenCalledWith('¿Seguro que quieres cerrar sesión?')
+    expect(localStorage.getItem('token')).toBeNull()
+    expect(localStorage.getItem('user')).toBeNull()
+    expect(await screen.findByText('Login Mock')).toBeInTheDocument()
+  })
+
+  it('permite navegar a configuración desde el encabezado administrativo', async () => {
+    const user = userEvent.setup()
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 'admin1', username: 'adminaxora', role: 'admin' }),
+    )
+    mockGetAdminUsersApi.mockResolvedValueOnce([])
+    mockGetAdminTransactionsApi.mockResolvedValueOnce([])
+
+    renderAdminPage()
+
+    const configBtn = await screen.findByRole('button', { name: /Configuración/i })
+    await user.click(configBtn)
+
+    expect(await screen.findByText('Configuracion Mock')).toBeInTheDocument()
   })
 })

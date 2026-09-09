@@ -5,12 +5,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../api/auth.api.ts", () => ({
   forgotPasswordApi: vi.fn(),
+  checkEmailApi: vi.fn(),
 }));
 
-import { forgotPasswordApi } from "../../api/auth.api.ts";
+import { checkEmailApi, forgotPasswordApi } from "../../api/auth.api.ts";
 import ForgotPasswordPage from "./ForgotPasswordPage.tsx";
 
 const forgotPasswordApiMock = vi.mocked(forgotPasswordApi);
+const checkEmailApiMock = vi.mocked(checkEmailApi);
 
 function renderForgotPassword() {
   return render(
@@ -56,7 +58,7 @@ describe("ForgotPasswordPage", () => {
 
     expect(forgotPasswordApiMock).toHaveBeenCalledWith("usuario@axora.test");
     expect(
-      await screen.findByText(/recibirás un enlace para restablecer tu contraseña/i),
+      await screen.findByText(/enlace para restablecer tu contraseña/i),
     ).toBeInTheDocument();
   });
 
@@ -72,5 +74,39 @@ describe("ForgotPasswordPage", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Servicio de correo temporalmente no disponible",
     );
+  });
+
+  it("verifica en base de datos y muestra confirmación si el usuario existe", async () => {
+    const user = userEvent.setup();
+    checkEmailApiMock.mockResolvedValueOnce({
+      exists: true,
+      first_name: "Camila",
+      message: "Correo encontrado",
+    });
+
+    renderForgotPassword();
+
+    await user.type(screen.getByLabelText(/Correo/i), "camila@axora.test");
+    await user.click(screen.getByRole("button", { name: /Verificar si está en BD/i }));
+
+    expect(checkEmailApiMock).toHaveBeenCalledWith("camila@axora.test");
+    expect(await screen.findByText(/Correo registrado en Axora/i)).toBeInTheDocument();
+  });
+
+  it("muestra error si el correo no existe al verificar en BD", async () => {
+    const user = userEvent.setup();
+    checkEmailApiMock.mockRejectedValueOnce(
+      new Error("El correo electrónico no se encuentra registrado en nuestro sistema."),
+    );
+
+    renderForgotPassword();
+
+    await user.type(screen.getByLabelText(/Correo/i), "inexistente@axora.test");
+    await user.click(screen.getByRole("button", { name: /Verificar si está en BD/i }));
+
+    expect(checkEmailApiMock).toHaveBeenCalledWith("inexistente@axora.test");
+    expect(
+      await screen.findByText("El correo electrónico no se encuentra registrado en nuestro sistema."),
+    ).toBeInTheDocument();
   });
 });
