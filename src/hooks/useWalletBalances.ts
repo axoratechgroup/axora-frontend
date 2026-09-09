@@ -1,15 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { getWalletApi } from '../api/wallet.api.ts'
 import type { WalletResponse } from '../types/wallet.ts'
-
-const FALLBACK_RATES_TO_USD: Record<string, number> = {
-  USD: 1,
-  EUR: 1.08,
-  ARS: 0.00075,
-  COP: 0.00025,
-  MXN: 0.051,
-  BRL: 0.17,
-}
+import { FALLBACK_RATES_TO_USD } from '../utils/currency.ts'
 
 export function useWalletBalances() {
   const [wallet, setWallet] = useState<WalletResponse | null>(null)
