@@ -1,0 +1,338 @@
+/* ─── TopUp page shell (mismo patrón que Login/Registro) ─────────────── */
+.topup-page {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 24px 16px 48px;
+  position: relative;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.topup-page::before {
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 0%,
+    rgba(232, 130, 30, 0.14) 0%,
+    transparent 65%
+  );
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* ─── Card Header & Back Button ──────────────────────────────────────── */
+.op-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.op-back-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.op-back-btn:hover {
+  background: rgba(232, 130, 30, 0.08);
+  border-color: var(--border-glow);
+  color: var(--ink);
+}
+
+/* ─── Card ───────────────────────────────────────────────────────────── */
+.topup-card {
+  background: var(--canvas-2);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 32px 28px;
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  box-shadow:
+    0 0 0 1px rgba(232, 130, 30, 0.06),
+    0 32px 80px rgba(0, 0, 0, 0.55);
+}
+
+.topup-title {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.topup-subtitle {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0 0 28px;
+}
+
+/* ─── Form layout (clases compartidas con Login/Registro) ─────────────── */
+.topup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.form-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.form-input {
+  background: var(--canvas-3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  height: 50px;
+  outline: none;
+  padding: 0 16px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  width: 100%;
+}
+
+.form-input::placeholder {
+  color: var(--muted);
+}
+
+.form-input:focus {
+  border-color: rgba(255, 122, 48, 0.5);
+  box-shadow: 0 0 0 3px rgba(255, 122, 48, 0.12);
+}
+
+.form-input.has-error {
+  border-color: rgba(255, 80, 50, 0.6);
+  box-shadow: 0 0 0 3px rgba(255, 80, 50, 0.1);
+}
+
+.form-field-error {
+  color: var(--color-error-text, #f87171);
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 4px;
+  display: block;
+}
+
+.topup-currency-row {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.topup-currency-row .form-input {
+  flex: 1;
+}
+
+/* ─── Error banner (igual a Login) ────────────────────────────────────── */
+.topup-error {
+  align-items: flex-start;
+  background: rgba(255, 60, 30, 0.07);
+  border: 1px solid rgba(255, 80, 50, 0.45);
+  border-radius: 10px;
+  color: #ff7055;
+  display: flex;
+  font-size: 0.85rem;
+  font-weight: 600;
+  gap: 8px;
+  line-height: 1.4;
+  padding: 12px 14px;
+}
+
+/* ─── Success banner ─────────────────────────────────────────────────── */
+.topup-success {
+  background: rgba(70, 200, 120, 0.08);
+  border: 1px solid rgba(70, 200, 120, 0.4);
+  border-radius: 10px;
+  color: #4ade80;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 14px;
+}
+
+/* ─── Submit button (igual a Login) ──────────────────────────────────── */
+.topup-submit {
+  align-items: center;
+  background: linear-gradient(135deg, #ff9a3c 0%, #ff5500 100%);
+  border: none;
+  border-radius: 999px;
+  box-shadow:
+    0 0 22px rgba(255, 122, 48, 0.35),
+    0 4px 16px rgba(0, 0, 0, 0.4);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 800;
+  height: 52px;
+  justify-content: center;
+  width: 100%;
+}
+
+.topup-submit:hover:not(:disabled) {
+  box-shadow:
+    0 0 36px rgba(255, 122, 48, 0.5),
+    0 8px 24px rgba(0, 0, 0, 0.45);
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.topup-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.topup-submit:disabled {
+  cursor: not-allowed;
+  filter: saturate(0.4) brightness(0.6);
+}
+
+/* ─── Cancel button (ghost, secundario) ──────────────────────────────── */
+.topup-cancel {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  height: 44px;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.topup-cancel:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.25);
+  color: var(--ink);
+}
+
+.topup-cancel:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.topup-error-icon {
+  flex-shrink: 0;
+  font-style: normal;
+}
+
+.topup-currency-row select {
+  min-width: 0;
+}
+
+/* ─── Summary breakdown box ─────────────────────────────────────────── */
+.topup-summary-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--muted, #a1a1aa);
+}
+
+.summary-free {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.summary-highlight {
+  color: #fff;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-usd-approx {
+  color: #22c55e;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Reference Rate Banner ─────────────────────────────────────────── */
+.topup-rate-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(232, 130, 30, 0.08);
+  border: 1px solid var(--border-glow, rgba(232, 130, 30, 0.25));
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  margin: 2px 0 6px;
+}
+
+.topup-rate-label {
+  color: var(--muted, #a1a1aa);
+  font-weight: 500;
+}
+
+.topup-rate-value {
+  color: var(--accent, #ff9a3c);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Light Mode High Contrast Overrides ────────────────────────────── */
+[data-theme="light"] .topup-error {
+  background: rgba(185, 28, 28, 0.08);
+  border-color: rgba(185, 28, 28, 0.35);
+  color: #991b1b;
+}
+
+[data-theme="light"] .topup-success {
+  background: rgba(22, 163, 74, 0.1);
+  border-color: rgba(22, 163, 74, 0.35);
+  color: #15803d;
+}
+
+[data-theme="light"] .summary-usd-approx {
+  color: #15803d;
+}
+
+[data-theme="light"] .topup-rate-value {
+  color: #a35308;
+}
+
+[data-theme="light"] .form-field-error {
+  color: #991b1b !important;
+}
+
+

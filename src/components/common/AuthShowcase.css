@@ -1,0 +1,213 @@
+/* ─── AXORA Auth Showcase Component (Left Column) ─────────────────────── */
+
+.auth-showcase {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 40px;
+  position: relative;
+  z-index: 2;
+  border-radius: 28px;
+  background: radial-gradient(circle at 20% 20%, rgba(232, 130, 30, 0.12) 0%, transparent 60%),
+              linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+  height: 100%;
+}
+
+[data-theme="light"] .auth-showcase {
+  background: radial-gradient(circle at 20% 20%, rgba(232, 130, 30, 0.08) 0%, transparent 60%),
+              linear-gradient(145deg, rgba(255, 255, 255, 0.6) 0%, rgba(239, 233, 225, 0.8) 100%);
+  border-color: rgba(110, 101, 91, 0.18);
+  box-shadow: 0 16px 40px rgba(110, 101, 91, 0.1);
+}
+
+.auth-showcase__brand {
+  margin-bottom: 28px;
+}
+
+.auth-showcase__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-primary, #E8821E);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.auth-showcase__title {
+  font-family: var(--display, 'Plus Jakarta Sans', sans-serif);
+  font-size: clamp(1.8rem, 3vw, 2.3rem);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 0 0 16px;
+}
+
+.auth-showcase__subtitle {
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 32px;
+  max-width: 480px;
+}
+
+.auth-showcase__features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-showcase__feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.auth-showcase__feature-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(232, 130, 30, 0.12);
+  border: 1px solid rgba(232, 130, 30, 0.3);
+  color: var(--color-primary, #E8821E);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+[data-theme="light"] .auth-showcase__feature-icon {
+  background: rgba(232, 130, 30, 0.15);
+  color: #C26A10;
+  border-color: rgba(194, 106, 16, 0.3);
+}
+
+.auth-showcase__feature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.auth-showcase__feature-text strong {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.auth-showcase__feature-text span {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* Mockup */
+.auth-showcase__mockup {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--canvas-2);
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+}
+
+[data-theme="light"] .auth-showcase__mockup {
+  background: #ffffff;
+  border-color: rgba(110, 101, 91, 0.16);
+  box-shadow: 0 8px 24px rgba(110, 101, 91, 0.08);
+}
+
+.auth-showcase__mockup-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: var(--canvas-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.auth-showcase__mockup-header .mockup-title {
+  margin-left: 8px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.auth-showcase__mockup-body {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-showcase__mockup-currency-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.auth-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  background: var(--canvas-3);
+  color: var(--ink-dim);
+}
+
+.auth-pill.active {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+.auth-showcase__mockup-rate {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.auth-showcase__mockup-rate strong {
+  font-size: 0.82rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────── */
+@media (max-width: 959px) {
+  .auth-showcase {
+    padding: 24px 20px;
+    border-radius: 18px;
+  }
+
+  .auth-showcase__title {
+    font-size: 1.5rem;
+  }
+
+  .auth-showcase__subtitle {
+    margin-bottom: 20px;
+    font-size: 0.88rem;
+  }
+
+  .auth-showcase__features {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .auth-showcase__mockup {
+    display: none;
+  }
+}

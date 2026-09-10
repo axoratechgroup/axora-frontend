@@ -1,0 +1,139 @@
+import { useNavigate } from 'react-router-dom'
+import { ArrowLeft, User, Shield, Moon, Sun, CheckCircle } from 'lucide-react'
+import { toast } from 'react-toastify'
+import { useTheme } from '../../hooks/useTheme.ts'
+import { getStoredUser, getHomeRoute } from '../../utils/user.ts'
+import './ConfiguracionPage.css'
+
+export default function ConfiguracionPage() {
+  const navigate = useNavigate()
+  const { theme, toggleTheme } = useTheme()
+
+  const handleToggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark'
+    toggleTheme()
+    toast.info(`Modo ${nextTheme === 'light' ? 'claro' : 'oscuro'} activado`, {
+      autoClose: 1800,
+      theme: nextTheme,
+    })
+  }
+
+
+  const user = getStoredUser() ?? {}
+
+  return (
+    <div className="config-page">
+      <div className="config-container">
+        <header className="config-header">
+          <button
+            type="button"
+            className="btn-back"
+            onClick={() => navigate(getHomeRoute(user.role))}
+            aria-label="Volver al panel principal"
+          >
+            <ArrowLeft size={18} aria-hidden="true" />
+            <span>Volver al panel</span>
+          </button>
+          <h1 className="config-title">Configuración de la cuenta</h1>
+        </header>
+
+        <section className="config-card">
+          <div className="profile-header">
+            <div className="profile-avatar" aria-hidden="true">
+              <User size={32} />
+            </div>
+            <div className="profile-info">
+              <h2 className="profile-name">
+                {user.first_name || 'Usuario'} {user.last_name || ''}
+              </h2>
+              {user.username && <span className="profile-username">@{user.username}</span>}
+            </div>
+          </div>
+
+          <div className="profile-details-grid">
+            <div className="detail-item">
+              <span className="detail-label">Correo electrónico</span>
+              <span className="detail-value">{user.email || 'No especificado'}</span>
+            </div>
+
+            <div className="detail-item">
+              <span className="detail-label">Nombre de usuario</span>
+              <span className="detail-value">@{user.username || 'usuario'}</span>
+            </div>
+
+            <div className="detail-item">
+              <span className="detail-label">Tipo de cuenta</span>
+              <span className="detail-value detail-badge">
+                <Shield size={14} aria-hidden="true" />
+                {user.role === 'admin' ? 'Administrador' : 'Usuario estándar'}
+              </span>
+            </div>
+
+            <div className="detail-item">
+              <span className="detail-label">Estado de la cuenta</span>
+              <span className="detail-value detail-status">
+                <CheckCircle size={14} aria-hidden="true" />
+                Activa y verificada
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section className="config-card">
+          <h2 className="section-title">Preferencias y apariencia</h2>
+          <div className="preference-row">
+            <div className="preference-info">
+              <span className="preference-label">Tema de la interfaz</span>
+              <span className="preference-desc">
+                Alterna entre modo oscuro y claro según tu comodidad visual.
+              </span>
+            </div>
+            <button
+              type="button"
+              className="btn-toggle-theme"
+              onClick={handleToggleTheme}
+              aria-label="Alternar tema visual"
+            >
+
+              {theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
+              <span>Modo {theme === 'dark' ? 'oscuro' : 'claro'}</span>
+            </button>
+          </div>
+
+          <div className="preference-row">
+            <div className="preference-info">
+              <span className="preference-label">Moneda base del total consolidado</span>
+              <span className="preference-desc">
+                Moneda estándar utilizada para consolidar el patrimonio total.
+              </span>
+            </div>
+            <span className="base-currency-pill">USD ($)</span>
+          </div>
+        </section>
+
+        {user.role === 'admin' && (
+          <section className="config-card">
+            <h2 className="section-title">Herramientas de Administración</h2>
+            <div className="preference-row">
+              <div className="preference-info">
+                <span className="preference-label">Panel de Administración Global</span>
+                <span className="preference-desc">
+                  Supervisión de usuarios registrados, auditoría de transacciones y conciliación del sistema.
+                </span>
+              </div>
+              <button
+                type="button"
+                className="btn-toggle-theme"
+                onClick={() => navigate('/admin')}
+                style={{ backgroundColor: '#ff7a30', color: '#ffffff', borderColor: '#ff7a30' }}
+              >
+                <Shield size={16} />
+                <span>Abrir panel admin</span>
+              </button>
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+  )
+}

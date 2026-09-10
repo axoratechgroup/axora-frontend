@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/favicon-32.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
+    <meta name="description" content="AXORA — Tu cuenta global multi-moneda con cálculo y liquidación de gastos compartidos cross-currency para viajeros y nómadas digitales." />
+    <meta name="theme-color" content="#1C1917" />
+    <title>AXORA — Tu cuenta global multi-moneda</title>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AXORA" />
+    <meta property="og:title" content="AXORA — Tu cuenta global multi-moneda" />
+    <meta property="og:description" content="Gestiona, transfiere y cambia entre monedas desde una sola cuenta. Tu dinero, sin fronteras." />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="AXORA — Tu cuenta global multi-moneda" />
+    <meta name="twitter:description" content="Gestiona, transfiere y cambia entre monedas desde una sola cuenta. Tu dinero, sin fronteras." />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('theme');
+          document.documentElement.setAttribute('data-theme', saved === 'light' ? 'light' : 'dark');
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

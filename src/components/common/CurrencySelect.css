@@ -1,0 +1,11 @@
+.currency-select-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.currency-select-input {
+  flex: 1;
+  min-width: 0;
+}

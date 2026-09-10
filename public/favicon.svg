@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" width="100%" height="100%">
+  <!-- Norte -->
+  <polygon points="15,2 15,15 2,15 9,9" fill="#E8821E"/>
+  <!-- Este -->
+  <polygon points="17,2 23,9 30,15 17,15" fill="#F6C68B"/>
+  <!-- Sur -->
+  <polygon points="30,17 23,23 17,30 17,17" fill="#C26A10"/>
+  <!-- Oeste -->
+  <polygon points="15,17 15,30 9,23 2,17" fill="#1C1917"/>
+</svg>
