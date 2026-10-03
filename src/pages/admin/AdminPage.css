@@ -866,3 +866,16 @@
 [data-theme="light"] .admin-empty-desc {
   color: #4b5563;
 }
+
+/* Botón de eliminar usuario (tabla de usuarios) */
+.admin-delete-btn {
+  min-height: 32px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.admin-delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

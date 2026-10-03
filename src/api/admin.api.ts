@@ -66,3 +66,14 @@ export async function updateUserRoleApi(userId: string, role: UserRole): Promise
 
   return data as AdminUser
 }
+
+export async function deleteUserApi(userId: string): Promise<void> {
+  const response = await fetchWithAuth(`${API_URL}/admin/users/${userId}`, {
+    method: 'DELETE',
+  })
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    throw new Error((data as { error?: string }).error || 'No se pudo eliminar el usuario.')
+  }
+}
