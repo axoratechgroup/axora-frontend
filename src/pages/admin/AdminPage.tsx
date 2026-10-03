@@ -17,11 +17,13 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Trash2,
 } from 'lucide-react'
 import {
   getAdminUsersApi,
   getAdminTransactionsApi,
   updateUserRoleApi,
+  deleteUserApi,
   type AdminUser,
   type AdminTransaction,
   type UserRole,
@@ -57,6 +59,7 @@ export default function AdminPage() {
 
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
   const [pendingRoleChange, setPendingRoleChange] = useState<{ user: AdminUser; nextRole: UserRole } | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<AdminUser | null>(null)
 
   const handleConfirmLogout = () => {
     setIsLogoutModalOpen(false)
@@ -75,6 +78,8 @@ export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null)
   const [roleError, setRoleError] = useState<string | null>(null)
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   // Paginación y filtros secundarios
   const [usersPage, setUsersPage] = useState(1)
@@ -154,6 +159,37 @@ export default function AdminPage() {
       setRoleError(err instanceof Error ? err.message : 'No se pudo actualizar el rol del usuario.')
     } finally {
       setUpdatingUserId(null)
+    }
+  }
+
+  const handleDeleteRequest = (user: AdminUser) => {
+    setDeleteError(null)
+    setPendingDelete(user)
+  }
+
+  // El backend borra también los movimientos del usuario: se refresca el historial en silencio.
+  const refreshTransactions = async () => {
+    try {
+      setTransactions(await getAdminTransactionsApi())
+    } catch {
+      // Si falla el refresco se conserva la lista actual.
+    }
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!pendingDelete) return
+    const user = pendingDelete
+    setDeletingUserId(user.id)
+    try {
+      await deleteUserApi(user.id)
+      setUsers((prev) => prev.filter((u) => u.id !== user.id))
+      toast.success(`Usuario @${user.username} eliminado.`)
+      void refreshTransactions()
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'No se pudo eliminar el usuario.')
+    } finally {
+      setDeletingUserId(null)
+      setPendingDelete(null)
     }
   }
 
@@ -440,6 +476,13 @@ export default function AdminPage() {
           </div>
         )}
 
+        {deleteError && (
+          <div className="admin-error-box">
+            <p>{deleteError}</p>
+            <button onClick={() => setDeleteError(null)}>Cerrar</button>
+          </div>
+        )}
+
         {/* Contenido según pestaña */}
         {loading ? (
           <div className="admin-loading-box">
@@ -485,6 +528,7 @@ export default function AdminPage() {
                         <th>ID de Cuenta</th>
                         <th>Fecha de Registro</th>
                         <th>Rol</th>
+                        <th>Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -515,6 +559,19 @@ export default function AdminPage() {
                                 <option value="user">Usuario</option>
                                 <option value="admin">Administrador</option>
                               </select>
+                            </td>
+                            <td>
+                              <button
+                                type="button"
+                                className="admin-btn admin-btn-danger admin-delete-btn"
+                                aria-label={`Eliminar a ${u.email}`}
+                                disabled={isSelf || isUpdating || deletingUserId === u.id}
+                                title={isSelf ? 'No puedes eliminar tu propia cuenta' : undefined}
+                                onClick={() => handleDeleteRequest(u)}
+                              >
+                                <Trash2 size={14} aria-hidden="true" />
+                                Eliminar
+                              </button>
                             </td>
                           </tr>
                         )
@@ -727,6 +784,23 @@ export default function AdminPage() {
         variant={pendingRoleChange?.nextRole === 'admin' ? 'warning' : 'danger'}
         onConfirm={handleConfirmRoleChange}
         onCancel={() => setPendingRoleChange(null)}
+      />
+
+      <ConfirmDialog
+        isOpen={Boolean(pendingDelete)}
+        title="Eliminar usuario"
+        message={
+          pendingDelete
+            ? `¿Seguro que quieres eliminar a @${pendingDelete.username} (${pendingDelete.email})? Se borrarán también su billetera y todos sus movimientos, incluidos los que recibió de otros usuarios. Esta acción no se puede deshacer.`
+            : ''
+        }
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        variant="danger"
+        iconType="warning"
+        loading={deletingUserId !== null}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setPendingDelete(null)}
       />
     </div>
   )

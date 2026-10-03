@@ -8,11 +8,13 @@ import AdminPage from './AdminPage.tsx'
 const mockGetAdminUsersApi = vi.fn()
 const mockGetAdminTransactionsApi = vi.fn()
 const mockUpdateUserRoleApi = vi.fn()
+const mockDeleteUserApi = vi.fn()
 
 vi.mock('../../api/admin.api.ts', () => ({
   getAdminUsersApi: () => mockGetAdminUsersApi(),
   getAdminTransactionsApi: () => mockGetAdminTransactionsApi(),
   updateUserRoleApi: (userId: string, role: string) => mockUpdateUserRoleApi(userId, role),
+  deleteUserApi: (userId: string) => mockDeleteUserApi(userId),
 }))
 
 function renderAdminPage() {
@@ -322,6 +324,105 @@ describe('AdminPage', () => {
     expect(screen.getByText('¿Seguro que quieres promover a administrador a @mateos?')).toBeInTheDocument()
     await user.click(screen.getByTestId('confirm-dialog-cancel'))
     expect(mockUpdateUserRoleApi).not.toHaveBeenCalled()
+  })
+
+  describe('eliminar usuarios', () => {
+    const adminUser = {
+      id: 'admin1',
+      first_name: 'Admin',
+      last_name: 'Axora',
+      username: 'adminaxora',
+      email: 'admin@axora.test',
+      role: 'admin',
+      created_at: '2026-09-04T12:00:00Z',
+    }
+    const regularUser = {
+      id: 'u2',
+      first_name: 'Mateo',
+      last_name: 'Silva',
+      username: 'mateos',
+      email: 'mateo@axora.test',
+      role: 'user',
+      created_at: '2026-09-04T14:00:00Z',
+    }
+
+    beforeEach(() => {
+      localStorage.setItem(
+        'user',
+        JSON.stringify({ id: 'admin1', username: 'adminaxora', role: 'admin' }),
+      )
+    })
+
+    it('deshabilita el botón de eliminar en la fila del propio administrador', async () => {
+      mockGetAdminUsersApi.mockResolvedValueOnce([adminUser, regularUser])
+      mockGetAdminTransactionsApi.mockResolvedValueOnce([])
+
+      renderAdminPage()
+
+      await screen.findByText('@mateos')
+
+      expect(screen.getByRole('button', { name: 'Eliminar a admin@axora.test' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'Eliminar a mateo@axora.test' })).not.toBeDisabled()
+    })
+
+    it('elimina un usuario tras confirmar, lo quita de la lista y refresca las transacciones', async () => {
+      const user = userEvent.setup()
+      mockGetAdminUsersApi.mockResolvedValueOnce([adminUser, regularUser])
+      mockGetAdminTransactionsApi.mockResolvedValueOnce([])
+      mockGetAdminTransactionsApi.mockResolvedValueOnce([])
+      mockDeleteUserApi.mockResolvedValueOnce(undefined)
+
+      renderAdminPage()
+
+      await screen.findByText('@mateos')
+      await user.click(screen.getByRole('button', { name: 'Eliminar a mateo@axora.test' }))
+
+      expect(screen.getByText(/@mateos \(mateo@axora\.test\)/)).toBeInTheDocument()
+      expect(screen.getByText(/Se borrarán también su billetera y todos sus movimientos/)).toBeInTheDocument()
+
+      await user.click(screen.getByTestId('confirm-dialog-confirm'))
+
+      await waitFor(() => {
+        expect(mockDeleteUserApi).toHaveBeenCalledWith('u2')
+      })
+      await waitFor(() => {
+        expect(screen.queryByText('@mateos')).not.toBeInTheDocument()
+      })
+      await waitFor(() => {
+        expect(mockGetAdminTransactionsApi).toHaveBeenCalledTimes(2)
+      })
+    })
+
+    it('no llama a la API si se cancela la confirmación de eliminar', async () => {
+      const user = userEvent.setup()
+      mockGetAdminUsersApi.mockResolvedValueOnce([adminUser, regularUser])
+      mockGetAdminTransactionsApi.mockResolvedValueOnce([])
+
+      renderAdminPage()
+
+      await screen.findByText('@mateos')
+      await user.click(screen.getByRole('button', { name: 'Eliminar a mateo@axora.test' }))
+      await user.click(screen.getByTestId('confirm-dialog-cancel'))
+
+      expect(mockDeleteUserApi).not.toHaveBeenCalled()
+      expect(screen.getByText('@mateos')).toBeInTheDocument()
+    })
+
+    it('muestra el error del servidor y conserva al usuario si la eliminación falla', async () => {
+      const user = userEvent.setup()
+      mockGetAdminUsersApi.mockResolvedValueOnce([adminUser, regularUser])
+      mockGetAdminTransactionsApi.mockResolvedValueOnce([])
+      mockDeleteUserApi.mockRejectedValueOnce(new Error('Debe existir al menos un administrador.'))
+
+      renderAdminPage()
+
+      await screen.findByText('@mateos')
+      await user.click(screen.getByRole('button', { name: 'Eliminar a mateo@axora.test' }))
+      await user.click(screen.getByTestId('confirm-dialog-confirm'))
+
+      expect(await screen.findByText('Debe existir al menos un administrador.')).toBeInTheDocument()
+      expect(screen.getByText('@mateos')).toBeInTheDocument()
+    })
   })
 
   it('permite cerrar sesión desde el encabezado administrativo tras confirmar', async () => {
