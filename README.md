@@ -2,9 +2,10 @@
 
 > **🚀 Entorno y Despliegue:**  
 > - **Aplicación Web (Vercel):** [`https://axora-frontend-five.vercel.app`](https://axora-frontend-five.vercel.app) (SPA optimizada con *Code Splitting*)  
-> - **API Backend (Railway):** [`https://axora-backend-production-4e8d.up.railway.app`](https://axora-backend-production-4e8d.up.railway.app)  
-> - **Documentación Swagger:** [`https://axora-backend-production-4e8d.up.railway.app/docs`](https://axora-backend-production-4e8d.up.railway.app/docs)  
-> - **Suite de Pruebas:** 184 tests Vitest pasando (100% OK) — Cobertura integral en 36 suites  
+> - **API Backend (Render):** [`https://axora-backend-jxje.onrender.com`](https://axora-backend-jxje.onrender.com)  
+> - **Documentación Swagger:** [`https://axora-backend-jxje.onrender.com/docs`](https://axora-backend-jxje.onrender.com/docs)  
+> - **Historial de cambios:** [`CHANGELOG.md`](CHANGELOG.md)  
+> - **Suite de Pruebas:** 188 tests Vitest pasando (100% OK) — Cobertura integral en 36 suites  
 > - **Estándares:** React 19, TypeScript estricto, 0 errores ESLint, A11y WCAG y Clean Architecture  
 
 
@@ -234,11 +235,11 @@ Configura el archivo `.env` en la raíz del proyecto:
 
 | Variable | Obligatoria | Descripción | Ejemplo |
 | :--- | :---: | :--- | :--- |
-| `VITE_API_URL` | **Sí** | URL base del servidor backend de AXORA | `http://localhost:3000` *(local)* o `https://axora-backend-production-4e8d.up.railway.app` |
+| `VITE_API_URL` | **Sí** | URL base del servidor backend de AXORA | `http://localhost:3000` *(local)* o `https://axora-backend-jxje.onrender.com` |
 
 ### Función de email transaccional
 
-Vercel publica `api/send-email.ts` como `POST /api/send-email`. La función es un transporte privado entre Railway y AWS SES: valida el secreto compartido y envía el correo con el SDK de SES. El navegador nunca la invoca directamente.
+Vercel publica `api/send-email.ts` como `POST /api/send-email`. La función es un transporte privado entre el backend (Render) y AWS SES: valida el secreto compartido y envía el correo con el SDK de SES. El navegador nunca la invoca directamente.
 
 Configura estas variables solo en el panel de Vercel. No deben llevar prefijo `VITE_` ni subirse a Git:
 
@@ -248,7 +249,7 @@ Configura estas variables solo en el panel de Vercel. No deben llevar prefijo `V
 | `AWS_ACCESS_KEY_ID` | Credencial AWS con permiso limitado de envío SES. |
 | `AWS_SECRET_ACCESS_KEY` | Secreto de la credencial AWS. |
 | `SES_FROM_EMAIL` | Remitente previamente verificado en SES. |
-| `EMAIL_API_SECRET` | Secreto que Railway incluye en el header `x-email-api-secret`. |
+| `EMAIL_API_SECRET` | Secreto que el backend incluye en el header `x-email-api-secret`. |
 
 El logo usado por los correos se sirve como recurso estático desde `public/axora-email-logo.png`, disponible en producción como `${FRONTEND_URL}/axora-email-logo.png`.
 
@@ -280,7 +281,7 @@ npm test
 
 ## 🧪 Estrategia de Pruebas
 
-Toda la aplicación está cubierta por pruebas unitarias y de integración con **Vitest** y **React Testing Library** (**36 suites de pruebas, 184 pruebas en total — 100% pasando**):
+Toda la aplicación está cubierta por pruebas unitarias y de integración con **Vitest** y **React Testing Library** (**36 suites de pruebas, 188 pruebas en total — 100% pasando**):
 
 - **Páginas y Flujos de Usuario (13 suites)**:
   - `DashboardPage.test.tsx`: Resumen de saldos, modo privacidad y redirección por rol.
